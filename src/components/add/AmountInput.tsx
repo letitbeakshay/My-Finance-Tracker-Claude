@@ -21,8 +21,8 @@ export function AmountInput({ value, onChange }: AmountInputProps) {
   }
 
   return (
-    <div className="flex items-center justify-center py-10">
-      <span className="text-accent text-[44px] font-bold mr-1 self-start mt-2">₹</span>
+    <div className="flex items-center justify-center py-10 leading-none">
+      <span className="text-accent text-[44px] font-bold leading-none mr-1 self-start mt-2">₹</span>
       <input
         ref={ref}
         value={value}
@@ -30,7 +30,7 @@ export function AmountInput({ value, onChange }: AmountInputProps) {
         inputMode="decimal"
         placeholder="0"
         autoComplete="off"
-        className="bg-transparent text-white text-[64px] font-bold tracking-tight w-full max-w-[280px] text-left tabular-nums placeholder:text-tertiary"
+        className="bg-transparent text-white text-[64px] font-bold leading-none tracking-tight w-full max-w-[280px] text-left tabular-nums placeholder:text-tertiary"
       />
     </div>
   )

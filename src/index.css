@@ -1,24 +1,24 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-sans: ui-rounded, "SF Pro Rounded", "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif;
 
-  --color-bg: #0b0b0b;
-  --color-surface: #151515;
-  --color-card: #1a1a1a;
-  --color-border: #262626;
-  --color-accent: #2ecc71;
-  --color-accent-dim: #1f8a4c;
-  --color-accent-soft: rgba(46, 204, 113, 0.14);
+  --color-bg: #08080a;
+  --color-surface: #17181a;
+  --color-card: #1c1d1f;
+  --color-border: #28292c;
+  --color-accent: #5fb888;
+  --color-accent-dim: #4a9670;
+  --color-accent-soft: rgba(95, 184, 136, 0.16);
   --color-need: #5b9dff;
   --color-need-soft: rgba(91, 157, 255, 0.14);
   --color-want: #ff9f43;
   --color-want-soft: rgba(255, 159, 67, 0.14);
-  --color-savings: #2ecc71;
-  --color-savings-soft: rgba(46, 204, 113, 0.14);
+  --color-savings: #5fb888;
+  --color-savings-soft: rgba(95, 184, 136, 0.16);
   --color-danger: #ff5c5c;
-  --color-secondary: #9a9a9a;
-  --color-tertiary: #616161;
+  --color-secondary: #8e8e93;
+  --color-tertiary: #636366;
 
   --radius-card: 26px;
   --radius-chip: 18px;
@@ -43,7 +43,7 @@ body,
 body {
   margin: 0;
   background: var(--color-bg);
-  color: var(--color-text);
+  color: #fff;
   font-family: var(--font-sans);
   overscroll-behavior-y: none;
   -webkit-font-smoothing: antialiased;

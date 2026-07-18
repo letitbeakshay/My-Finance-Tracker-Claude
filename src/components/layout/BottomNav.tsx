@@ -13,10 +13,10 @@ const HomeIcon = ({ active }: { active: boolean }) => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
     <path
       d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z"
-      stroke={active ? '#2ECC71' : '#616161'}
+      stroke={active ? '#5fb888' : '#616161'}
       strokeWidth="2"
       strokeLinejoin="round"
-      fill={active ? 'rgba(46,204,113,0.12)' : 'none'}
+      fill={active ? 'rgba(95,184,136,0.12)' : 'none'}
     />
   </svg>
 )
@@ -25,7 +25,7 @@ const InsightsIcon = ({ active }: { active: boolean }) => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
     <path
       d="M5 19V11M12 19V5M19 19V14"
-      stroke={active ? '#2ECC71' : '#616161'}
+      stroke={active ? '#5fb888' : '#616161'}
       strokeWidth="2.5"
       strokeLinecap="round"
     />
@@ -55,7 +55,7 @@ export function BottomNav({ active, onChange, onAdd }: BottomNavProps) {
           whileTap={{ scale: 0.9 }}
           onClick={onAdd}
           className="w-16 h-16 rounded-full bg-accent flex items-center justify-center -mt-8"
-          style={{ boxShadow: '0 8px 24px rgba(46,204,113,0.45)' }}
+          style={{ boxShadow: '0 8px 24px rgba(95,184,136,0.45)' }}
         >
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
             <path d="M12 5v14M5 12h14" stroke="#0B0B0B" strokeWidth="2.75" strokeLinecap="round" />

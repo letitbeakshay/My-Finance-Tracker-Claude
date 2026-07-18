@@ -17,7 +17,7 @@ interface TransactionSheetProps {
 const TYPE_COLOR: Record<string, string> = {
   need: '#5b9dff',
   want: '#ff9f43',
-  savings: '#2ecc71',
+  savings: '#5fb888',
 }
 
 export function TransactionSheet({ expense, category, onClose }: TransactionSheetProps) {
@@ -54,7 +54,7 @@ export function TransactionSheet({ expense, category, onClose }: TransactionShee
           {category?.icon ?? '📦'}
         </div>
         <div>
-          <p className="text-white text-[24px] font-bold tabular-nums">
+          <p className="text-white text-[24px] font-bold leading-none tabular-nums">
             {formatCurrency(expense.amount)}
           </p>
           <p className="text-secondary text-[14px]">{category?.name ?? 'Others'}</p>

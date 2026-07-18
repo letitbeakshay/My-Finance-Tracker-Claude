@@ -20,7 +20,7 @@ interface AddExpenseScreenProps {
 const TYPE_OPTIONS: { value: ExpenseType; label: string; color: string }[] = [
   { value: 'need', label: 'Need', color: '#5b9dff' },
   { value: 'want', label: 'Want', color: '#ff9f43' },
-  { value: 'savings', label: 'Savings', color: '#2ecc71' },
+  { value: 'savings', label: 'Savings', color: '#5fb888' },
 ]
 
 export function AddExpenseScreen({ onDone, onCancel, editExpense }: AddExpenseScreenProps) {

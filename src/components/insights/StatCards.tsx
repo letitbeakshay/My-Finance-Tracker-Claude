@@ -13,7 +13,7 @@ export function StatCards({ total, needs, wants, savings }: StatCardsProps) {
     { label: 'Total Spent', amount: total, color: '#fff' },
     { label: 'Needs', amount: needs, color: '#5b9dff' },
     { label: 'Wants', amount: wants, color: '#ff9f43' },
-    { label: 'Savings', amount: savings, color: '#2ecc71' },
+    { label: 'Savings', amount: savings, color: '#5fb888' },
   ]
   return (
     <div className="grid grid-cols-2 gap-3 mb-8">

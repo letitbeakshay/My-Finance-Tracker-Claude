@@ -49,7 +49,7 @@ export function HomeScreen({ onOpenSettings, onAddExpense }: HomeScreenProps) {
   return (
     <div className="px-6 pt-14">
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-[28px] font-bold tracking-tight">{format(today, 'MMMM yyyy')}</h1>
+        <h1 className="text-[28px] font-bold leading-none tracking-tight">{format(today, 'MMMM yyyy')}</h1>
         <button
           type="button"
           onClick={onOpenSettings}
@@ -62,12 +62,12 @@ export function HomeScreen({ onOpenSettings, onAddExpense }: HomeScreenProps) {
 
       <div className="mb-7">
         <p className="text-secondary text-[15px] mb-1">Today's Spending</p>
-        <AnimatedNumber value={todayTotal} className="text-white text-[44px] font-bold tracking-tight tabular-nums" />
+        <AnimatedNumber value={todayTotal} className="text-white text-[44px] font-bold leading-none tracking-tight tabular-nums" />
       </div>
 
       <div className="mb-8">
         <p className="text-secondary text-[15px] mb-1">This Month</p>
-        <AnimatedNumber value={monthTotal} className="text-white text-[30px] font-bold tracking-tight tabular-nums" />
+        <AnimatedNumber value={monthTotal} className="text-white text-[30px] font-bold leading-none tracking-tight tabular-nums" />
       </div>
 
       <div className="flex gap-3 mb-9">
@@ -92,8 +92,8 @@ export function HomeScreen({ onOpenSettings, onAddExpense }: HomeScreenProps) {
           icon="💰"
           amount={breakdown.savings}
           percentage={breakdown.savingsPct}
-          color="#2ecc71"
-          softColor="rgba(46,204,113,0.14)"
+          color="#5fb888"
+          softColor="rgba(95,184,136,0.14)"
         />
       </div>
 

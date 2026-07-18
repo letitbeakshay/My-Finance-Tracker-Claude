@@ -21,7 +21,7 @@ function relativeDate(dateStr: string) {
 const TYPE_DOT: Record<string, string> = {
   need: '#5b9dff',
   want: '#ff9f43',
-  savings: '#2ecc71',
+  savings: '#5fb888',
 }
 
 export function TransactionItem({ expense, category, onClick }: TransactionItemProps) {

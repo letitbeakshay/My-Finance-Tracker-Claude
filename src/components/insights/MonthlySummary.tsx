@@ -10,7 +10,7 @@ export function MonthlySummary({ needsPct, wantsPct, savingsPct }: MonthlySummar
   const items = [
     { label: 'Needs', pct: needsPct, color: '#5b9dff' },
     { label: 'Wants', pct: wantsPct, color: '#ff9f43' },
-    { label: 'Savings', pct: savingsPct, color: '#2ecc71' },
+    { label: 'Savings', pct: savingsPct, color: '#5fb888' },
   ]
   return (
     <Card className="mb-8">
