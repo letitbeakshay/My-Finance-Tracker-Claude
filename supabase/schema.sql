@@ -1,5 +1,7 @@
 -- Finance Tracker — Supabase schema
--- Run this once in the Supabase SQL Editor (Project → SQL Editor → New query).
+-- Safe to re-run any time: every statement is idempotent, so this file is
+-- both the fresh-install script and the migration script for an existing
+-- database (new tables/columns get added, existing ones are left alone).
 --
 -- Single-user, no-auth setup: RLS is enabled with permissive "allow all"
 -- policies scoped to the anon key, matching the app's passcode-gate-only
@@ -11,7 +13,39 @@ create table if not exists categories (
   icon text not null,
   color text,
   archived boolean not null default false,
+  sort_order integer not null default 0,
   wallet_id text,
+  created_at timestamptz not null default now()
+);
+
+-- Safety net for a database that already has `categories` from before
+-- sort_order existed.
+alter table categories add column if not exists sort_order integer not null default 0;
+
+-- Backfill sort_order for any existing rows that are all still at the
+-- default 0 (i.e. never explicitly ordered yet), using creation order.
+do $$
+begin
+  if not exists (select 1 from categories where sort_order <> 0) then
+    with ordered as (
+      select id, row_number() over (order by created_at) - 1 as rn
+      from categories
+    )
+    update categories set sort_order = ordered.rn
+    from ordered
+    where categories.id = ordered.id;
+  end if;
+end $$;
+
+create table if not exists payment_accounts (
+  id text primary key,
+  label text not null,
+  type text not null check (type in ('bank_account', 'credit_card')),
+  bank_name text,
+  last4 text,
+  icon text not null default '🏦',
+  archived boolean not null default false,
+  sort_order integer not null default 0,
   created_at timestamptz not null default now()
 );
 
@@ -23,6 +57,7 @@ create table if not exists expenses (
   payment_method text not null check (
     payment_method in ('upi', 'credit_card', 'debit_card', 'cash', 'bank_transfer', 'wallet')
   ),
+  account_id text references payment_accounts(id),
   notes text,
   date date not null,
   created_at timestamptz not null default now(),
@@ -34,6 +69,10 @@ create table if not exists expenses (
   attachment_id text
 );
 
+-- Safety net for a database that already has `expenses` from before
+-- account_id existed.
+alter table expenses add column if not exists account_id text references payment_accounts(id);
+
 create table if not exists app_settings (
   id text primary key default 'app',
   currency text not null default '₹',
@@ -42,13 +81,18 @@ create table if not exists app_settings (
 
 create index if not exists expenses_date_idx on expenses (date);
 create index if not exists expenses_category_id_idx on expenses (category_id);
+create index if not exists expenses_account_id_idx on expenses (account_id);
 
 alter table categories enable row level security;
+alter table payment_accounts enable row level security;
 alter table expenses enable row level security;
 alter table app_settings enable row level security;
 
 drop policy if exists "categories_allow_all" on categories;
 create policy "categories_allow_all" on categories for all using (true) with check (true);
+
+drop policy if exists "payment_accounts_allow_all" on payment_accounts;
+create policy "payment_accounts_allow_all" on payment_accounts for all using (true) with check (true);
 
 drop policy if exists "expenses_allow_all" on expenses;
 create policy "expenses_allow_all" on expenses for all using (true) with check (true);
@@ -66,6 +110,13 @@ begin
     where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'categories'
   ) then
     alter publication supabase_realtime add table categories;
+  end if;
+
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'payment_accounts'
+  ) then
+    alter publication supabase_realtime add table payment_accounts;
   end if;
 
   if not exists (

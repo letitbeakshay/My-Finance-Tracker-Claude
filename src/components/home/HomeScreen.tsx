@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { format } from 'date-fns'
-import { useExpenses, useCategories } from '../../hooks/useLiveData'
+import { useExpenses, useCategories, useAllPaymentAccounts } from '../../hooks/useLiveData'
 import {
   filterByMonth,
   thisWeekSpending,
@@ -24,6 +24,7 @@ interface HomeScreenProps {
 export function HomeScreen({ onOpenSettings, onAddExpense }: HomeScreenProps) {
   const expenses = useExpenses()
   const categories = useCategories()
+  const accounts = useAllPaymentAccounts()
   const [selected, setSelected] = useState<Expense | null>(null)
   const today = useMemo(() => new Date(), [])
 
@@ -31,6 +32,11 @@ export function HomeScreen({ onOpenSettings, onAddExpense }: HomeScreenProps) {
     const map = new Map((categories ?? []).map((c) => [c.id, c]))
     return map
   }, [categories])
+
+  const accountMap = useMemo(() => {
+    const map = new Map((accounts ?? []).map((a) => [a.id, a]))
+    return map
+  }, [accounts])
 
   const monthExpenses = useMemo(
     () => filterByMonth(expenses ?? [], today),
@@ -92,8 +98,8 @@ export function HomeScreen({ onOpenSettings, onAddExpense }: HomeScreenProps) {
           icon="💰"
           amount={breakdown.savings}
           percentage={breakdown.savingsPct}
-          color="#5fb888"
-          softColor="rgba(95,184,136,0.14)"
+          color="#24d968"
+          softColor="rgba(36,217,104,0.14)"
         />
       </div>
 
@@ -112,6 +118,7 @@ export function HomeScreen({ onOpenSettings, onAddExpense }: HomeScreenProps) {
                 key={e.id}
                 expense={e}
                 category={categoryMap.get(e.categoryId)}
+                account={e.accountId ? accountMap.get(e.accountId) : undefined}
                 onClick={() => setSelected(e)}
               />
             ))}
@@ -122,6 +129,7 @@ export function HomeScreen({ onOpenSettings, onAddExpense }: HomeScreenProps) {
       <TransactionSheet
         expense={selected}
         category={selected ? categoryMap.get(selected.categoryId) : undefined}
+        account={selected?.accountId ? accountMap.get(selected.accountId) : undefined}
         onClose={() => setSelected(null)}
       />
     </div>

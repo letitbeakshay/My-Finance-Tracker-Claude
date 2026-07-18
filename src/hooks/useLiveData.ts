@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
-import type { AppSettings, Category, Expense } from '../types'
+import type { AppSettings, Category, Expense, PaymentAccount } from '../types'
 import {
   rowToCategory,
   rowToExpense,
+  rowToPaymentAccount,
   type AppSettingsRow,
   type CategoryRow,
   type ExpenseRow,
+  type PaymentAccountRow,
 } from '../db/schema'
 
 /**
@@ -67,13 +69,29 @@ export function useExpenses() {
 
 export function useCategories() {
   return useSupabaseTable<CategoryRow, Category>('categories', rowToCategory, (q) =>
-    q.select('*').eq('archived', false).order('created_at', { ascending: true }),
+    q.select('*').eq('archived', false).order('sort_order', { ascending: true }),
   )
 }
 
 export function useAllCategories() {
   return useSupabaseTable<CategoryRow, Category>('categories', rowToCategory, (q) =>
-    q.select('*').order('created_at', { ascending: true }),
+    q.select('*').order('sort_order', { ascending: true }),
+  )
+}
+
+export function usePaymentAccounts() {
+  return useSupabaseTable<PaymentAccountRow, PaymentAccount>(
+    'payment_accounts',
+    rowToPaymentAccount,
+    (q) => q.select('*').eq('archived', false).order('sort_order', { ascending: true }),
+  )
+}
+
+export function useAllPaymentAccounts() {
+  return useSupabaseTable<PaymentAccountRow, PaymentAccount>(
+    'payment_accounts',
+    rowToPaymentAccount,
+    (q) => q.select('*').order('sort_order', { ascending: true }),
   )
 }
 

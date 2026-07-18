@@ -60,8 +60,8 @@ export function NewCategorySheet({ open, onClose, onCreated, initial }: NewCateg
             onClick={() => setIcon(e)}
             className="aspect-square rounded-xl flex items-center justify-center text-xl border"
             style={{
-              borderColor: icon === e ? '#5fb888' : '#262626',
-              background: icon === e ? 'rgba(95,184,136,0.14)' : '#1A1A1A',
+              borderColor: icon === e ? '#24d968' : '#262626',
+              background: icon === e ? 'rgba(36,217,104,0.14)' : '#1A1A1A',
             }}
           >
             {e}

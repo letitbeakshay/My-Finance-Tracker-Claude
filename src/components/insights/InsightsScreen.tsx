@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { parseISO } from 'date-fns'
-import { useCategories, useExpenses } from '../../hooks/useLiveData'
+import { useAllPaymentAccounts, useCategories, useExpenses } from '../../hooks/useLiveData'
 import {
   categoryBreakdown,
   filterByMonth,
@@ -32,6 +32,7 @@ interface InsightsScreenProps {
 export function InsightsScreen({ onOpenSettings }: InsightsScreenProps) {
   const expenses = useExpenses()
   const categories = useCategories()
+  const accounts = useAllPaymentAccounts()
   const [month, setMonth] = useState(new Date())
   const [search, setSearch] = useState('')
   const [filters, setFilters] = useState<Filters>({ categoryId: null, type: null, paymentMethod: null })
@@ -39,6 +40,7 @@ export function InsightsScreen({ onOpenSettings }: InsightsScreenProps) {
   const [selected, setSelected] = useState<Expense | null>(null)
 
   const categoryMap = useMemo(() => new Map((categories ?? []).map((c) => [c.id, c])), [categories])
+  const accountMap = useMemo(() => new Map((accounts ?? []).map((a) => [a.id, a])), [accounts])
 
   const monthExpenses = useMemo(() => filterByMonth(expenses ?? [], month), [expenses, month])
 
@@ -123,6 +125,7 @@ export function InsightsScreen({ onOpenSettings }: InsightsScreenProps) {
                       key={e.id}
                       expense={e}
                       category={categoryMap.get(e.categoryId)}
+                      account={e.accountId ? accountMap.get(e.accountId) : undefined}
                       onClick={() => setSelected(e)}
                     />
                   ))}
@@ -157,6 +160,7 @@ export function InsightsScreen({ onOpenSettings }: InsightsScreenProps) {
       <TransactionSheet
         expense={selected}
         category={selected ? categoryMap.get(selected.categoryId) : undefined}
+        account={selected?.accountId ? accountMap.get(selected.accountId) : undefined}
         onClose={() => setSelected(null)}
       />
     </div>

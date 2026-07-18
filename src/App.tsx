@@ -12,7 +12,7 @@ import { isUnlocked } from './lib/auth'
 type Route = Tab | 'add' | 'settings'
 
 function App() {
-  const [route, setRoute] = useState<Route>('home')
+  const [route, setRoute] = useState<Route>('add')
   const [ready, setReady] = useState(false)
   const [unlocked, setUnlocked] = useState(isUnlocked)
 

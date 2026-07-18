@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import { format, isToday, isYesterday, parseISO } from 'date-fns'
-import type { Category, Expense } from '../../types'
+import type { Category, Expense, PaymentAccount } from '../../types'
 import { formatCurrency } from '../../lib/currency'
 import { PAYMENT_METHOD_ICONS } from '../../lib/paymentIcons'
 import { PAYMENT_METHOD_LABELS } from '../../types'
@@ -8,6 +8,7 @@ import { PAYMENT_METHOD_LABELS } from '../../types'
 interface TransactionItemProps {
   expense: Expense
   category?: Category
+  account?: PaymentAccount
   onClick?: () => void
 }
 
@@ -21,10 +22,10 @@ function relativeDate(dateStr: string) {
 const TYPE_DOT: Record<string, string> = {
   need: '#5b9dff',
   want: '#ff9f43',
-  savings: '#5fb888',
+  savings: '#24d968',
 }
 
-export function TransactionItem({ expense, category, onClick }: TransactionItemProps) {
+export function TransactionItem({ expense, category, account, onClick }: TransactionItemProps) {
   return (
     <motion.button
       type="button"
@@ -44,7 +45,7 @@ export function TransactionItem({ expense, category, onClick }: TransactionItemP
           />
         </div>
         <p className="text-tertiary text-[13px] truncate">
-          {relativeDate(expense.date)} · {PAYMENT_METHOD_LABELS[expense.paymentMethod]}
+          {relativeDate(expense.date)} · {account?.label ?? PAYMENT_METHOD_LABELS[expense.paymentMethod]}
           {expense.notes ? ` · ${expense.notes}` : ''}
         </p>
       </div>

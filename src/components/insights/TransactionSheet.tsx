@@ -4,23 +4,24 @@ import { BottomSheet } from '../ui/BottomSheet'
 import { Button } from '../ui/Button'
 import { AddExpenseScreen } from '../add/AddExpenseScreen'
 import { expenseRepo } from '../../db/repository'
-import type { Category, Expense } from '../../types'
+import type { Category, Expense, PaymentAccount } from '../../types'
 import { EXPENSE_TYPE_LABELS, PAYMENT_METHOD_LABELS } from '../../types'
 import { formatCurrency } from '../../lib/currency'
 
 interface TransactionSheetProps {
   expense: Expense | null
   category?: Category
+  account?: PaymentAccount
   onClose: () => void
 }
 
 const TYPE_COLOR: Record<string, string> = {
   need: '#5b9dff',
   want: '#ff9f43',
-  savings: '#5fb888',
+  savings: '#24d968',
 }
 
-export function TransactionSheet({ expense, category, onClose }: TransactionSheetProps) {
+export function TransactionSheet({ expense, category, account, onClose }: TransactionSheetProps) {
   const [editing, setEditing] = useState(false)
   const [confirmingDelete, setConfirmingDelete] = useState(false)
 
@@ -77,6 +78,14 @@ export function TransactionSheet({ expense, category, onClose }: TransactionShee
           }
         />
         <Row label="Payment Method" value={PAYMENT_METHOD_LABELS[expense.paymentMethod]} />
+        {account && (
+          <Row
+            label={account.type === 'credit_card' ? 'Credit Card' : 'Bank Account'}
+            value={
+              account.last4 ? `${account.label} · •••• ${account.last4}` : account.label
+            }
+          />
+        )}
         <Row label="Date" value={format(parseISO(expense.date), 'd MMMM yyyy')} />
         <Row label="Notes" value={expense.notes || '—'} />
       </div>

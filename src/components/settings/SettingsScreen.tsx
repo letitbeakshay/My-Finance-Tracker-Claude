@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { format } from 'date-fns'
 import { CategoryManager } from './CategoryManager'
+import { PaymentAccountManager } from './PaymentAccountManager'
 import { EmbedCodeCard } from './EmbedCodeCard'
 import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
@@ -56,6 +57,8 @@ export function SettingsScreen({ onBack, onLock }: SettingsScreenProps) {
 
       <CategoryManager />
 
+      <PaymentAccountManager />
+
       <div className="mb-8">
         <h3 className="text-white text-[17px] font-bold mb-3">Data</h3>
         <Card className="flex flex-col gap-3">
@@ -86,7 +89,7 @@ export function SettingsScreen({ onBack, onLock }: SettingsScreenProps) {
         </Button>
       </div>
 
-      <p className="text-tertiary text-[12px] text-center">Finance Tracker · v1.0 · Local-only, offline-first</p>
+      <p className="text-tertiary text-[12px] text-center">Finance Tracker · v1.0 · Synced with Supabase</p>
 
       <BottomSheet open={confirmDelete} onClose={() => setConfirmDelete(false)}>
         <h2 className="text-white text-[20px] font-bold mb-2">Delete all data?</h2>

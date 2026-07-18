@@ -43,7 +43,7 @@ async function seedOnce() {
   if (countError) throw countError
 
   if (!count) {
-    const rows = DEFAULT_CATEGORIES.map((c) => categoryToRow(c))
+    const rows = DEFAULT_CATEGORIES.map((c, i) => categoryToRow({ ...c, sortOrder: i }))
     const { error } = await supabase.from('categories').insert(rows)
     if (error) throw error
   }

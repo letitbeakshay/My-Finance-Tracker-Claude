@@ -15,8 +15,33 @@ export interface Category {
   color?: string
   archived?: boolean
   createdAt: number
+  /** Manual drag-to-reorder position; lower sorts first. */
+  sortOrder?: number
   /** Reserved for future account/wallet scoping. */
   walletId?: string
+}
+
+export type PaymentAccountType = 'bank_account' | 'credit_card'
+
+/** A specific bank account or credit card the user pays from/with —
+ * distinct from PaymentMethod (the general channel: UPI/card/cash/etc). */
+export interface PaymentAccount {
+  id: string
+  label: string
+  type: PaymentAccountType
+  bankName?: string
+  last4?: string
+  icon: string
+  archived?: boolean
+  sortOrder?: number
+  createdAt: number
+}
+
+/** Which PaymentMethod values can have a specific PaymentAccount attached. */
+export const PAYMENT_METHOD_ACCOUNT_TYPE: Partial<Record<PaymentMethod, PaymentAccountType>> = {
+  credit_card: 'credit_card',
+  debit_card: 'bank_account',
+  bank_transfer: 'bank_account',
 }
 
 export interface Expense {
@@ -25,6 +50,8 @@ export interface Expense {
   categoryId: string
   type: ExpenseType
   paymentMethod: PaymentMethod
+  /** Specific bank account / credit card used, when relevant to paymentMethod. */
+  accountId?: string
   notes?: string
   date: string // ISO date (yyyy-MM-dd), the "spent on" date
   createdAt: number
