@@ -7,12 +7,14 @@ import { Button } from '../ui/Button'
 import { BottomSheet } from '../ui/BottomSheet'
 import { dataRepo } from '../../db/repository'
 import { downloadFile } from '../../lib/download'
+import { lock } from '../../lib/auth'
 
 interface SettingsScreenProps {
   onBack: () => void
+  onLock: () => void
 }
 
-export function SettingsScreen({ onBack }: SettingsScreenProps) {
+export function SettingsScreen({ onBack, onLock }: SettingsScreenProps) {
   const [confirmDelete, setConfirmDelete] = useState(false)
 
   async function handleExportCSV() {
@@ -29,6 +31,11 @@ export function SettingsScreen({ onBack }: SettingsScreenProps) {
     await dataRepo.deleteAll()
     setConfirmDelete(false)
     onBack()
+  }
+
+  function handleLock() {
+    lock()
+    onLock()
   }
 
   return (
@@ -66,6 +73,12 @@ export function SettingsScreen({ onBack }: SettingsScreenProps) {
       </div>
 
       <EmbedCodeCard />
+
+      <div className="mb-4">
+        <Button variant="secondary" onClick={handleLock}>
+          Lock App
+        </Button>
+      </div>
 
       <div className="mb-8">
         <Button variant="secondary" onClick={() => setConfirmDelete(true)} className="text-danger!">

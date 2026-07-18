@@ -5,17 +5,24 @@ import { HomeScreen } from './components/home/HomeScreen'
 import { InsightsScreen } from './components/insights/InsightsScreen'
 import { AddExpenseScreen } from './components/add/AddExpenseScreen'
 import { SettingsScreen } from './components/settings/SettingsScreen'
+import { PasscodeGate } from './components/auth/PasscodeGate'
 import { ensureSeeded } from './db/seed'
+import { isUnlocked } from './lib/auth'
 
 type Route = Tab | 'add' | 'settings'
 
 function App() {
   const [route, setRoute] = useState<Route>('home')
   const [ready, setReady] = useState(false)
+  const [unlocked, setUnlocked] = useState(isUnlocked)
 
   useEffect(() => {
     ensureSeeded().then(() => setReady(true))
   }, [])
+
+  if (!unlocked) {
+    return <PasscodeGate onUnlock={() => setUnlocked(true)} />
+  }
 
   if (!ready) return null
 
@@ -72,7 +79,13 @@ function App() {
             transition={{ type: 'spring', stiffness: 380, damping: 34 }}
             className="flex-1 overflow-y-auto fixed inset-0 max-w-[560px] mx-auto bg-bg z-50"
           >
-            <SettingsScreen onBack={() => setRoute('home')} />
+            <SettingsScreen
+              onBack={() => setRoute('home')}
+              onLock={() => {
+                setRoute('home')
+                setUnlocked(false)
+              }}
+            />
           </motion.div>
         )}
       </AnimatePresence>
