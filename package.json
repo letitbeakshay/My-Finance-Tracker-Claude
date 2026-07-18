@@ -11,10 +11,9 @@
   },
   "dependencies": {
     "@fontsource/nunito": "^5.2.7",
+    "@supabase/supabase-js": "^2.110.7",
     "clsx": "^2.1.1",
     "date-fns": "^4.4.0",
-    "dexie": "^4.4.4",
-    "dexie-react-hooks": "^4.4.0",
     "framer-motion": "^12.42.2",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",

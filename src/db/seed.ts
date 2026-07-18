@@ -1,5 +1,6 @@
-import { db } from './db'
+import { supabase } from '../lib/supabaseClient'
 import type { Category } from '../types'
+import { categoryToRow } from './schema'
 
 export const DEFAULT_CATEGORIES: Omit<Category, 'createdAt'>[] = [
   { id: 'food', name: 'Food', icon: '🍔' },
@@ -24,7 +25,7 @@ export const DEFAULT_CATEGORIES: Omit<Category, 'createdAt'>[] = [
 let seedPromise: Promise<void> | null = null
 
 /** Idempotent and concurrency-safe: React StrictMode / fast double-mounts
- * must not race two bulkAdd calls against the same primary keys. */
+ * must not race two inserts against the same primary keys. */
 export function ensureSeeded() {
   if (!seedPromise) {
     seedPromise = seedOnce().catch((err) => {
@@ -36,16 +37,26 @@ export function ensureSeeded() {
 }
 
 async function seedOnce() {
-  const count = await db.categories.count()
-  if (count === 0) {
-    const base = Date.now()
-    await db.categories.bulkAdd(
-      DEFAULT_CATEGORIES.map((c, i) => ({ ...c, createdAt: base + i })),
-    )
+  const { count, error: countError } = await supabase
+    .from('categories')
+    .select('id', { count: 'exact', head: true })
+  if (countError) throw countError
+
+  if (!count) {
+    const rows = DEFAULT_CATEGORIES.map((c) => categoryToRow(c))
+    const { error } = await supabase.from('categories').insert(rows)
+    if (error) throw error
   }
 
-  const settings = await db.settings.get('app')
+  const { data: settings, error: settingsError } = await supabase
+    .from('app_settings')
+    .select('id')
+    .eq('id', 'app')
+    .maybeSingle()
+  if (settingsError) throw settingsError
+
   if (!settings) {
-    await db.settings.put({ id: 'app', currency: '₹' })
+    const { error } = await supabase.from('app_settings').insert({ id: 'app', currency: '₹' })
+    if (error) throw error
   }
 }
