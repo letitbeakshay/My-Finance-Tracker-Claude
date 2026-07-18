@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { format } from 'date-fns'
 import { CategoryManager } from './CategoryManager'
+import { EmbedCodeCard } from './EmbedCodeCard'
 import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
 import { BottomSheet } from '../ui/BottomSheet'
@@ -63,6 +64,8 @@ export function SettingsScreen({ onBack }: SettingsScreenProps) {
           </div>
         </Card>
       </div>
+
+      <EmbedCodeCard />
 
       <div className="mb-8">
         <Button variant="secondary" onClick={() => setConfirmDelete(true)} className="text-danger!">
