@@ -8,6 +8,9 @@ import '@fontsource/nunito/latin-800.css'
 import '@fontsource/nunito/latin-900.css'
 import './index.css'
 import App from './App.tsx'
+import { requestPersistentStorage } from './lib/persistStorage'
+
+requestPersistentStorage()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
