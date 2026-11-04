@@ -68,14 +68,31 @@ export interface Expense {
   attachmentId?: string
 }
 
-/** Placeholder shape for a future income-tracking feature. Not used yet. */
 export interface Income {
   id: string
   amount: number
   source: string
-  date: string
+  /** Bank account the money landed in, if tracked. */
+  accountId?: string
+  date: string // ISO date (yyyy-MM-dd)
   notes?: string
-  walletId?: string
+  createdAt: number
+}
+
+export type LoanKind = 'borrowed' | 'lent'
+
+/** Money borrowed from (`borrowed`) or lent to (`lent`) someone. */
+export interface Loan {
+  id: string
+  name: string
+  kind: LoanKind
+  principal: number
+  /** Amount repaid so far; outstanding = principal - paid. */
+  paid: number
+  emi?: number
+  nextDueDate?: string // ISO date (yyyy-MM-dd)
+  notes?: string
+  closed: boolean
   createdAt: number
 }
 

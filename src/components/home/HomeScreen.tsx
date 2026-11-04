@@ -53,7 +53,7 @@ export function HomeScreen({ onOpenSettings, onAddExpense }: HomeScreenProps) {
   if (!expenses) return null
 
   return (
-    <div className="px-6 pt-14">
+    <div className="px-6 pt-4">
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-[28px] font-bold leading-none tracking-tight">{format(today, 'MMMM yyyy')}</h1>
         <button

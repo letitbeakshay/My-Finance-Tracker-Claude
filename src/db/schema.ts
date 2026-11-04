@@ -2,6 +2,9 @@ import type {
   Category,
   Expense,
   ExpenseType,
+  Income,
+  Loan,
+  LoanKind,
   PaymentAccount,
   PaymentAccountType,
   PaymentMethod,
@@ -145,5 +148,80 @@ export function paymentAccountToRow(
     icon: account.icon,
     archived: account.archived ?? false,
     sort_order: account.sortOrder ?? 0,
+  }
+}
+
+export interface IncomeRow {
+  id: string
+  amount: number
+  source: string
+  account_id: string | null
+  notes: string | null
+  date: string
+  created_at: string
+}
+
+export interface LoanRow {
+  id: string
+  name: string
+  kind: LoanKind
+  principal: number
+  paid: number
+  emi: number | null
+  next_due_date: string | null
+  notes: string | null
+  closed: boolean
+  created_at: string
+}
+
+export function rowToIncome(row: IncomeRow): Income {
+  return {
+    id: row.id,
+    amount: Number(row.amount),
+    source: row.source,
+    accountId: row.account_id ?? undefined,
+    notes: row.notes ?? undefined,
+    date: row.date,
+    createdAt: new Date(row.created_at).getTime(),
+  }
+}
+
+export function incomeToRow(income: Omit<Income, 'createdAt'>): Partial<IncomeRow> {
+  return {
+    id: income.id,
+    amount: income.amount,
+    source: income.source,
+    account_id: income.accountId ?? null,
+    notes: income.notes ?? null,
+    date: income.date,
+  }
+}
+
+export function rowToLoan(row: LoanRow): Loan {
+  return {
+    id: row.id,
+    name: row.name,
+    kind: row.kind,
+    principal: Number(row.principal),
+    paid: Number(row.paid),
+    emi: row.emi == null ? undefined : Number(row.emi),
+    nextDueDate: row.next_due_date ?? undefined,
+    notes: row.notes ?? undefined,
+    closed: row.closed,
+    createdAt: new Date(row.created_at).getTime(),
+  }
+}
+
+export function loanToRow(loan: Omit<Loan, 'createdAt'>): Partial<LoanRow> {
+  return {
+    id: loan.id,
+    name: loan.name,
+    kind: loan.kind,
+    principal: loan.principal,
+    paid: loan.paid,
+    emi: loan.emi ?? null,
+    next_due_date: loan.nextDueDate ?? null,
+    notes: loan.notes ?? null,
+    closed: loan.closed,
   }
 }

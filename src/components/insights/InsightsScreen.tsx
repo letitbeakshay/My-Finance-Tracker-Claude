@@ -78,7 +78,7 @@ export function InsightsScreen({ onOpenSettings }: InsightsScreenProps) {
   if (!expenses) return null
 
   return (
-    <div className="px-6 pt-14">
+    <div className="px-6 pt-4">
       <div className="flex items-center justify-between -mb-2">
         <div className="flex-1">
           <MonthSelector month={month} onChange={setMonth} />

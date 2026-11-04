@@ -1,13 +1,17 @@
 import { useEffect, useRef, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
-import type { AppSettings, Category, Expense, PaymentAccount } from '../types'
+import type { AppSettings, Category, Expense, Income, Loan, PaymentAccount } from '../types'
 import {
   rowToCategory,
   rowToExpense,
+  rowToIncome,
+  rowToLoan,
   rowToPaymentAccount,
   type AppSettingsRow,
   type CategoryRow,
   type ExpenseRow,
+  type IncomeRow,
+  type LoanRow,
   type PaymentAccountRow,
 } from '../db/schema'
 
@@ -64,6 +68,18 @@ function useSupabaseTable<Row, T>(
 export function useExpenses() {
   return useSupabaseTable<ExpenseRow, Expense>('expenses', rowToExpense, (q) =>
     q.select('*').order('date', { ascending: false }),
+  )
+}
+
+export function useIncomes() {
+  return useSupabaseTable<IncomeRow, Income>('incomes', rowToIncome, (q) =>
+    q.select('*').order('date', { ascending: false }),
+  )
+}
+
+export function useLoans() {
+  return useSupabaseTable<LoanRow, Loan>('loans', rowToLoan, (q) =>
+    q.select('*').order('created_at', { ascending: false }),
   )
 }
 

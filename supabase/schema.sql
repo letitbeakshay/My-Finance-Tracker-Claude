@@ -79,6 +79,33 @@ create table if not exists app_settings (
   onboarded_at timestamptz
 );
 
+create table if not exists incomes (
+  id text primary key,
+  amount numeric not null,
+  source text not null,
+  account_id text references payment_accounts(id),
+  notes text,
+  date date not null,
+  created_at timestamptz not null default now()
+);
+
+-- Money borrowed from (kind = 'borrowed') or lent to (kind = 'lent') someone.
+-- Outstanding balance is principal - paid.
+create table if not exists loans (
+  id text primary key,
+  name text not null,
+  kind text not null default 'borrowed' check (kind in ('borrowed', 'lent')),
+  principal numeric not null,
+  paid numeric not null default 0,
+  emi numeric,
+  next_due_date date,
+  notes text,
+  closed boolean not null default false,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists incomes_date_idx on incomes (date);
+
 create index if not exists expenses_date_idx on expenses (date);
 create index if not exists expenses_category_id_idx on expenses (category_id);
 create index if not exists expenses_account_id_idx on expenses (account_id);
@@ -87,6 +114,8 @@ alter table categories enable row level security;
 alter table payment_accounts enable row level security;
 alter table expenses enable row level security;
 alter table app_settings enable row level security;
+alter table incomes enable row level security;
+alter table loans enable row level security;
 
 drop policy if exists "categories_allow_all" on categories;
 create policy "categories_allow_all" on categories for all using (true) with check (true);
@@ -99,6 +128,12 @@ create policy "expenses_allow_all" on expenses for all using (true) with check (
 
 drop policy if exists "app_settings_allow_all" on app_settings;
 create policy "app_settings_allow_all" on app_settings for all using (true) with check (true);
+
+drop policy if exists "incomes_allow_all" on incomes;
+create policy "incomes_allow_all" on incomes for all using (true) with check (true);
+
+drop policy if exists "loans_allow_all" on loans;
+create policy "loans_allow_all" on loans for all using (true) with check (true);
 
 -- Enable realtime so the app reflects changes instantly without polling.
 -- Guarded because newer Supabase projects auto-add every public table to
@@ -131,5 +166,19 @@ begin
     where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'app_settings'
   ) then
     alter publication supabase_realtime add table app_settings;
+  end if;
+
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'incomes'
+  ) then
+    alter publication supabase_realtime add table incomes;
+  end if;
+
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'loans'
+  ) then
+    alter publication supabase_realtime add table loans;
   end if;
 end $$;

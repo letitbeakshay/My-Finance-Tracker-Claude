@@ -92,7 +92,7 @@ export function AddExpenseScreen({ onDone, onCancel, editExpense }: AddExpenseSc
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center justify-between px-6 pt-14 pb-2">
+      <div className="flex items-center justify-between px-6 pt-3 pb-2">
         <button
           type="button"
           onClick={onCancel}

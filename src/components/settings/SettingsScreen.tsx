@@ -40,7 +40,7 @@ export function SettingsScreen({ onBack, onLock }: SettingsScreenProps) {
   }
 
   return (
-    <div className="px-6 pt-14 pb-10 overflow-y-auto h-full">
+    <div className="px-6 pt-3 pb-10 overflow-y-auto h-full">
       <div className="flex items-center gap-3 mb-8">
         <button
           type="button"

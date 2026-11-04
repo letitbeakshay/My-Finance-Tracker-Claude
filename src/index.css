@@ -27,6 +27,8 @@
 
 :root {
   color-scheme: dark;
+  /* Height of the sticky Enter expenses / All data bar; overlays sit below it. */
+  --topbar-h: calc(60px + env(safe-area-inset-top));
 }
 
 * {
@@ -57,6 +59,11 @@ body {
   position: relative;
   display: flex;
   flex-direction: column;
+}
+
+/* All data is a dashboard — give it the full desktop width. */
+html[data-view='data'] #root {
+  max-width: 1280px;
 }
 
 input,

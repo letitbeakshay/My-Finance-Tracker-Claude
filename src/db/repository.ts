@@ -1,14 +1,20 @@
 import { supabase } from '../lib/supabaseClient'
-import type { Category, Expense, PaymentAccount } from '../types'
+import type { Category, Expense, Income, Loan, PaymentAccount } from '../types'
 import {
   categoryToRow,
   expenseToRow,
+  incomeToRow,
+  loanToRow,
   paymentAccountToRow,
   rowToCategory,
   rowToExpense,
+  rowToIncome,
+  rowToLoan,
   rowToPaymentAccount,
   type CategoryRow,
   type ExpenseRow,
+  type IncomeRow,
+  type LoanRow,
   type PaymentAccountRow,
 } from './schema'
 
@@ -173,6 +179,44 @@ export const paymentAccountRepo = {
         supabase.from('payment_accounts').update({ sort_order: index }).eq('id', id),
       ),
     )
+  },
+}
+
+export const incomeRepo = {
+  async add(input: Omit<Income, 'id' | 'createdAt'>) {
+    const row = incomeToRow({ ...input, id: generateId() })
+    const { data, error } = await supabase.from('incomes').insert(row).select().single<IncomeRow>()
+    if (error) throw error
+    return rowToIncome(data)
+  },
+
+  async remove(id: string) {
+    const { error } = await supabase.from('incomes').delete().eq('id', id)
+    if (error) throw error
+  },
+}
+
+export const loanRepo = {
+  async add(input: Omit<Loan, 'id' | 'createdAt' | 'paid' | 'closed'>) {
+    const row = loanToRow({ ...input, id: generateId(), paid: 0, closed: false })
+    const { data, error } = await supabase.from('loans').insert(row).select().single<LoanRow>()
+    if (error) throw error
+    return rowToLoan(data)
+  },
+
+  /** Records a repayment; closes the loan once the principal is fully paid. */
+  async recordPayment(loan: Loan, amount: number) {
+    const paid = Math.min(loan.principal, loan.paid + amount)
+    const { error } = await supabase
+      .from('loans')
+      .update({ paid, closed: paid >= loan.principal })
+      .eq('id', loan.id)
+    if (error) throw error
+  },
+
+  async remove(id: string) {
+    const { error } = await supabase.from('loans').delete().eq('id', id)
+    if (error) throw error
   },
 }
 

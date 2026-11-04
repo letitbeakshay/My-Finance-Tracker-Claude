@@ -6,15 +6,38 @@ import { InsightsScreen } from './components/insights/InsightsScreen'
 import { AddExpenseScreen } from './components/add/AddExpenseScreen'
 import { SettingsScreen } from './components/settings/SettingsScreen'
 import { PasscodeGate } from './components/auth/PasscodeGate'
+import { AllDataScreen } from './components/data/AllDataScreen'
+import { ViewToggle, type View } from './components/layout/ViewToggle'
 import { ensureSeeded } from './db/seed'
 import { isUnlocked } from './lib/auth'
 
 type Route = Tab | 'add' | 'settings'
 
+const VIEW_KEY = 'finance_tracker_view'
+
+function readView(): View {
+  try {
+    return localStorage.getItem(VIEW_KEY) === 'data' ? 'data' : 'enter'
+  } catch {
+    return 'enter'
+  }
+}
+
 function App() {
   const [route, setRoute] = useState<Route>('add')
   const [ready, setReady] = useState(false)
   const [unlocked, setUnlocked] = useState(isUnlocked)
+  const [view, setView] = useState<View>(readView)
+
+  useEffect(() => {
+    // Drives the wider desktop layout for All data (see index.css).
+    document.documentElement.dataset.view = view
+    try {
+      localStorage.setItem(VIEW_KEY, view)
+    } catch {
+      // Remembering the last view is a convenience only.
+    }
+  }, [view])
 
   useEffect(() => {
     ensureSeeded().then(() => setReady(true))
@@ -30,6 +53,12 @@ function App() {
 
   return (
     <div className="flex-1 flex flex-col min-h-0">
+      <ViewToggle value={view} onChange={setView} />
+
+      {view === 'data' && <AllDataScreen />}
+
+      {view === 'enter' && (
+      <>
       <AnimatePresence mode="wait">
         {route === 'home' && (
           <motion.div
@@ -65,7 +94,7 @@ function App() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 24 }}
             transition={{ type: 'spring', stiffness: 380, damping: 34 }}
-            className="flex-1 overflow-y-auto fixed inset-0 max-w-[560px] mx-auto bg-bg z-50"
+            className="flex-1 overflow-y-auto fixed inset-x-0 bottom-0 top-[var(--topbar-h)] max-w-[560px] mx-auto bg-bg z-50"
           >
             <AddExpenseScreen onDone={() => setRoute('home')} onCancel={() => setRoute('home')} />
           </motion.div>
@@ -77,7 +106,7 @@ function App() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 24 }}
             transition={{ type: 'spring', stiffness: 380, damping: 34 }}
-            className="flex-1 overflow-y-auto fixed inset-0 max-w-[560px] mx-auto bg-bg z-50"
+            className="flex-1 overflow-y-auto fixed inset-x-0 bottom-0 top-[var(--topbar-h)] max-w-[560px] mx-auto bg-bg z-50"
           >
             <SettingsScreen
               onBack={() => setRoute('home')}
@@ -92,6 +121,8 @@ function App() {
 
       {route !== 'add' && route !== 'settings' && (
         <BottomNav active={tab} onChange={setRoute} onAdd={() => setRoute('add')} />
+      )}
+      </>
       )}
     </div>
   )
