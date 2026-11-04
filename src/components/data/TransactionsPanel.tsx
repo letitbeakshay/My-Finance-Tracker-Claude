@@ -32,6 +32,9 @@ interface TransactionsPanelProps {
   search: string
   onSearch: (value: string) => void
   onSelect: (key: string) => void
+  /** Hide the All/Expenses/Income chips (when the section already fixes the type). */
+  hideFilters?: boolean
+  title?: string
 }
 
 export function TransactionsPanel({
@@ -41,11 +44,13 @@ export function TransactionsPanel({
   search,
   onSearch,
   onSelect,
+  hideFilters,
+  title = 'Transactions',
 }: TransactionsPanelProps) {
   return (
     <Card padded={false} className="overflow-hidden">
       <div className="p-5 pb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="text-white text-[19px] font-bold">Transactions</h2>
+        <h2 className="text-white text-[19px] font-bold">{title}</h2>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <input
             value={search}
@@ -53,6 +58,7 @@ export function TransactionsPanel({
             placeholder="Search"
             className="h-11 sm:w-48 bg-surface border border-border rounded-chip px-4 text-[15px] text-white placeholder:text-tertiary"
           />
+          {!hideFilters && (
           <div className="flex gap-2">
             {FILTERS.map((f) => (
               <Chip key={f.value} selected={filter === f.value} onClick={() => onFilter(f.value)}>
@@ -60,6 +66,7 @@ export function TransactionsPanel({
               </Chip>
             ))}
           </div>
+          )}
         </div>
       </div>
 

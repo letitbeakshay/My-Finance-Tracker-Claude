@@ -19,6 +19,7 @@ import {
 } from './TransactionsPanel'
 import { LoansPanel } from './LoansPanel'
 import { AccountsPanel, type AccountSummary } from './AccountsPanel'
+import { SectionNav, type Section } from './SectionNav'
 import { AddIncomeSheet } from './AddIncomeSheet'
 import { AddLoanSheet } from './AddLoanSheet'
 import { IncomeSheet, LoanSheet } from './ManageSheets'
@@ -44,6 +45,7 @@ export function AllDataScreen() {
   const loans = SHOW_DEMO ? DEMO_LOANS : liveLoans
 
   const [month, setMonth] = useState(() => new Date())
+  const [section, setSection] = useState<Section>('overview')
   const [filter, setFilter] = useState<TransactionFilter>('all')
   const [search, setSearch] = useState('')
   const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null)
@@ -63,6 +65,9 @@ export function AllDataScreen() {
     () => (incomes ?? []).filter((i) => inMonth(i.date, month)),
     [incomes, month],
   )
+
+  const effectiveFilter: TransactionFilter =
+    section === 'income' ? 'income' : section === 'expenses' ? 'expense' : filter
 
   const rows = useMemo(() => {
     const all: TransactionRow[] = []
@@ -97,10 +102,10 @@ export function AllDataScreen() {
     }
     const q = search.trim().toLowerCase()
     return all
-      .filter((r) => filter === 'all' || r.kind === filter)
+      .filter((r) => effectiveFilter === 'all' || r.kind === effectiveFilter)
       .filter((r) => !q || `${r.title} ${r.note ?? ''} ${r.accountLabel}`.toLowerCase().includes(q))
       .sort((a, b) => (a.date === b.date ? b.createdAt - a.createdAt : a.date < b.date ? 1 : -1))
-  }, [monthExpenses, monthIncomes, categoryMap, accountMap, filter, search])
+  }, [monthExpenses, monthIncomes, categoryMap, accountMap, effectiveFilter, search])
 
   const accountSummaries = useMemo<AccountSummary[]>(
     () =>
@@ -182,30 +187,72 @@ export function AllDataScreen() {
         </div>
       </div>
 
-      <SummaryCards
-        income={totalIncome}
-        expenses={totalExpenses}
-        cardSpend={cardSpend}
-        youOwe={youOwe}
-        owedToYou={owedToYou}
-      />
-
-      <div className="grid gap-5 lg:gap-6 lg:grid-cols-[minmax(0,1fr)_380px] items-start">
-        <TransactionsPanel
-          rows={rows}
-          filter={filter}
-          onFilter={setFilter}
-          search={search}
-          onSearch={setSearch}
-          onSelect={handleSelect}
+      <div className="lg:grid lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-8 items-start">
+        <SectionNav
+          value={section}
+          onChange={setSection}
+          counts={{
+            income: monthIncomes.length,
+            expenses: monthExpenses.length,
+            loans: openLoans.length,
+          }}
         />
-        <div className="flex flex-col gap-5 lg:gap-6">
-          <LoansPanel loans={loans} onAdd={() => setAddingLoan(true)} onSelect={setSelectedLoan} />
-          <AccountsPanel
-            summaries={accountSummaries}
-            unassignedSpend={unassignedSpend}
-            monthLabel={formatMonthLabel(month)}
-          />
+
+        <div className="min-w-0">
+          {section === 'overview' && (
+            <>
+              <SummaryCards
+                income={totalIncome}
+                expenses={totalExpenses}
+                cardSpend={cardSpend}
+                youOwe={youOwe}
+                owedToYou={owedToYou}
+              />
+              <div className="flex flex-col gap-5 lg:gap-6">
+                <TransactionsPanel
+                  rows={rows}
+                  filter={filter}
+                  onFilter={setFilter}
+                  search={search}
+                  onSearch={setSearch}
+                  onSelect={handleSelect}
+                />
+                <div className="grid gap-5 lg:gap-6 md:grid-cols-2 items-start">
+                  <LoansPanel loans={loans} onAdd={() => setAddingLoan(true)} onSelect={setSelectedLoan} />
+                  <AccountsPanel
+                    summaries={accountSummaries}
+                    unassignedSpend={unassignedSpend}
+                    monthLabel={formatMonthLabel(month)}
+                  />
+                </div>
+              </div>
+            </>
+          )}
+
+          {(section === 'transactions' || section === 'income' || section === 'expenses') && (
+            <TransactionsPanel
+              title={section === 'income' ? 'Income' : section === 'expenses' ? 'Expenses' : 'Transactions'}
+              rows={rows}
+              filter={effectiveFilter}
+              onFilter={setFilter}
+              search={search}
+              onSearch={setSearch}
+              onSelect={handleSelect}
+              hideFilters={section !== 'transactions'}
+            />
+          )}
+
+          {section === 'loans' && (
+            <LoansPanel loans={loans} onAdd={() => setAddingLoan(true)} onSelect={setSelectedLoan} />
+          )}
+
+          {section === 'accounts' && (
+            <AccountsPanel
+              summaries={accountSummaries}
+              unassignedSpend={unassignedSpend}
+              monthLabel={formatMonthLabel(month)}
+            />
+          )}
         </div>
       </div>
 
