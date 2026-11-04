@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { format, parseISO } from 'date-fns'
 import clsx from 'clsx'
 import { Card } from '../ui/Card'
@@ -9,7 +10,7 @@ export interface TransactionRow {
   kind: 'expense' | 'income'
   date: string
   createdAt: number
-  icon: string
+  icon: ReactNode
   title: string
   note?: string
   accountLabel: string
@@ -95,7 +96,7 @@ export function TransactionsPanel({
               </span>
 
               <span className="flex items-center gap-3.5 min-w-0 flex-1 md:flex-none">
-                <span className="w-11 h-11 rounded-full bg-surface border border-border flex items-center justify-center text-xl shrink-0">
+                <span className="w-11 h-11 rounded-full bg-surface border border-border flex items-center justify-center text-secondary shrink-0">
                   {r.icon}
                 </span>
                 <span className="min-w-0">

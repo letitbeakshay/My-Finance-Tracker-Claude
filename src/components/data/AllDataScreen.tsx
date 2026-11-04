@@ -7,6 +7,7 @@ import {
   useIncomes,
   useLoans,
 } from '../../hooks/useLiveData'
+import { categoryIcon, INCOME_ICON } from '../../lib/dataIcons'
 import { formatMonthLabel } from '../../lib/analytics'
 import { EXPENSE_TYPE_LABELS, PAYMENT_METHOD_LABELS } from '../../types'
 import type { Expense, Income, Loan } from '../../types'
@@ -73,12 +74,13 @@ export function AllDataScreen() {
     const all: TransactionRow[] = []
     for (const e of monthExpenses) {
       const category = categoryMap.get(e.categoryId)
+      const CategoryIcon = categoryIcon(e.categoryId)
       all.push({
         key: `e:${e.id}`,
         kind: 'expense',
         date: e.date,
         createdAt: e.createdAt,
-        icon: category?.icon ?? '📦',
+        icon: <CategoryIcon size={20} />,
         title: category?.name ?? 'Others',
         note: e.notes,
         accountLabel: (e.accountId && accountMap.get(e.accountId)?.label) || PAYMENT_METHOD_LABELS[e.paymentMethod],
@@ -92,7 +94,7 @@ export function AllDataScreen() {
         kind: 'income',
         date: i.date,
         createdAt: i.createdAt,
-        icon: '💵',
+        icon: <INCOME_ICON size={20} className="text-accent" />,
         title: i.source,
         note: i.notes,
         accountLabel: (i.accountId && accountMap.get(i.accountId)?.label) || '—',

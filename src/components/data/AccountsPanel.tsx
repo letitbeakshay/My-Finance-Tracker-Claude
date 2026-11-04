@@ -1,4 +1,6 @@
+import type { LucideIcon } from 'lucide-react'
 import { Card } from '../ui/Card'
+import { ACCOUNT_ICONS, UNASSIGNED_ICON } from '../../lib/dataIcons'
 import { formatCurrency } from '../../lib/currency'
 import type { PaymentAccount } from '../../types'
 
@@ -16,13 +18,13 @@ interface AccountsPanelProps {
 }
 
 function Row({
-  icon,
+  icon: Icon,
   title,
   sub,
   spent,
   received,
 }: {
-  icon: string
+  icon: LucideIcon
   title: string
   sub?: string
   spent: number
@@ -30,8 +32,8 @@ function Row({
 }) {
   return (
     <div className="flex items-center gap-3.5">
-      <span className="w-11 h-11 rounded-full bg-surface border border-border flex items-center justify-center text-xl shrink-0">
-        {icon}
+      <span className="w-11 h-11 rounded-full bg-surface border border-border flex items-center justify-center text-secondary shrink-0">
+        <Icon size={20} />
       </span>
       <div className="flex-1 min-w-0">
         <p className="text-white font-medium text-[15px] truncate">{title}</p>
@@ -65,7 +67,7 @@ export function AccountsPanel({ summaries, unassignedSpend, monthLabel }: Accoun
           <>
             <p className="text-secondary text-[12px] font-semibold uppercase tracking-wide">Credit cards</p>
             {cards.map((s) => (
-              <Row key={s.account.id} icon={s.account.icon} title={s.account.label} sub={sub(s.account)} spent={s.spent} />
+              <Row key={s.account.id} icon={ACCOUNT_ICONS[s.account.type]} title={s.account.label} sub={sub(s.account)} spent={s.spent} />
             ))}
           </>
         )}
@@ -75,7 +77,7 @@ export function AccountsPanel({ summaries, unassignedSpend, monthLabel }: Accoun
             {banks.map((s) => (
               <Row
                 key={s.account.id}
-                icon={s.account.icon}
+                icon={ACCOUNT_ICONS[s.account.type]}
                 title={s.account.label}
                 sub={sub(s.account)}
                 spent={s.spent}
@@ -85,7 +87,7 @@ export function AccountsPanel({ summaries, unassignedSpend, monthLabel }: Accoun
           </>
         )}
         <p className="text-secondary text-[12px] font-semibold uppercase tracking-wide mt-1">Other</p>
-        <Row icon="📲" title="UPI, cash & wallet" sub="No specific account" spent={unassignedSpend} />
+        <Row icon={UNASSIGNED_ICON} title="UPI, cash & wallet" sub="No specific account" spent={unassignedSpend} />
       </div>
     </Card>
   )

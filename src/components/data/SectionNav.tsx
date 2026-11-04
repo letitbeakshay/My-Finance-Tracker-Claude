@@ -1,14 +1,15 @@
 import clsx from 'clsx'
+import { SECTION_ICONS } from '../../lib/dataIcons'
 
 export type Section = 'overview' | 'transactions' | 'income' | 'expenses' | 'loans' | 'accounts'
 
-const ITEMS: { value: Section; label: string; icon: string }[] = [
-  { value: 'overview', label: 'Overview', icon: '📊' },
-  { value: 'transactions', label: 'Transactions', icon: '🧾' },
-  { value: 'income', label: 'Income', icon: '💵' },
-  { value: 'expenses', label: 'Expenses', icon: '🛍' },
-  { value: 'loans', label: 'Loans', icon: '🏦' },
-  { value: 'accounts', label: 'Cards & accounts', icon: '💳' },
+const ITEMS: { value: Section; label: string }[] = [
+  { value: 'overview', label: 'Overview' },
+  { value: 'transactions', label: 'Transactions' },
+  { value: 'income', label: 'Income' },
+  { value: 'expenses', label: 'Expenses' },
+  { value: 'loans', label: 'Loans' },
+  { value: 'accounts', label: 'Cards & accounts' },
 ]
 
 interface SectionNavProps {
@@ -28,6 +29,7 @@ export function SectionNav({ value, onChange, counts }: SectionNavProps) {
       {ITEMS.map((item) => {
         const active = item.value === value
         const count = counts?.[item.value]
+        const Icon = SECTION_ICONS[item.value]
         return (
           <button
             key={item.value}
@@ -45,7 +47,7 @@ export function SectionNav({ value, onChange, counts }: SectionNavProps) {
                 : 'bg-surface border-border text-white lg:bg-transparent lg:text-secondary lg:hover:bg-surface lg:hover:text-white',
             )}
           >
-            <span className="text-[17px]">{item.icon}</span>
+            <Icon size={18} strokeWidth={2.2} className="shrink-0" />
             <span className="lg:flex-1 lg:text-left">{item.label}</span>
             {count != null && (
               <span className={clsx('text-[12px] tabular-nums', active ? 'text-accent' : 'text-tertiary')}>
