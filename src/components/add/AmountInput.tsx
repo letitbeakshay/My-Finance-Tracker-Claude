@@ -22,7 +22,7 @@ export function AmountInput({ value, onChange }: AmountInputProps) {
 
   return (
     <div className="flex items-center justify-center py-10 leading-none">
-      <span className="text-accent text-[44px] font-bold leading-none mr-1 self-start mt-2">₹</span>
+      <span className="text-accent-ink text-[44px] font-bold leading-none mr-1 self-start mt-2">₹</span>
       <input
         ref={ref}
         value={value}

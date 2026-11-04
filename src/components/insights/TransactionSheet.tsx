@@ -5,7 +5,8 @@ import { Button } from '../ui/Button'
 import { AddExpenseScreen } from '../add/AddExpenseScreen'
 import { expenseRepo } from '../../db/repository'
 import type { Category, Expense, PaymentAccount } from '../../types'
-import { EXPENSE_TYPE_LABELS, PAYMENT_METHOD_LABELS } from '../../types'
+import { EXPENSE_TYPE_COLORS as TYPE_COLOR, EXPENSE_TYPE_LABELS, PAYMENT_METHOD_LABELS } from '../../types'
+import { textShade } from '../../lib/colors'
 import { formatCurrency } from '../../lib/currency'
 
 interface TransactionSheetProps {
@@ -13,12 +14,6 @@ interface TransactionSheetProps {
   category?: Category
   account?: PaymentAccount
   onClose: () => void
-}
-
-const TYPE_COLOR: Record<string, string> = {
-  need: '#5b9dff',
-  want: '#ff9f43',
-  savings: '#24d968',
 }
 
 export function TransactionSheet({ expense, category, account, onClose }: TransactionSheetProps) {
@@ -70,7 +65,7 @@ export function TransactionSheet({ expense, category, account, onClose }: Transa
               className="px-2.5 py-1 rounded-full text-[13px] font-semibold"
               style={{
                 background: `${TYPE_COLOR[expense.type]}22`,
-                color: TYPE_COLOR[expense.type],
+                color: textShade(TYPE_COLOR[expense.type]),
               }}
             >
               {EXPENSE_TYPE_LABELS[expense.type]}
@@ -99,7 +94,7 @@ export function TransactionSheet({ expense, category, account, onClose }: Transa
             </Button>
             <Button
               onClick={handleDelete}
-              className="bg-danger! text-white!"
+              className="bg-danger! text-onfill!"
             >
               Delete
             </Button>

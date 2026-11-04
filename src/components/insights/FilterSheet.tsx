@@ -19,7 +19,7 @@ interface FilterSheetProps {
   onChange: (filters: Filters) => void
 }
 
-const TYPES: ExpenseType[] = ['need', 'want', 'savings']
+const TYPES: ExpenseType[] = ['giving', 'need', 'want', 'savings']
 
 export function FilterSheet({ open, onClose, categories, filters, onChange }: FilterSheetProps) {
   function toggle<K extends keyof Filters>(key: K, value: Filters[K]) {

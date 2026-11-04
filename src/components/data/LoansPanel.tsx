@@ -20,7 +20,7 @@ export function LoansPanel({ loans, onAdd, onSelect }: LoansPanelProps) {
         <button
           type="button"
           onClick={onAdd}
-          className="text-accent text-[14px] font-semibold h-9 px-3 rounded-full bg-accent-soft"
+          className="text-accent-ink text-[14px] font-semibold h-9 px-3 rounded-full bg-accent-soft"
         >
           + Add
         </button>

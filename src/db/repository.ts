@@ -1,5 +1,14 @@
 import { supabase } from '../lib/supabaseClient'
-import type { Category, Expense, Income, Loan, PaymentAccount } from '../types'
+import {
+  OVERALL_BUDGET_ID,
+  type AppSettings,
+  type Category,
+  type Expense,
+  type Income,
+  type Loan,
+  type PaymentAccount,
+  type Reflection,
+} from '../types'
 import {
   categoryToRow,
   expenseToRow,
@@ -216,6 +225,49 @@ export const loanRepo = {
 
   async remove(id: string) {
     const { error } = await supabase.from('loans').delete().eq('id', id)
+    if (error) throw error
+  },
+}
+
+export const settingsRepo = {
+  async updatePlan(changes: Pick<AppSettings, 'givingPercent' | 'savingPercent' | 'pauseThreshold'>) {
+    const { error } = await supabase
+      .from('app_settings')
+      .update({
+        giving_percent: changes.givingPercent,
+        saving_percent: changes.savingPercent,
+        pause_threshold: changes.pauseThreshold,
+      })
+      .eq('id', 'app')
+    if (error) throw error
+  },
+}
+
+export const reflectionRepo = {
+  async save(reflection: Omit<Reflection, 'updatedAt'>) {
+    const { error } = await supabase.from('reflections').upsert({
+      id: reflection.id,
+      gratitude: reflection.gratitude,
+      improve: reflection.improve,
+      commitment: reflection.commitment,
+      updated_at: new Date().toISOString(),
+    })
+    if (error) throw error
+  },
+}
+
+export const budgetRepo = {
+  /** Sets the monthly limit for a category, or for `null` (overall). A limit of 0 removes it. */
+  async set(categoryId: string | null, monthlyLimit: number) {
+    const id = categoryId ?? OVERALL_BUDGET_ID
+    if (!(monthlyLimit > 0)) {
+      const { error } = await supabase.from('budgets').delete().eq('id', id)
+      if (error) throw error
+      return
+    }
+    const { error } = await supabase
+      .from('budgets')
+      .upsert({ id, category_id: categoryId, monthly_limit: monthlyLimit })
     if (error) throw error
   },
 }

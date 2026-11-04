@@ -3,22 +3,32 @@
 @theme {
   --font-sans: ui-rounded, "SF Pro Rounded", "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif;
 
-  --color-bg: #08080a;
-  --color-surface: #17181a;
-  --color-card: #1c1d1f;
-  --color-border: #28292c;
+  /* Light theme: warm off-white page, white cards, brand green kept for fills. */
+  --color-bg: #f6f4ee;
+  --color-surface: #eeece4;
+  --color-card: #ffffff;
+  --color-border: #e2dfd5;
   --color-accent: #24d968;
   --color-accent-dim: #1dae53;
   --color-accent-soft: rgba(36, 217, 104, 0.16);
+  /* Brand green is too light to read as text on white; use this for green text and icons. */
+  --color-accent-ink: #0a8a3c;
   --color-need: #5b9dff;
-  --color-need-soft: rgba(91, 157, 255, 0.14);
+  --color-need-soft: rgba(91, 157, 255, 0.16);
   --color-want: #ff9f43;
-  --color-want-soft: rgba(255, 159, 67, 0.14);
+  --color-want-soft: rgba(255, 159, 67, 0.16);
   --color-savings: #24d968;
   --color-savings-soft: rgba(36, 217, 104, 0.16);
-  --color-danger: #ff5c5c;
-  --color-secondary: #8e8e93;
-  --color-tertiary: #636366;
+  --color-giving: #a97c0b;
+  --color-giving-soft: rgba(227, 179, 65, 0.2);
+  --color-danger: #d93636;
+  --color-secondary: #5f6064;
+  --color-tertiary: #787a80;
+
+  /* Primary text. Named "white" because the app's text-white class means "main text";
+     on this light theme that is near-black ink. Use text-onfill on coloured fills. */
+  --color-white: #1b1d1f;
+  --color-onfill: #ffffff;
 
   --radius-card: 26px;
   --radius-chip: 18px;
@@ -26,7 +36,7 @@
 }
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
   /* Height of the sticky Enter expenses / All data bar; overlays sit below it. */
   --topbar-h: calc(60px + env(safe-area-inset-top));
 }
@@ -45,7 +55,7 @@ body,
 body {
   margin: 0;
   background: var(--color-bg);
-  color: #fff;
+  color: var(--color-white);
   font-family: var(--font-sans);
   overscroll-behavior-y: none;
   -webkit-font-smoothing: antialiased;

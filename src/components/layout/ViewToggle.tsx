@@ -28,7 +28,7 @@ export function ViewToggle({ value, onChange }: ViewToggleProps) {
               type="button"
               onClick={() => onChange(opt.value)}
               className="relative flex-1 h-10 rounded-xl text-[14px] font-semibold z-10 transition-colors"
-              style={{ color: active ? '#000' : '#9a9a9a' }}
+              style={{ color: active ? '#000' : 'var(--color-secondary)' }}
             >
               {active && (
                 <motion.div

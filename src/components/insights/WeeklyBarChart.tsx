@@ -21,10 +21,10 @@ export function WeeklyBarChart({ weeks }: WeeklyBarChartProps) {
               tick={{ fill: CHART_MUTED_TEXT, fontSize: 12 }}
             />
             <Tooltip
-              cursor={{ fill: 'rgba(255,255,255,0.04)' }}
+              cursor={{ fill: 'rgba(30,30,20,0.05)' }}
               contentStyle={{
-                background: '#151515',
-                border: '1px solid #262626',
+                background: '#ffffff',
+                border: '1px solid #e2dfd5',
                 borderRadius: 12,
                 fontSize: 13,
               }}

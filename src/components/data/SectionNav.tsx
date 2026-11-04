@@ -1,10 +1,12 @@
 import clsx from 'clsx'
 import { SECTION_ICONS } from '../../lib/dataIcons'
 
-export type Section = 'overview' | 'transactions' | 'income' | 'expenses' | 'loans' | 'accounts'
+export type Section = 'overview' | 'budgets' | 'stewardship' | 'transactions' | 'income' | 'expenses' | 'loans' | 'accounts'
 
 const ITEMS: { value: Section; label: string }[] = [
   { value: 'overview', label: 'Overview' },
+  { value: 'budgets', label: 'Budgets' },
+  { value: 'stewardship', label: 'Stewardship' },
   { value: 'transactions', label: 'Transactions' },
   { value: 'income', label: 'Income' },
   { value: 'expenses', label: 'Expenses' },
@@ -43,14 +45,14 @@ export function SectionNav({ value, onChange, counts }: SectionNavProps) {
             className={clsx(
               'shrink-0 flex items-center gap-2.5 h-11 px-4 rounded-chip border text-[15px] font-medium transition-colors whitespace-nowrap lg:w-full lg:rounded-2xl lg:border-transparent',
               active
-                ? 'bg-accent-soft border-accent text-accent lg:border-transparent'
+                ? 'bg-accent-soft border-accent text-accent-ink lg:border-transparent'
                 : 'bg-surface border-border text-white lg:bg-transparent lg:text-secondary lg:hover:bg-surface lg:hover:text-white',
             )}
           >
             <Icon size={18} strokeWidth={2.2} className="shrink-0" />
             <span className="lg:flex-1 lg:text-left">{item.label}</span>
             {count != null && (
-              <span className={clsx('text-[12px] tabular-nums', active ? 'text-accent' : 'text-tertiary')}>
+              <span className={clsx('text-[12px] tabular-nums', active ? 'text-accent-ink' : 'text-tertiary')}>
                 {count}
               </span>
             )}

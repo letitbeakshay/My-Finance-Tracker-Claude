@@ -17,7 +17,7 @@ function Stat({ label, value, sub, tone = 'default', className }: StatProps) {
       <p
         className={clsx(
           'text-[24px] sm:text-[28px] font-bold leading-none tracking-tight tabular-nums truncate',
-          tone === 'positive' && 'text-accent',
+          tone === 'positive' && 'text-accent-ink',
           tone === 'negative' && 'text-danger',
         )}
       >

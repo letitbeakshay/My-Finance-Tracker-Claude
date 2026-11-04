@@ -1,4 +1,4 @@
-export type ExpenseType = 'need' | 'want' | 'savings'
+export type ExpenseType = 'need' | 'want' | 'savings' | 'giving'
 
 export type PaymentMethod =
   | 'upi'
@@ -96,14 +96,16 @@ export interface Loan {
   createdAt: number
 }
 
-/** Placeholder shape for future budgeting feature. Not used yet. */
+/** A monthly spending limit: for one category, or `overall` (needs + wants). */
 export interface Budget {
+  /** 'overall' or the category id. */
   id: string
   categoryId?: string
-  type?: ExpenseType
   monthlyLimit: number
   createdAt: number
 }
+
+export const OVERALL_BUDGET_ID = 'overall'
 
 /** Placeholder shape for future recurring-expense automation. Not used yet. */
 export interface RecurringExpense {
@@ -132,6 +134,21 @@ export interface AppSettings {
   id: 'app'
   currency: string
   onboardedAt?: number
+  /** Share of income set aside to give first (tithe / first fruits), in percent. */
+  givingPercent: number
+  /** Share of income to save, in percent. */
+  savingPercent: number
+  /** A "want" at or above this amount prompts a pause to count the cost; 0 disables. */
+  pauseThreshold: number
+}
+
+/** A month-end accountability reflection. `id` is the month, 'yyyy-MM'. */
+export interface Reflection {
+  id: string
+  gratitude: string
+  improve: string
+  commitment: string
+  updatedAt: number
 }
 
 export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
@@ -147,4 +164,12 @@ export const EXPENSE_TYPE_LABELS: Record<ExpenseType, string> = {
   need: 'Need',
   want: 'Want',
   savings: 'Savings',
+  giving: 'Giving',
+}
+
+export const EXPENSE_TYPE_COLORS: Record<ExpenseType, string> = {
+  need: '#5b9dff',
+  want: '#ff9f43',
+  savings: '#24d968',
+  giving: '#e3b341',
 }

@@ -1,17 +1,25 @@
 import { useMemo, useState } from 'react'
-import { addMonths, isSameMonth, parseISO, subMonths } from 'date-fns'
+import { isSameMonth, parseISO } from 'date-fns'
 import {
   useAllCategories,
   useAllPaymentAccounts,
+  useBudgets,
   useExpenses,
   useIncomes,
   useLoans,
+  useSettings,
 } from '../../hooks/useLiveData'
 import { categoryIcon, INCOME_ICON } from '../../lib/dataIcons'
 import { formatMonthLabel } from '../../lib/analytics'
-import { EXPENSE_TYPE_LABELS, PAYMENT_METHOD_LABELS } from '../../types'
+import { monthPlan } from '../../lib/stewardship'
+import { EXPENSE_TYPE_COLORS as TYPE_COLOR, EXPENSE_TYPE_LABELS, PAYMENT_METHOD_LABELS } from '../../types'
 import type { Expense, Income, Loan } from '../../types'
 import { TransactionSheet } from '../insights/TransactionSheet'
+import { MonthNav } from '../ui/MonthNav'
+import { FirstFruitsCard } from '../stewardship/FirstFruitsCard'
+import { BudgetsView } from '../budget/BudgetsView'
+import { BudgetProgressCard } from '../budget/BudgetProgressCard'
+import { StewardshipView } from '../stewardship/StewardshipView'
 import { SummaryCards } from './SummaryCards'
 import {
   TransactionsPanel,
@@ -24,26 +32,26 @@ import { SectionNav, type Section } from './SectionNav'
 import { AddIncomeSheet } from './AddIncomeSheet'
 import { AddLoanSheet } from './AddLoanSheet'
 import { IncomeSheet, LoanSheet } from './ManageSheets'
-import { DEMO_INCOMES, DEMO_LOANS, demoExpenses } from '../../dev/demoData'
 
-const TYPE_COLOR = { need: '#5b9dff', want: '#ff9f43', savings: '#24d968' } as const
 const INCOME_COLOR = '#24d968'
-
-const SHOW_DEMO = import.meta.env.DEV && new URLSearchParams(location.search).has('demo')
 
 function inMonth(date: string, month: Date) {
   return isSameMonth(parseISO(date), month)
 }
 
-export function AllDataScreen() {
-  const liveExpenses = useExpenses()
+interface AllDataScreenProps {
+  /** Opens the giving entry in the Enter expenses view, pre-filled with `amount`. */
+  onGive: (amount: number) => void
+}
+
+export function AllDataScreen({ onGive }: AllDataScreenProps) {
+  const expenses = useExpenses()
   const categories = useAllCategories()
   const accounts = useAllPaymentAccounts()
-  const liveIncomes = useIncomes()
-  const liveLoans = useLoans()
-  const expenses = SHOW_DEMO && accounts ? demoExpenses(accounts) : liveExpenses
-  const incomes = SHOW_DEMO ? DEMO_INCOMES : liveIncomes
-  const loans = SHOW_DEMO ? DEMO_LOANS : liveLoans
+  const incomes = useIncomes()
+  const loans = useLoans()
+  const settings = useSettings()
+  const budgets = useBudgets()
 
   const [month, setMonth] = useState(() => new Date())
   const [section, setSection] = useState<Section>('overview')
@@ -94,7 +102,7 @@ export function AllDataScreen() {
         kind: 'income',
         date: i.date,
         createdAt: i.createdAt,
-        icon: <INCOME_ICON size={20} className="text-accent" />,
+        icon: <INCOME_ICON size={20} className="text-accent-ink" />,
         title: i.source,
         note: i.notes,
         accountLabel: (i.accountId && accountMap.get(i.accountId)?.label) || '—',
@@ -121,6 +129,11 @@ export function AllDataScreen() {
     [accounts, monthExpenses, monthIncomes],
   )
 
+  const plan = useMemo(
+    () => (expenses && incomes && settings ? monthPlan(expenses, incomes, month, settings) : null),
+    [expenses, incomes, settings, month],
+  )
+
   if (!expenses || !incomes || !loans) return null
 
   const totalIncome = monthIncomes.reduce((s, i) => s + i.amount, 0)
@@ -133,8 +146,6 @@ export function AllDataScreen() {
   const youOwe = openLoans.filter((l) => l.kind === 'borrowed').reduce((s, l) => s + l.principal - l.paid, 0)
   const owedToYou = openLoans.filter((l) => l.kind === 'lent').reduce((s, l) => s + l.principal - l.paid, 0)
 
-  const isCurrentMonth = isSameMonth(month, new Date())
-
   function handleSelect(key: string) {
     const [kind, id] = [key.slice(0, 1), key.slice(2)]
     if (kind === 'e') setSelectedExpense(expenses?.find((e) => e.id === id) ?? null)
@@ -144,32 +155,7 @@ export function AllDataScreen() {
   return (
     <div className="px-4 sm:px-6 lg:px-8 pt-3 pb-16">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
-        <div className="flex items-center gap-1">
-          <button
-            type="button"
-            onClick={() => setMonth(subMonths(month, 1))}
-            className="w-10 h-10 flex items-center justify-center text-tertiary hover:text-white"
-            aria-label="Previous month"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-              <path d="M15 6l-6 6 6 6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </button>
-          <h1 className="text-[26px] font-bold tracking-tight min-w-[180px] text-center sm:text-left">
-            {formatMonthLabel(month)}
-          </h1>
-          <button
-            type="button"
-            onClick={() => setMonth(addMonths(month, 1))}
-            disabled={isCurrentMonth}
-            className="w-10 h-10 flex items-center justify-center text-tertiary hover:text-white disabled:opacity-30"
-            aria-label="Next month"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-              <path d="M9 6l6 6-6 6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </button>
-        </div>
+        <MonthNav month={month} onChange={setMonth} />
 
         <div className="flex gap-2.5">
           <button
@@ -203,6 +189,18 @@ export function AllDataScreen() {
         <div className="min-w-0">
           {section === 'overview' && (
             <>
+              {plan && settings && budgets && (
+                <div className="grid gap-5 lg:gap-6 md:grid-cols-2 items-start mb-6">
+                  <FirstFruitsCard plan={plan} givingPercent={settings.givingPercent} onGive={onGive} compact />
+                  <BudgetProgressCard
+                    budgets={budgets}
+                    expenses={expenses}
+                    categories={categories ?? []}
+                    month={month}
+                    onOpenBudgets={() => setSection('budgets')}
+                  />
+                </div>
+              )}
               <SummaryCards
                 income={totalIncome}
                 expenses={totalExpenses}
@@ -230,6 +228,10 @@ export function AllDataScreen() {
               </div>
             </>
           )}
+
+          {section === 'budgets' && <BudgetsView month={month} />}
+
+          {section === 'stewardship' && <StewardshipView month={month} onGive={onGive} />}
 
           {(section === 'transactions' || section === 'income' || section === 'expenses') && (
             <TransactionsPanel
@@ -270,6 +272,8 @@ export function AllDataScreen() {
         open={addingIncome}
         onClose={() => setAddingIncome(false)}
         bankAccounts={(accounts ?? []).filter((a) => a.type === 'bank_account' && !a.archived)}
+        givingPercent={settings?.givingPercent ?? 10}
+        onGive={onGive}
       />
       <AddLoanSheet open={addingLoan} onClose={() => setAddingLoan(false)} />
     </div>

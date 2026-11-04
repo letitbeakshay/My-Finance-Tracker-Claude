@@ -4,10 +4,12 @@ interface MonthlySummaryProps {
   needsPct: number
   wantsPct: number
   savingsPct: number
+  givingPct: number
 }
 
-export function MonthlySummary({ needsPct, wantsPct, savingsPct }: MonthlySummaryProps) {
+export function MonthlySummary({ needsPct, wantsPct, savingsPct, givingPct }: MonthlySummaryProps) {
   const items = [
+    { label: 'Giving', pct: givingPct, color: '#e3b341' },
     { label: 'Needs', pct: needsPct, color: '#5b9dff' },
     { label: 'Wants', pct: wantsPct, color: '#ff9f43' },
     { label: 'Savings', pct: savingsPct, color: '#24d968' },

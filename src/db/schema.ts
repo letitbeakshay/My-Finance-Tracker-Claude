@@ -1,10 +1,12 @@
 import type {
   Category,
+  Budget,
   Expense,
   ExpenseType,
   Income,
   Loan,
   LoanKind,
+  Reflection,
   PaymentAccount,
   PaymentAccountType,
   PaymentMethod,
@@ -55,6 +57,29 @@ export interface AppSettingsRow {
   id: string
   currency: string
   onboarded_at: string | null
+  // Absent until the stewardship migration in supabase/schema.sql has been run.
+  giving_percent?: number
+  saving_percent?: number
+  pause_threshold?: number
+  giving_seeded?: boolean
+}
+
+export interface ReflectionRow {
+  id: string
+  gratitude: string | null
+  improve: string | null
+  commitment: string | null
+  updated_at: string
+}
+
+export function rowToReflection(row: ReflectionRow): Reflection {
+  return {
+    id: row.id,
+    gratitude: row.gratitude ?? '',
+    improve: row.improve ?? '',
+    commitment: row.commitment ?? '',
+    updatedAt: new Date(row.updated_at).getTime(),
+  }
 }
 
 export function rowToExpense(row: ExpenseRow): Expense {
@@ -223,5 +248,21 @@ export function loanToRow(loan: Omit<Loan, 'createdAt'>): Partial<LoanRow> {
     next_due_date: loan.nextDueDate ?? null,
     notes: loan.notes ?? null,
     closed: loan.closed,
+  }
+}
+
+export interface BudgetRow {
+  id: string
+  category_id: string | null
+  monthly_limit: number
+  created_at: string
+}
+
+export function rowToBudget(row: BudgetRow): Budget {
+  return {
+    id: row.id,
+    categoryId: row.category_id ?? undefined,
+    monthlyLimit: Number(row.monthly_limit),
+    createdAt: new Date(row.created_at).getTime(),
   }
 }

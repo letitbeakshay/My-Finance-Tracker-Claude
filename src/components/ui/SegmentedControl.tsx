@@ -27,7 +27,7 @@ export function SegmentedControl<T extends string>({
             type="button"
             onClick={() => onChange(opt.value)}
             className="relative flex-1 h-11 rounded-xl text-[15px] font-semibold z-10"
-            style={{ color: active ? '#000' : '#9a9a9a' }}
+            style={{ color: active ? '#000' : 'var(--color-secondary)' }}
           >
             {active && (
               <motion.div

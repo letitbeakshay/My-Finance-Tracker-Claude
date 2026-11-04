@@ -18,7 +18,7 @@ export function BottomSheet({ open, onClose, children }: BottomSheetProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/60 z-40"
+            className="fixed inset-0 bg-black/40 z-40"
           />
           <motion.div
             key="sheet"

@@ -1,6 +1,5 @@
-// Dark-mode categorical steps from the validated reference palette (dataviz skill),
-// ordered for maximum adjacent CVD separation. Our card surface (#1A1A1A) matches
-// the palette's validated dark surface (#1a1a19).
+// Categorical steps from the validated reference palette (dataviz skill),
+// ordered for maximum adjacent CVD separation. Cards are white on this light theme.
 export const CATEGORICAL_DARK = [
   '#3987e5', // blue
   '#008300', // green
@@ -12,6 +11,6 @@ export const CATEGORICAL_DARK = [
   '#e66767', // red
 ]
 
-export const CHART_OTHER_COLOR = '#3a3a3a'
-export const CHART_MUTED_TEXT = '#898781'
-export const CHART_GRIDLINE = '#2c2c2a'
+export const CHART_OTHER_COLOR = '#c9c6ba'
+export const CHART_MUTED_TEXT = '#6f6e68'
+export const CHART_GRIDLINE = '#e2dfd5'

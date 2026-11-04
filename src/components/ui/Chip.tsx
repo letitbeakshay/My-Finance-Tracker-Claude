@@ -18,7 +18,7 @@ export function Chip({ children, selected, onClick, className }: ChipProps) {
       className={clsx(
         'shrink-0 rounded-chip px-4 h-11 flex items-center gap-1.5 text-[15px] font-medium border transition-colors',
         selected
-          ? 'bg-accent-soft border-accent text-accent'
+          ? 'bg-accent-soft border-accent text-accent-ink'
           : 'bg-surface border-border text-white',
         className,
       )}

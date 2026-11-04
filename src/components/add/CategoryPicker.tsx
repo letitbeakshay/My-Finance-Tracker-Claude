@@ -32,7 +32,7 @@ export function CategoryPicker({ categories, value, onChange }: CategoryPickerPr
         <button
           type="button"
           onClick={() => (reordering ? handleDone() : setReordering(true))}
-          className="text-accent text-[13px] font-semibold"
+          className="text-accent-ink text-[13px] font-semibold"
         >
           {reordering ? 'Done' : 'Edit Order'}
         </button>

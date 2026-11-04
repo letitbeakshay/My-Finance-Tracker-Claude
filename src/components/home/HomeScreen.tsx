@@ -1,6 +1,13 @@
 import { useMemo, useState } from 'react'
 import { format } from 'date-fns'
-import { useExpenses, useCategories, useAllPaymentAccounts } from '../../hooks/useLiveData'
+import {
+  useExpenses,
+  useCategories,
+  useAllPaymentAccounts,
+  useBudgets,
+  useIncomes,
+  useSettings,
+} from '../../hooks/useLiveData'
 import {
   filterByMonth,
   thisWeekSpending,
@@ -13,18 +20,34 @@ import { TypeBreakdownCard } from './TypeBreakdownCard'
 import { TransactionItem } from './TransactionItem'
 import { EmptyState } from '../ui/EmptyState'
 import { SettingsIcon } from '../ui/icons'
+import { HandHeart, Target } from 'lucide-react'
+import { FirstFruitsCard } from '../stewardship/FirstFruitsCard'
+import { BudgetProgressCard } from '../budget/BudgetProgressCard'
+import { monthPlan } from '../../lib/stewardship'
 import { TransactionSheet } from '../insights/TransactionSheet'
 import type { Expense } from '../../types'
 
 interface HomeScreenProps {
   onOpenSettings: () => void
+  onOpenStewardship: () => void
+  onOpenBudgets: () => void
   onAddExpense: () => void
+  onGive: (amount: number) => void
 }
 
-export function HomeScreen({ onOpenSettings, onAddExpense }: HomeScreenProps) {
+export function HomeScreen({
+  onOpenSettings,
+  onOpenStewardship,
+  onOpenBudgets,
+  onAddExpense,
+  onGive,
+}: HomeScreenProps) {
   const expenses = useExpenses()
   const categories = useCategories()
   const accounts = useAllPaymentAccounts()
+  const budgets = useBudgets()
+  const incomes = useIncomes()
+  const settings = useSettings()
   const [selected, setSelected] = useState<Expense | null>(null)
   const today = useMemo(() => new Date(), [])
 
@@ -48,6 +71,11 @@ export function HomeScreen({ onOpenSettings, onAddExpense }: HomeScreenProps) {
   const monthTotal = useMemo(() => sum(monthExpenses), [monthExpenses])
   const recent = useMemo(() => (expenses ?? []).slice(0, 8), [expenses])
 
+  const plan = useMemo(
+    () => (expenses && incomes && settings ? monthPlan(expenses, incomes, today, settings) : null),
+    [expenses, incomes, settings, today],
+  )
+
   void thisWeekSpending
 
   if (!expenses) return null
@@ -55,15 +83,33 @@ export function HomeScreen({ onOpenSettings, onAddExpense }: HomeScreenProps) {
   return (
     <div className="px-6 pt-4">
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-[28px] font-bold leading-none tracking-tight">{format(today, 'MMMM yyyy')}</h1>
-        <button
-          type="button"
-          onClick={onOpenSettings}
-          className="w-11 h-11 rounded-full bg-surface border border-border flex items-center justify-center"
-          aria-label="Settings"
-        >
-          <SettingsIcon />
-        </button>
+        <h1 className="text-[26px] font-bold leading-none tracking-tight whitespace-nowrap">{format(today, 'MMMM yyyy')}</h1>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={onOpenBudgets}
+            className="w-10 h-10 rounded-full bg-surface border border-border flex items-center justify-center text-secondary"
+            aria-label="Budgets"
+          >
+            <Target size={20} />
+          </button>
+          <button
+            type="button"
+            onClick={onOpenStewardship}
+            className="w-10 h-10 rounded-full bg-surface border border-border flex items-center justify-center text-giving"
+            aria-label="Stewardship"
+          >
+            <HandHeart size={20} />
+          </button>
+          <button
+            type="button"
+            onClick={onOpenSettings}
+            className="w-10 h-10 rounded-full bg-surface border border-border flex items-center justify-center"
+            aria-label="Settings"
+          >
+            <SettingsIcon />
+          </button>
+        </div>
       </div>
 
       <div className="mb-7">
@@ -76,7 +122,30 @@ export function HomeScreen({ onOpenSettings, onAddExpense }: HomeScreenProps) {
         <AnimatedNumber value={monthTotal} className="text-white text-[30px] font-bold leading-none tracking-tight tabular-nums" />
       </div>
 
-      <div className="flex gap-3 mb-9">
+      <div className="flex flex-col gap-4 mb-8">
+        {plan && settings && (
+          <FirstFruitsCard plan={plan} givingPercent={settings.givingPercent} onGive={onGive} compact />
+        )}
+        {budgets && categories && (
+          <BudgetProgressCard
+            budgets={budgets}
+            expenses={expenses}
+            categories={categories}
+            month={today}
+            onOpenBudgets={onOpenBudgets}
+          />
+        )}
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 mb-9">
+        <TypeBreakdownCard
+          label="Giving"
+          icon="🙏"
+          amount={breakdown.giving}
+          percentage={breakdown.givingPct}
+          color="#e3b341"
+          softColor="rgba(227,179,65,0.16)"
+        />
         <TypeBreakdownCard
           label="Needs"
           icon="🛒"

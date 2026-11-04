@@ -15,7 +15,7 @@ export function Card({ children, className, padded = true, ...rest }: CardProps)
         className,
       )}
       style={{
-        boxShadow: '0 8px 24px rgba(0,0,0,0.35)',
+        boxShadow: '0 1px 2px rgba(40,36,20,0.04), 0 6px 18px rgba(40,36,20,0.06)',
       }}
       {...rest}
     >

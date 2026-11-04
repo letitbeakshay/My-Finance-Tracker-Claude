@@ -6,12 +6,15 @@ import { InsightsScreen } from './components/insights/InsightsScreen'
 import { AddExpenseScreen } from './components/add/AddExpenseScreen'
 import { SettingsScreen } from './components/settings/SettingsScreen'
 import { PasscodeGate } from './components/auth/PasscodeGate'
+import { StewardshipScreen } from './components/stewardship/StewardshipScreen'
+import { BudgetsScreen } from './components/budget/BudgetsScreen'
+import type { AddExpensePreset } from './components/add/AddExpenseScreen'
 import { AllDataScreen } from './components/data/AllDataScreen'
 import { ViewToggle, type View } from './components/layout/ViewToggle'
 import { ensureSeeded } from './db/seed'
 import { isUnlocked } from './lib/auth'
 
-type Route = Tab | 'add' | 'settings'
+type Route = Tab | 'add' | 'settings' | 'stewardship' | 'budgets'
 
 const VIEW_KEY = 'finance_tracker_view'
 
@@ -28,6 +31,7 @@ function App() {
   const [ready, setReady] = useState(false)
   const [unlocked, setUnlocked] = useState(isUnlocked)
   const [view, setView] = useState<View>(readView)
+  const [addPreset, setAddPreset] = useState<AddExpensePreset | null>(null)
 
   useEffect(() => {
     // Drives the wider desktop layout for All data (see index.css).
@@ -49,13 +53,24 @@ function App() {
 
   if (!ready) return null
 
+  /** Jump to the Add screen set up for giving, pre-filled with what is left to give. */
+  function handleGive(amount: number) {
+    setAddPreset({
+      type: 'giving',
+      categoryId: 'tithe',
+      amount: amount > 0 ? String(Math.round(amount)) : undefined,
+    })
+    setView('enter')
+    setRoute('add')
+  }
+
   const tab: Tab = route === 'insights' ? 'insights' : 'home'
 
   return (
     <div className="flex-1 flex flex-col min-h-0">
       <ViewToggle value={view} onChange={setView} />
 
-      {view === 'data' && <AllDataScreen />}
+      {view === 'data' && <AllDataScreen onGive={handleGive} />}
 
       {view === 'enter' && (
       <>
@@ -71,7 +86,10 @@ function App() {
           >
             <HomeScreen
               onOpenSettings={() => setRoute('settings')}
+              onOpenStewardship={() => setRoute('stewardship')}
+              onOpenBudgets={() => setRoute('budgets')}
               onAddExpense={() => setRoute('add')}
+              onGive={handleGive}
             />
           </motion.div>
         )}
@@ -96,7 +114,17 @@ function App() {
             transition={{ type: 'spring', stiffness: 380, damping: 34 }}
             className="flex-1 overflow-y-auto fixed inset-x-0 bottom-0 top-[var(--topbar-h)] max-w-[560px] mx-auto bg-bg z-50"
           >
-            <AddExpenseScreen onDone={() => setRoute('home')} onCancel={() => setRoute('home')} />
+            <AddExpenseScreen
+              preset={addPreset ?? undefined}
+              onDone={() => {
+                setAddPreset(null)
+                setRoute('home')
+              }}
+              onCancel={() => {
+                setAddPreset(null)
+                setRoute('home')
+              }}
+            />
           </motion.div>
         )}
         {route === 'settings' && (
@@ -117,9 +145,33 @@ function App() {
             />
           </motion.div>
         )}
+        {route === 'stewardship' && (
+          <motion.div
+            key="stewardship"
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 24 }}
+            transition={{ type: 'spring', stiffness: 380, damping: 34 }}
+            className="flex-1 overflow-y-auto fixed inset-x-0 bottom-0 top-[var(--topbar-h)] max-w-[560px] mx-auto bg-bg z-50"
+          >
+            <StewardshipScreen onBack={() => setRoute('home')} onGive={handleGive} />
+          </motion.div>
+        )}
+        {route === 'budgets' && (
+          <motion.div
+            key="budgets"
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 24 }}
+            transition={{ type: 'spring', stiffness: 380, damping: 34 }}
+            className="flex-1 overflow-y-auto fixed inset-x-0 bottom-0 top-[var(--topbar-h)] max-w-[560px] mx-auto bg-bg z-50"
+          >
+            <BudgetsScreen onBack={() => setRoute('home')} />
+          </motion.div>
+        )}
       </AnimatePresence>
 
-      {route !== 'add' && route !== 'settings' && (
+      {route !== 'add' && route !== 'settings' && route !== 'stewardship' && route !== 'budgets' && (
         <BottomNav active={tab} onChange={setRoute} onAdd={() => setRoute('add')} />
       )}
       </>

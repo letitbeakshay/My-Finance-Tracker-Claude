@@ -19,7 +19,7 @@ export function CategoryManager() {
         <button
           type="button"
           onClick={() => setCreating(true)}
-          className="text-accent text-[14px] font-semibold"
+          className="text-accent-ink text-[14px] font-semibold"
         >
           + Add
         </button>

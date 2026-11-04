@@ -9,6 +9,9 @@ import {
   CreditCard,
   Fuel,
   Gift,
+  Globe,
+  HandHeart,
+  HeartHandshake,
   Home,
   Landmark,
   LayoutDashboard,
@@ -19,6 +22,7 @@ import {
   ShoppingBag,
   Shirt,
   Smartphone,
+  Target,
   Tag,
   TrendingUp,
   UtensilsCrossed,
@@ -46,6 +50,10 @@ const CATEGORY_ICONS: Record<string, LucideIcon> = {
   emi: Landmark,
   investment: TrendingUp,
   others: Package,
+  tithe: HandHeart,
+  offering: Gift,
+  missions: Globe,
+  charity: HeartHandshake,
 }
 
 export function categoryIcon(categoryId?: string): LucideIcon {
@@ -62,6 +70,8 @@ export const UNASSIGNED_ICON = Wallet
 
 export const SECTION_ICONS = {
   overview: LayoutDashboard,
+  budgets: Target,
+  stewardship: HandHeart,
   transactions: ArrowLeftRight,
   income: ArrowDownLeft,
   expenses: ArrowUpRight,

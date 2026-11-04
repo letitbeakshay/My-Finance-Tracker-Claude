@@ -3,7 +3,7 @@ import { format, isToday, isYesterday, parseISO } from 'date-fns'
 import type { Category, Expense, PaymentAccount } from '../../types'
 import { formatCurrency } from '../../lib/currency'
 import { PAYMENT_METHOD_ICONS } from '../../lib/paymentIcons'
-import { PAYMENT_METHOD_LABELS } from '../../types'
+import { EXPENSE_TYPE_COLORS as TYPE_DOT, PAYMENT_METHOD_LABELS } from '../../types'
 
 interface TransactionItemProps {
   expense: Expense
@@ -17,12 +17,6 @@ function relativeDate(dateStr: string) {
   if (isToday(d)) return 'Today'
   if (isYesterday(d)) return 'Yesterday'
   return format(d, 'd MMM')
-}
-
-const TYPE_DOT: Record<string, string> = {
-  need: '#5b9dff',
-  want: '#ff9f43',
-  savings: '#24d968',
 }
 
 export function TransactionItem({ expense, category, account, onClick }: TransactionItemProps) {

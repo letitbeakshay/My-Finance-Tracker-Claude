@@ -1,19 +1,26 @@
 import { useEffect, useRef, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
-import type { AppSettings, Category, Expense, Income, Loan, PaymentAccount } from '../types'
+import type { AppSettings, Budget, Category, Expense, Income, Loan, PaymentAccount, Reflection } from '../types'
 import {
+  rowToBudget,
   rowToCategory,
   rowToExpense,
   rowToIncome,
   rowToLoan,
+  rowToReflection,
   rowToPaymentAccount,
   type AppSettingsRow,
+  type BudgetRow,
   type CategoryRow,
   type ExpenseRow,
   type IncomeRow,
   type LoanRow,
+  type ReflectionRow,
   type PaymentAccountRow,
 } from '../db/schema'
+
+/** Dev server only: `?demo` swaps in sample data (see src/dev/demoData.ts). */
+const SHOW_DEMO = import.meta.env.DEV && new URLSearchParams(location.search).has('demo')
 
 /**
  * Fetches a table once, then keeps the result live by refetching whenever
@@ -34,6 +41,11 @@ function useSupabaseTable<Row, T>(
     let cancelled = false
 
     async function load() {
+      if (SHOW_DEMO) {
+        const { DEMO_TABLES } = await import('../dev/demoData')
+        if (!cancelled && DEMO_TABLES[table]) setData((DEMO_TABLES[table] as Row[]).map(mapRow))
+        return
+      }
       const { data: rows, error } = await queryRef.current(supabase.from(table))
       if (cancelled) return
       if (error) {
@@ -83,6 +95,16 @@ export function useLoans() {
   )
 }
 
+export function useReflections() {
+  return useSupabaseTable<ReflectionRow, Reflection>('reflections', rowToReflection, (q) =>
+    q.select('*'),
+  )
+}
+
+export function useBudgets() {
+  return useSupabaseTable<BudgetRow, Budget>('budgets', rowToBudget, (q) => q.select('*'))
+}
+
 export function useCategories() {
   return useSupabaseTable<CategoryRow, Category>('categories', rowToCategory, (q) =>
     q.select('*').eq('archived', false).order('sort_order', { ascending: true }),
@@ -116,6 +138,9 @@ export function useSettings() {
     id: 'app',
     currency: row.currency,
     onboardedAt: row.onboarded_at ? new Date(row.onboarded_at).getTime() : undefined,
+    givingPercent: Number(row.giving_percent ?? 10),
+    savingPercent: Number(row.saving_percent ?? 10),
+    pauseThreshold: Number(row.pause_threshold ?? 2000),
   }), (q) => q.select('*').eq('id', 'app'))
   return rows?.[0]
 }

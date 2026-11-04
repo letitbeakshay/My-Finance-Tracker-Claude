@@ -8,29 +8,41 @@ import { PaymentAccountPicker } from './PaymentAccountPicker'
 import { SegmentedControl } from '../ui/SegmentedControl'
 import { Button } from '../ui/Button'
 import { SuccessAnimation } from './SuccessAnimation'
-import { useCategories, usePaymentAccounts } from '../../hooks/useLiveData'
+import { CountTheCostSheet } from './CountTheCostSheet'
+import { useCategories, usePaymentAccounts, useSettings } from '../../hooks/useLiveData'
 import { expenseRepo } from '../../db/repository'
 import { PAYMENT_METHOD_ACCOUNT_TYPE } from '../../types'
+import { EXPENSE_TYPE_COLORS } from '../../types'
 import type { Expense, ExpenseType, PaymentMethod } from '../../types'
+
+/** Pre-filled values, e.g. when opened from "Give now". */
+export interface AddExpensePreset {
+  type?: ExpenseType
+  categoryId?: string
+  amount?: string
+}
 
 interface AddExpenseScreenProps {
   onDone: () => void
   onCancel: () => void
   editExpense?: Expense
+  preset?: AddExpensePreset
 }
 
 const TYPE_OPTIONS: { value: ExpenseType; label: string; color: string }[] = [
-  { value: 'need', label: 'Need', color: '#5b9dff' },
-  { value: 'want', label: 'Want', color: '#ff9f43' },
-  { value: 'savings', label: 'Savings', color: '#24d968' },
+  { value: 'need', label: 'Need', color: EXPENSE_TYPE_COLORS.need },
+  { value: 'want', label: 'Want', color: EXPENSE_TYPE_COLORS.want },
+  { value: 'savings', label: 'Savings', color: EXPENSE_TYPE_COLORS.savings },
+  { value: 'giving', label: 'Giving', color: EXPENSE_TYPE_COLORS.giving },
 ]
 
-export function AddExpenseScreen({ onDone, onCancel, editExpense }: AddExpenseScreenProps) {
+export function AddExpenseScreen({ onDone, onCancel, editExpense, preset }: AddExpenseScreenProps) {
   const categories = useCategories()
+  const settings = useSettings()
   const accounts = usePaymentAccounts()
-  const [amount, setAmount] = useState(editExpense ? String(editExpense.amount) : '')
-  const [categoryId, setCategoryId] = useState<string | null>(editExpense?.categoryId ?? null)
-  const [type, setType] = useState<ExpenseType>(editExpense?.type ?? 'need')
+  const [amount, setAmount] = useState(editExpense ? String(editExpense.amount) : (preset?.amount ?? ''))
+  const [categoryId, setCategoryId] = useState<string | null>(editExpense?.categoryId ?? preset?.categoryId ?? null)
+  const [type, setType] = useState<ExpenseType>(editExpense?.type ?? preset?.type ?? 'need')
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(
     editExpense?.paymentMethod ?? 'upi',
   )
@@ -39,6 +51,7 @@ export function AddExpenseScreen({ onDone, onCancel, editExpense }: AddExpenseSc
   const [date, setDate] = useState(editExpense?.date ?? format(new Date(), 'yyyy-MM-dd'))
   const [saving, setSaving] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
+  const [pausing, setPausing] = useState(false)
 
   const defaultCategoryId = useMemo(() => categories?.[0]?.id ?? null, [categories])
   const effectiveCategoryId = categoryId ?? defaultCategoryId
@@ -59,8 +72,27 @@ export function AddExpenseScreen({ onDone, onCancel, editExpense }: AddExpenseSc
   const numericAmount = parseFloat(amount) || 0
   const canSave = numericAmount > 0 && !!effectiveCategoryId && !saving
 
-  async function handleSave() {
+  function handleTypeChange(next: ExpenseType) {
+    setType(next)
+    // Giving usually means tithe — pick it for the user, who can still change it.
+    if (next === 'giving' && categories?.some((c) => c.id === 'tithe')) setCategoryId('tithe')
+  }
+
+  const pauseThreshold = settings?.pauseThreshold ?? 0
+
+  async function handleSave(skipPause = false) {
     if (!canSave || !effectiveCategoryId) return
+    if (
+      !skipPause &&
+      !editExpense &&
+      type === 'want' &&
+      pauseThreshold > 0 &&
+      numericAmount >= pauseThreshold
+    ) {
+      setPausing(true)
+      return
+    }
+    setPausing(false)
     setSaving(true)
     if (editExpense) {
       await expenseRepo.update(editExpense.id, {
@@ -100,7 +132,7 @@ export function AddExpenseScreen({ onDone, onCancel, editExpense }: AddExpenseSc
           aria-label="Close"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-            <path d="M6 6l12 12M18 6 6 18" stroke="white" strokeWidth="2" strokeLinecap="round" />
+            <path d="M6 6l12 12M18 6 6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
           </svg>
         </button>
         <h1 className="text-[19px] font-bold">{editExpense ? 'Edit Expense' : 'Add Expense'}</h1>
@@ -124,7 +156,7 @@ export function AddExpenseScreen({ onDone, onCancel, editExpense }: AddExpenseSc
           <p className="text-secondary text-[13px] font-medium mb-2.5 uppercase tracking-wide">
             Type
           </p>
-          <SegmentedControl options={TYPE_OPTIONS} value={type} onChange={setType} />
+          <SegmentedControl options={TYPE_OPTIONS} value={type} onChange={handleTypeChange} />
         </div>
 
         <div className="mb-7">
@@ -175,10 +207,18 @@ export function AddExpenseScreen({ onDone, onCancel, editExpense }: AddExpenseSc
       </div>
 
       <div className="px-6 pb-8 pt-2">
-        <Button onClick={handleSave} disabled={!canSave}>
+        <Button onClick={() => handleSave()} disabled={!canSave}>
           {editExpense ? 'Save Changes' : 'Save Expense'}
         </Button>
       </div>
+
+      {pausing && (
+        <CountTheCostSheet
+          amount={numericAmount}
+          onProceed={() => handleSave(true)}
+          onCancel={() => setPausing(false)}
+        />
+      )}
 
       <AnimatePresence>{showSuccess && <SuccessAnimation amount={numericAmount} />}</AnimatePresence>
     </div>

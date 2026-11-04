@@ -57,13 +57,16 @@ export function typeBreakdown(expenses: Expense[]) {
   const needs = sumByType(expenses, 'need')
   const wants = sumByType(expenses, 'want')
   const savings = sumByType(expenses, 'savings')
+  const giving = sumByType(expenses, 'giving')
   return {
     needs,
     wants,
     savings,
+    giving,
     needsPct: Math.round((needs / total) * 100),
     wantsPct: Math.round((wants / total) * 100),
     savingsPct: Math.round((savings / total) * 100),
+    givingPct: Math.round((giving / total) * 100),
   }
 }
 

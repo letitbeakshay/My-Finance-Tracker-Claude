@@ -104,6 +104,50 @@ create table if not exists loans (
   created_at timestamptz not null default now()
 );
 
+-- Stewardship plan (giving / saving targets, large-purchase pause).
+alter table app_settings add column if not exists giving_percent numeric not null default 10;
+alter table app_settings add column if not exists saving_percent numeric not null default 10;
+alter table app_settings add column if not exists pause_threshold numeric not null default 2000;
+alter table app_settings add column if not exists giving_seeded boolean not null default false;
+
+-- Allow 'giving' as an expense type. The original check constraint is
+-- replaced; the loop finds it by definition so this is safe to re-run.
+do $$
+declare c text;
+begin
+  for c in
+    select conname from pg_constraint
+    where conrelid = 'expenses'::regclass and contype = 'c'
+      and pg_get_constraintdef(oid) ilike '%need%want%savings%'
+      and pg_get_constraintdef(oid) not ilike '%giving%'
+  loop
+    execute format('alter table expenses drop constraint %I', c);
+  end loop;
+  if not exists (
+    select 1 from pg_constraint where conrelid = 'expenses'::regclass and conname = 'expenses_type_check'
+  ) then
+    alter table expenses add constraint expenses_type_check
+      check (type in ('need', 'want', 'savings', 'giving'));
+  end if;
+end $$;
+
+-- Monthly accountability reflection; id is the month, 'yyyy-MM'.
+create table if not exists reflections (
+  id text primary key,
+  gratitude text,
+  improve text,
+  commitment text,
+  updated_at timestamptz not null default now()
+);
+
+-- Monthly spending limits. id is 'overall' (all needs + wants) or a category id.
+create table if not exists budgets (
+  id text primary key,
+  category_id text references categories(id) on delete cascade,
+  monthly_limit numeric not null check (monthly_limit > 0),
+  created_at timestamptz not null default now()
+);
+
 create index if not exists incomes_date_idx on incomes (date);
 
 create index if not exists expenses_date_idx on expenses (date);
@@ -116,6 +160,8 @@ alter table expenses enable row level security;
 alter table app_settings enable row level security;
 alter table incomes enable row level security;
 alter table loans enable row level security;
+alter table reflections enable row level security;
+alter table budgets enable row level security;
 
 drop policy if exists "categories_allow_all" on categories;
 create policy "categories_allow_all" on categories for all using (true) with check (true);
@@ -134,6 +180,12 @@ create policy "incomes_allow_all" on incomes for all using (true) with check (tr
 
 drop policy if exists "loans_allow_all" on loans;
 create policy "loans_allow_all" on loans for all using (true) with check (true);
+
+drop policy if exists "reflections_allow_all" on reflections;
+create policy "reflections_allow_all" on reflections for all using (true) with check (true);
+
+drop policy if exists "budgets_allow_all" on budgets;
+create policy "budgets_allow_all" on budgets for all using (true) with check (true);
 
 -- Enable realtime so the app reflects changes instantly without polling.
 -- Guarded because newer Supabase projects auto-add every public table to
@@ -180,5 +232,19 @@ begin
     where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'loans'
   ) then
     alter publication supabase_realtime add table loans;
+  end if;
+
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'reflections'
+  ) then
+    alter publication supabase_realtime add table reflections;
+  end if;
+
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'budgets'
+  ) then
+    alter publication supabase_realtime add table budgets;
   end if;
 end $$;

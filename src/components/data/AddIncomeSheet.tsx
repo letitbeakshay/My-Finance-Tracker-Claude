@@ -3,6 +3,8 @@ import { format } from 'date-fns'
 import { BottomSheet } from '../ui/BottomSheet'
 import { Button } from '../ui/Button'
 import { incomeRepo } from '../../db/repository'
+import { formatCurrency } from '../../lib/currency'
+import { VERSES } from '../../lib/scripture'
 import type { PaymentAccount } from '../../types'
 
 const FIELD =
@@ -12,9 +14,12 @@ interface AddIncomeSheetProps {
   open: boolean
   onClose: () => void
   bankAccounts: PaymentAccount[]
+  givingPercent: number
+  /** Lets the user go straight to recording what they set aside to give. */
+  onGive: (amount: number) => void
 }
 
-export function AddIncomeSheet({ open, onClose, bankAccounts }: AddIncomeSheetProps) {
+export function AddIncomeSheet({ open, onClose, bankAccounts, givingPercent, onGive }: AddIncomeSheetProps) {
   const [source, setSource] = useState('')
   const [amount, setAmount] = useState('')
   const [date, setDate] = useState(format(new Date(), 'yyyy-MM-dd'))
@@ -22,6 +27,7 @@ export function AddIncomeSheet({ open, onClose, bankAccounts }: AddIncomeSheetPr
   const [notes, setNotes] = useState('')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  const [savedAmount, setSavedAmount] = useState<number | null>(null)
 
   useEffect(() => {
     if (open) {
@@ -31,6 +37,7 @@ export function AddIncomeSheet({ open, onClose, bankAccounts }: AddIncomeSheetPr
       setAccountId('')
       setNotes('')
       setError('')
+      setSavedAmount(null)
     }
   }, [open])
 
@@ -49,7 +56,7 @@ export function AddIncomeSheet({ open, onClose, bankAccounts }: AddIncomeSheetPr
         accountId: accountId || undefined,
         notes: notes.trim() || undefined,
       })
-      onClose()
+      setSavedAmount(numericAmount)
     } catch {
       setError('Could not save. Make sure the latest supabase/schema.sql has been run.')
     } finally {
@@ -59,6 +66,15 @@ export function AddIncomeSheet({ open, onClose, bankAccounts }: AddIncomeSheetPr
 
   return (
     <BottomSheet open={open} onClose={onClose}>
+      {savedAmount !== null ? (
+        <FirstFruitsPrompt
+          firstFruits={(savedAmount * givingPercent) / 100}
+          givingPercent={givingPercent}
+          onDone={onClose}
+          onGive={onGive}
+        />
+      ) : (
+        <>
       <h2 className="text-white text-[20px] font-bold mb-5">Add income</h2>
       <div className="flex flex-col gap-3 mb-6">
         <input
@@ -97,6 +113,51 @@ export function AddIncomeSheet({ open, onClose, bankAccounts }: AddIncomeSheetPr
       <Button onClick={handleSave} disabled={!canSave}>
         Add income
       </Button>
+        </>
+      )}
     </BottomSheet>
+  )
+}
+
+function FirstFruitsPrompt({
+  firstFruits,
+  givingPercent,
+  onDone,
+  onGive,
+}: {
+  firstFruits: number
+  givingPercent: number
+  onDone: () => void
+  onGive: (amount: number) => void
+}) {
+  return (
+    <>
+      <h2 className="text-white text-[20px] font-bold mb-1">Income recorded</h2>
+      <p className="text-secondary text-[15px] mb-5">Thank you, Lord, for providing.</p>
+      {givingPercent > 0 && (
+        <div className="bg-giving-soft border border-giving/30 rounded-2xl p-4 mb-5">
+          <p className="text-giving text-[13px] font-semibold uppercase tracking-wide mb-1">First fruits</p>
+          <p className="text-white text-[24px] font-bold tabular-nums mb-2">{formatCurrency(firstFruits)}</p>
+          <p className="text-secondary text-[14px] italic">
+            “{VERSES.firstFruits.text}” — {VERSES.firstFruits.ref}
+          </p>
+        </div>
+      )}
+      <div className="flex gap-3">
+        <Button variant="secondary" onClick={onDone}>
+          Done
+        </Button>
+        {givingPercent > 0 && (
+          <Button
+            onClick={() => {
+              onDone()
+              onGive(firstFruits)
+            }}
+          >
+            Give now
+          </Button>
+        )}
+      </div>
+    </>
   )
 }

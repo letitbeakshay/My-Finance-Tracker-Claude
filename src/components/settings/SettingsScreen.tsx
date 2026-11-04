@@ -49,7 +49,7 @@ export function SettingsScreen({ onBack, onLock }: SettingsScreenProps) {
           aria-label="Back"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-            <path d="M15 6l-6 6 6 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M15 6l-6 6 6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </button>
         <h1 className="text-[22px] font-bold">Settings</h1>
@@ -100,7 +100,7 @@ export function SettingsScreen({ onBack, onLock }: SettingsScreenProps) {
           <Button variant="secondary" onClick={() => setConfirmDelete(false)}>
             Cancel
           </Button>
-          <Button onClick={handleDeleteAll} className="bg-danger! text-white!">
+          <Button onClick={handleDeleteAll} className="bg-danger! text-onfill!">
             Delete Everything
           </Button>
         </div>

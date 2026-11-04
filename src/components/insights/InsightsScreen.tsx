@@ -102,6 +102,7 @@ export function InsightsScreen({ onOpenSettings }: InsightsScreenProps) {
             needs={breakdown.needs}
             wants={breakdown.wants}
             savings={breakdown.savings}
+            giving={breakdown.giving}
           />
 
           <SearchBar
@@ -143,6 +144,7 @@ export function InsightsScreen({ onOpenSettings }: InsightsScreenProps) {
                 needsPct={breakdown.needsPct}
                 wantsPct={breakdown.wantsPct}
                 savingsPct={breakdown.savingsPct}
+                givingPct={breakdown.givingPct}
               />
             </>
           )}

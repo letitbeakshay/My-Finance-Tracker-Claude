@@ -42,7 +42,7 @@ function Row({
       <div className="text-right shrink-0">
         <p className="text-white font-semibold text-[15px] tabular-nums">−{formatCurrency(spent)}</p>
         {!!received && (
-          <p className="text-accent text-[12px] tabular-nums">+{formatCurrency(received)}</p>
+          <p className="text-accent-ink text-[12px] tabular-nums">+{formatCurrency(received)}</p>
         )}
       </div>
     </div>

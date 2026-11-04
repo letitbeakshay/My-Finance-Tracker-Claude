@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import { format, parseISO } from 'date-fns'
 import clsx from 'clsx'
 import { Card } from '../ui/Card'
+import { textShade } from '../../lib/colors'
 import { Chip } from '../ui/Chip'
 import { formatCurrency } from '../../lib/currency'
 
@@ -117,7 +118,7 @@ export function TransactionsPanel({
               <span className="hidden md:flex items-center">
                 <span
                   className="text-[12px] font-semibold rounded-full px-2.5 py-1"
-                  style={{ color: r.tag.color, background: `${r.tag.color}24` }}
+                  style={{ color: textShade(r.tag.color), background: `${r.tag.color}2e` }}
                 >
                   {r.tag.label}
                 </span>
@@ -126,7 +127,7 @@ export function TransactionsPanel({
               <span
                 className={clsx(
                   'font-semibold text-[15px] tabular-nums shrink-0 md:text-right',
-                  r.kind === 'income' ? 'text-accent' : 'text-white',
+                  r.kind === 'income' ? 'text-accent-ink' : 'text-white',
                 )}
               >
                 {r.kind === 'income' ? '+' : '−'}

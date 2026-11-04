@@ -2,6 +2,7 @@ import { useRef, useState, type FormEvent } from 'react'
 import { motion } from 'framer-motion'
 import { Button } from '../ui/Button'
 import { tryUnlock } from '../../lib/auth'
+import { VERSES } from '../../lib/scripture'
 
 interface PasscodeGateProps {
   onUnlock: () => void
@@ -35,6 +36,9 @@ export function PasscodeGate({ onUnlock }: PasscodeGateProps) {
       <div className="text-center">
         <h1 className="text-white text-[22px] font-bold mb-1">Enter Passcode</h1>
         <p className="text-secondary text-[14px]">Unlock your finance tracker</p>
+        <p className="text-tertiary text-[12px] italic mt-4 max-w-[300px] mx-auto leading-relaxed">
+          “{VERSES.lords.text}” — {VERSES.lords.ref}
+        </p>
       </div>
 
       <motion.form

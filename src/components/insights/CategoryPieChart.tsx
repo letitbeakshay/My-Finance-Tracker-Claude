@@ -47,7 +47,7 @@ export function CategoryPieChart({ breakdown, categoryMap }: CategoryPieChartPro
                 innerRadius={42}
                 outerRadius={68}
                 paddingAngle={2}
-                stroke="#1A1A1A"
+                stroke="#ffffff"
                 strokeWidth={2}
                 animationDuration={700}
               >
@@ -57,8 +57,8 @@ export function CategoryPieChart({ breakdown, categoryMap }: CategoryPieChartPro
               </Pie>
               <Tooltip
                 contentStyle={{
-                  background: '#151515',
-                  border: '1px solid #262626',
+                  background: '#ffffff',
+                  border: '1px solid #e2dfd5',
                   borderRadius: 12,
                   fontSize: 13,
                 }}
