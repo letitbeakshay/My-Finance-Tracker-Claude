@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Plus, X } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { useBudgets, useCategories, useExpenses } from '../../hooks/useLiveData'
 import { budgetRepo } from '../../db/repository'
 import { budgetProgress } from '../../lib/budgets'
@@ -8,7 +8,7 @@ import { OVERALL_BUDGET_ID } from '../../types'
 import { Card } from '../ui/Card'
 import { CategoryIcon } from '../ui/CategoryIcon'
 import { BudgetBar } from './BudgetBar'
-import { AddBudgetSheet } from './AddBudgetSheet'
+import { NewCategorySheet } from '../settings/NewCategorySheet'
 
 const FIELD =
   'w-28 h-11 bg-surface border border-border rounded-xl px-3 text-white text-[15px] text-right tabular-nums placeholder:text-tertiary'
@@ -49,7 +49,7 @@ function LimitInput({ value, onCommit }: { value?: number; onCommit: (limit: num
   )
 }
 
-/** Set monthly limits for the budgets you add, and see this month's progress against each. */
+/** Every category with an optional monthly limit, plus a way to add a new category. */
 export function BudgetsView({ month }: { month: Date }) {
   const budgets = useBudgets()
   const expenses = useExpenses()
@@ -64,37 +64,37 @@ export function BudgetsView({ month }: { month: Date }) {
 
   const limitFor = (id: string) => budgets.find((b) => b.id === id)?.monthlyLimit
   const lineFor = (id: string) => progress.categories.find((l) => l.categoryId === id)
-  const budgetedIds = new Set(budgets.map((b) => b.id))
-  const budgeted = categories.filter((c) => budgetedIds.has(c.id))
 
   return (
-    <div className="flex flex-col gap-5">
-      <Card>
-        <p className="text-tertiary text-[12px] italic">
-          “{VERSES.diligent.text}” — {VERSES.diligent.ref}
-        </p>
-      </Card>
+    <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] items-start">
+      <div className="flex flex-col gap-5">
+        <Card>
+          <p className="text-tertiary text-[12px] italic">
+            “{VERSES.diligent.text}” — {VERSES.diligent.ref}
+          </p>
+        </Card>
+
+        <Card>
+          <div className="flex items-center justify-between gap-3 mb-1">
+            <div>
+              <h2 className="text-white text-[17px] font-bold">Overall monthly budget</h2>
+              <p className="text-tertiary text-[12px]">Needs and wants together</p>
+            </div>
+            <LimitInput value={limitFor(OVERALL_BUDGET_ID)} onCommit={(n) => budgetRepo.set(null, n)} />
+          </div>
+          {progress.overall && (
+            <div className="mt-3">
+              <BudgetBar line={progress.overall} />
+            </div>
+          )}
+        </Card>
+      </div>
 
       <Card>
         <div className="flex items-center justify-between gap-3 mb-1">
           <div>
-            <h2 className="text-white text-[17px] font-bold">Overall monthly budget</h2>
-            <p className="text-tertiary text-[12px]">Needs and wants together</p>
-          </div>
-          <LimitInput value={limitFor(OVERALL_BUDGET_ID)} onCommit={(n) => budgetRepo.set(null, n)} />
-        </div>
-        {progress.overall && (
-          <div className="mt-3">
-            <BudgetBar line={progress.overall} />
-          </div>
-        )}
-      </Card>
-
-      <Card>
-        <div className="flex items-center justify-between gap-3 mb-1">
-          <div>
-            <h2 className="text-white text-[17px] font-bold">Your budgets</h2>
-            <p className="text-tertiary text-[12px]">Each one is also a category when you add an expense</p>
+            <h2 className="text-white text-[17px] font-bold">By category</h2>
+            <p className="text-tertiary text-[12px]">Leave blank for no limit</p>
           </div>
           <button
             type="button"
@@ -105,52 +105,39 @@ export function BudgetsView({ month }: { month: Date }) {
           </button>
         </div>
 
-        {budgeted.length === 0 ? (
-          <p className="text-secondary text-[14px] leading-relaxed py-6 text-center">
-            No category budgets yet. Add one for anything you want to watch, like Family allowance or
-            Outside food.
-          </p>
-        ) : (
-          <div className="flex flex-col gap-5 mt-5">
-            {budgeted.map((c) => {
-              const line = lineFor(c.id)
-              return (
-                <div key={c.id}>
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="flex items-center gap-2.5 min-w-0 flex-1">
-                      <span className="w-9 h-9 rounded-full bg-surface border border-border flex items-center justify-center text-secondary shrink-0">
-                        <CategoryIcon category={c} size={17} />
-                      </span>
-                      <span className="text-white font-medium text-[15px] truncate">{c.name}</span>
+        <div className="flex flex-col gap-5 mt-5">
+          {categories.map((c) => {
+            const line = lineFor(c.id)
+            return (
+              <div key={c.id}>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="flex items-center gap-2.5 min-w-0">
+                    <span className="w-9 h-9 rounded-full bg-surface border border-border flex items-center justify-center text-secondary shrink-0">
+                      <CategoryIcon category={c} size={17} />
                     </span>
-                    <LimitInput value={limitFor(c.id)} onCommit={(n) => budgetRepo.set(c.id, n)} />
-                    <button
-                      type="button"
-                      onClick={() => budgetRepo.set(c.id, 0)}
-                      aria-label={`Remove ${c.name} budget`}
-                      className="w-9 h-9 shrink-0 rounded-full flex items-center justify-center text-tertiary hover:text-white"
-                    >
-                      <X size={17} />
-                    </button>
-                  </div>
-                  {line && (
-                    <div className="mt-2.5">
-                      <BudgetBar line={line} />
-                    </div>
-                  )}
+                    <span className="min-w-0">
+                      <span className="block text-white font-medium text-[15px] truncate">{c.name}</span>
+                      {!line && (
+                        <span className="block text-tertiary text-[12px] tabular-nums">
+                          ₹{Math.round(progress.spentByCategory(c.id)).toLocaleString('en-IN')} spent this month
+                        </span>
+                      )}
+                    </span>
+                  </span>
+                  <LimitInput value={limitFor(c.id)} onCommit={(n) => budgetRepo.set(c.id, n)} />
                 </div>
-              )
-            })}
-          </div>
-        )}
+                {line && (
+                  <div className="mt-2.5">
+                    <BudgetBar line={line} />
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </div>
       </Card>
 
-      <AddBudgetSheet
-        open={adding}
-        onClose={() => setAdding(false)}
-        categories={categories}
-        budgetedIds={budgetedIds}
-      />
+      <NewCategorySheet open={adding} onClose={() => setAdding(false)} onCreated={() => setAdding(false)} />
     </div>
   )
 }

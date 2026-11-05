@@ -153,7 +153,7 @@ export function AllDataScreen({ onGive }: AllDataScreenProps) {
   }
 
   return (
-    <div className="px-4 sm:px-6 lg:px-8 pt-3 pb-32 md:pb-16">
+    <div className="px-4 sm:px-6 lg:px-8 2xl:px-12 pt-3 pb-32 md:pb-16">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
         <MonthNav month={month} onChange={setMonth} />
 
@@ -175,7 +175,7 @@ export function AllDataScreen({ onGive }: AllDataScreenProps) {
         </div>
       </div>
 
-      <div className="lg:grid lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-8 items-start">
+      <div className="lg:flex lg:items-stretch lg:gap-6">
         <SectionNav
           value={section}
           onChange={setSection}
@@ -186,7 +186,7 @@ export function AllDataScreen({ onGive }: AllDataScreenProps) {
           }}
         />
 
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           {section === 'overview' && (
             <>
               {plan && settings && budgets && (
@@ -208,7 +208,7 @@ export function AllDataScreen({ onGive }: AllDataScreenProps) {
                 youOwe={youOwe}
                 owedToYou={owedToYou}
               />
-              <div className="flex flex-col gap-5 lg:gap-6">
+              <div className="grid gap-5 lg:gap-6 xl:grid-cols-[minmax(0,1fr)_380px] items-start">
                 <TransactionsPanel
                   rows={rows}
                   filter={filter}
@@ -217,7 +217,7 @@ export function AllDataScreen({ onGive }: AllDataScreenProps) {
                   onSearch={setSearch}
                   onSelect={handleSelect}
                 />
-                <div className="grid gap-5 lg:gap-6 md:grid-cols-2 items-start">
+                <div className="grid gap-5 lg:gap-6 md:grid-cols-2 xl:grid-cols-1 items-start">
                   <LoansPanel loans={loans} onAdd={() => setAddingLoan(true)} onSelect={setSelectedLoan} />
                   <AccountsPanel
                     summaries={accountSummaries}

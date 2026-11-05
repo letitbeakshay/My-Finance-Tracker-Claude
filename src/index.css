@@ -100,7 +100,7 @@ body {
 
 /* All data is a dashboard — give it the full desktop width. */
 html[data-view='data'] #root {
-  max-width: 1280px;
+  max-width: none;
 }
 
 input,
