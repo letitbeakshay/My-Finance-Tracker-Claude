@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { format, parseISO } from 'date-fns'
 import clsx from 'clsx'
+import { Check, X } from 'lucide-react'
 import { Card } from '../ui/Card'
 import { Chip } from '../ui/Chip'
 import { formatCurrency } from '../../lib/currency'
@@ -14,6 +15,8 @@ export interface TransactionRow {
   title: string
   note?: string
   accountLabel: string
+  /** The answer to "does this please God?" when there is one. */
+  pleasesGod?: boolean
   tag: { label: string; color: string }
   amount: number
 }
@@ -100,7 +103,11 @@ export function TransactionsPanel({
                   {r.icon}
                 </span>
                 <span className="min-w-0">
-                  <span className="block text-white font-medium text-[15px] truncate">{r.title}</span>
+                  <span className="flex items-center gap-1.5 text-white font-medium text-[15px]">
+                    <span className="truncate">{r.title}</span>
+                    {r.pleasesGod === true && <Check size={14} strokeWidth={2.6} className="text-positive shrink-0" aria-label="Pleases God" />}
+                    {r.pleasesGod === false && <X size={14} strokeWidth={2.6} className="text-danger shrink-0" aria-label="Does not please God" />}
+                  </span>
                   <span className="block text-tertiary text-[13px] truncate">
                     <span className="md:hidden">
                       {[format(parseISO(r.date), 'd MMM'), r.accountLabel === '—' ? '' : r.accountLabel, r.note]

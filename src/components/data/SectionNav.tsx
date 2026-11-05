@@ -3,12 +3,13 @@ import clsx from 'clsx'
 import { PanelLeftClose, PanelLeftOpen } from 'lucide-react'
 import { SECTION_ICONS } from '../../lib/dataIcons'
 
-export type Section = 'overview' | 'budgets' | 'stewardship' | 'transactions' | 'income' | 'expenses' | 'loans' | 'accounts'
+export type Section = 'overview' | 'budgets' | 'stewardship' | 'reimbursements' | 'transactions' | 'income' | 'expenses' | 'loans' | 'accounts'
 
 const ITEMS: { value: Section; label: string }[] = [
   { value: 'overview', label: 'Overview' },
   { value: 'budgets', label: 'Budgets' },
   { value: 'stewardship', label: 'Stewardship' },
+  { value: 'reimbursements', label: 'Reimbursements' },
   { value: 'transactions', label: 'Transactions' },
   { value: 'income', label: 'Income' },
   { value: 'expenses', label: 'Expenses' },

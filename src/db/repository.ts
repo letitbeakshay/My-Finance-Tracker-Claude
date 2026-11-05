@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabaseClient'
+import { planCategories } from '../lib/categoryPlan'
 import {
   OVERALL_BUDGET_ID,
   type AppSettings,
@@ -31,25 +32,52 @@ function generateId() {
   return crypto.randomUUID()
 }
 
+/** True when a write failed only because the categories-v2 migration has not been run yet. */
+function isMissingColumn(error: { code?: string } | null) {
+  return error?.code === 'PGRST204' || error?.code === '42703'
+}
+
+const NEW_EXPENSE_COLUMNS = ['pleases_god', 'reimbursed'] as const
+
+function withoutNewColumns<T extends Record<string, unknown>>(row: T) {
+  const copy: Record<string, unknown> = { ...row }
+  for (const key of NEW_EXPENSE_COLUMNS) delete copy[key]
+  return copy
+}
+
 export const expenseRepo = {
   async add(input: Omit<Expense, 'id' | 'createdAt' | 'updatedAt'>) {
     const id = generateId()
     const row = expenseToRow({ ...input, id, source: input.source ?? 'manual' })
-    const { data, error } = await supabase
-      .from('expenses')
-      .insert(row)
-      .select()
-      .single<ExpenseRow>()
-    if (error) throw error
+    let { data, error } = await supabase.from('expenses').insert(row).select().single<ExpenseRow>()
+    if (isMissingColumn(error)) {
+      // Older database: save the expense anyway, just without the newer fields.
+      ;({ data, error } = await supabase
+        .from('expenses')
+        .insert(withoutNewColumns(row))
+        .select()
+        .single<ExpenseRow>())
+    }
+    if (error || !data) throw error
     return rowToExpense(data)
   },
 
   async update(id: string, changes: Partial<Omit<Expense, 'id' | 'createdAt'>>) {
     const row = expenseToRow({ id, ...changes } as Expense)
     delete row.id
+    const stamp = { updated_at: new Date().toISOString() }
+    let { error } = await supabase.from('expenses').update({ ...row, ...stamp }).eq('id', id)
+    if (isMissingColumn(error)) {
+      ;({ error } = await supabase.from('expenses').update({ ...withoutNewColumns(row), ...stamp }).eq('id', id))
+    }
+    if (error) throw error
+  },
+
+  /** Marks a reimbursable expense as paid back (or not). */
+  async setReimbursed(id: string, reimbursed: boolean) {
     const { error } = await supabase
       .from('expenses')
-      .update({ ...row, updated_at: new Date().toISOString() })
+      .update({ reimbursed, updated_at: new Date().toISOString() })
       .eq('id', id)
     if (error) throw error
   },
@@ -100,6 +128,12 @@ export const categoryRepo = {
     if (error) throw error
   },
 
+  /** Moves a category under another one (or back to the top level with `null`). */
+  async setParent(id: string, parentId: string | null) {
+    const { error } = await supabase.from('categories').update({ parent_id: parentId }).eq('id', id)
+    if (error) throw error
+  },
+
   async archive(id: string) {
     const { error } = await supabase.from('categories').update({ archived: true }).eq('id', id)
     if (error) throw error
@@ -129,6 +163,49 @@ export const categoryRepo = {
         supabase.from('categories').update({ sort_order: index }).eq('id', id),
       ),
     )
+  },
+}
+
+export const categoryPlanRepo = {
+  /** Whether the database has the columns the plan needs (the categories-v2 migration has been run). */
+  async isReady() {
+    if (import.meta.env.DEV && new URLSearchParams(location.search).has('demo')) return true
+    const { error } = await supabase.from('categories').select('parent_id, reimbursable, default_type').limit(1)
+    return !error
+  },
+
+  /** Applies the category plan. Creates what is missing and moves/renames what exists; never deletes. */
+  async apply(existing: Category[]) {
+    const { ops } = planCategories(existing, generateId)
+    for (const op of ops) {
+      if (op.kind === 'create') {
+        const { error } = await supabase.from('categories').insert({
+          id: op.id,
+          name: op.name,
+          icon: op.icon,
+          parent_id: op.parentId,
+          reimbursable: op.reimbursable,
+          default_type: op.defaultType ?? null,
+          sort_order: op.sortOrder,
+        })
+        if (error) throw error
+      } else {
+        const c = op.changes
+        const { error } = await supabase
+          .from('categories')
+          .update({
+            ...(c.name !== undefined ? { name: c.name } : {}),
+            ...(c.parentId !== undefined ? { parent_id: c.parentId } : {}),
+            ...(c.reimbursable !== undefined ? { reimbursable: c.reimbursable } : {}),
+            ...(c.defaultType !== undefined ? { default_type: c.defaultType } : {}),
+            ...(c.sortOrder !== undefined ? { sort_order: c.sortOrder } : {}),
+            ...(c.archived !== undefined ? { archived: c.archived } : {}),
+          })
+          .eq('id', op.id)
+        if (error) throw error
+      }
+    }
+    return ops.length
   },
 }
 

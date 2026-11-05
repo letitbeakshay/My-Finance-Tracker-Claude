@@ -17,42 +17,54 @@ import { isUnlocked } from './lib/auth'
 
 type Route = Tab | 'add' | 'settings' | 'stewardship' | 'budgets'
 
-const VIEW_KEY = 'finance_tracker_view'
-
-function readView(): View {
-  try {
-    return localStorage.getItem(VIEW_KEY) === 'data' ? 'data' : 'enter'
-  } catch {
-    return 'enter'
-  }
+/** The app always opens on Expense. `?view=data` opens the Dashboard (handy for a bookmark). */
+function initialView(): View {
+  return new URLSearchParams(location.search).get('view') === 'data' ? 'data' : 'enter'
 }
+
+/** Coming back after this long away starts a fresh expense, ready to type. */
+const AWAY_MS = 20_000
 
 function App() {
   const [route, setRoute] = useState<Route>('add')
-  const [ready, setReady] = useState(false)
+  const [launchKey, setLaunchKey] = useState(0)
   const [unlocked, setUnlocked] = useState(isUnlocked)
-  const [view, setView] = useState<View>(readView)
+  const [view, setView] = useState<View>(initialView)
   const [addPreset, setAddPreset] = useState<AddExpensePreset | null>(null)
 
   useEffect(() => {
-    // Drives the wider desktop layout for All data (see index.css).
+    // Drives the wider desktop layout for the Dashboard (see index.css).
     document.documentElement.dataset.view = view
-    try {
-      localStorage.setItem(VIEW_KEY, view)
-    } catch {
-      // Remembering the last view is a convenience only.
-    }
   }, [view])
 
   useEffect(() => {
-    ensureSeeded().then(() => setReady(true))
+    // Seeding defaults must never hold the first screen back or break it if the network is slow.
+    ensureSeeded().catch((err) => console.error('Could not seed defaults', err))
   }, [])
+
+  useEffect(() => {
+    let hiddenAt = 0
+    function onVisibility() {
+      if (document.hidden) {
+        hiddenAt = Date.now()
+        return
+      }
+      if (!hiddenAt || Date.now() - hiddenAt < AWAY_MS) return
+      hiddenAt = 0
+      // A half-typed expense is left alone; anywhere else, jump back to a fresh amount screen.
+      if (view === 'enter' && route === 'add') return
+      setAddPreset(null)
+      setView('enter')
+      setRoute('add')
+      setLaunchKey((k) => k + 1)
+    }
+    document.addEventListener('visibilitychange', onVisibility)
+    return () => document.removeEventListener('visibilitychange', onVisibility)
+  }, [view, route])
 
   if (!unlocked) {
     return <PasscodeGate onUnlock={() => setUnlocked(true)} />
   }
-
-  if (!ready) return null
 
   /** Jump to the Add screen set up for giving, pre-filled with what is left to give. */
   function handleGive(amount: number) {
@@ -121,6 +133,7 @@ function App() {
             className="flex-1 overflow-y-auto fixed inset-x-0 bottom-0 top-[var(--topbar-h)] max-w-[560px] mx-auto bg-bg z-50"
           >
             <AddExpenseScreen
+              key={launchKey}
               preset={addPreset ?? undefined}
               onDone={() => {
                 setAddPreset(null)

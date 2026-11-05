@@ -28,6 +28,9 @@ export interface ExpenseRow {
   wallet_id: string | null
   source: string | null
   attachment_id: string | null
+  // Absent until the categories-v2 migration in supabase/ has been run.
+  pleases_god?: boolean | null
+  reimbursed?: boolean | null
 }
 
 export interface CategoryRow {
@@ -39,6 +42,10 @@ export interface CategoryRow {
   sort_order: number
   wallet_id: string | null
   created_at: string
+  // Absent until the categories-v2 migration in supabase/ has been run.
+  parent_id?: string | null
+  reimbursable?: boolean | null
+  default_type?: ExpenseType | null
 }
 
 export interface PaymentAccountRow {
@@ -98,6 +105,8 @@ export function rowToExpense(row: ExpenseRow): Expense {
     walletId: row.wallet_id ?? undefined,
     source: (row.source as Expense['source']) ?? 'manual',
     attachmentId: row.attachment_id ?? undefined,
+    pleasesGod: row.pleases_god ?? undefined,
+    reimbursed: row.reimbursed ?? false,
   }
 }
 
@@ -117,6 +126,9 @@ export function expenseToRow(
     wallet_id: expense.walletId ?? null,
     source: expense.source ?? 'manual',
     attachment_id: expense.attachmentId ?? null,
+    // Only sent when set, so older databases (without these columns) keep working.
+    ...(expense.pleasesGod !== undefined ? { pleases_god: expense.pleasesGod } : {}),
+    ...(expense.reimbursed !== undefined ? { reimbursed: expense.reimbursed } : {}),
   }
 }
 
@@ -129,6 +141,9 @@ export function rowToCategory(row: CategoryRow): Category {
     archived: row.archived,
     sortOrder: row.sort_order,
     walletId: row.wallet_id ?? undefined,
+    parentId: row.parent_id ?? undefined,
+    reimbursable: row.reimbursable ?? false,
+    defaultType: row.default_type ?? undefined,
     createdAt: new Date(row.created_at).getTime(),
   }
 }
@@ -144,6 +159,9 @@ export function categoryToRow(
     archived: category.archived ?? false,
     sort_order: category.sortOrder ?? 0,
     wallet_id: category.walletId ?? null,
+    ...(category.parentId !== undefined ? { parent_id: category.parentId } : {}),
+    ...(category.reimbursable !== undefined ? { reimbursable: category.reimbursable } : {}),
+    ...(category.defaultType !== undefined ? { default_type: category.defaultType } : {}),
   }
 }
 

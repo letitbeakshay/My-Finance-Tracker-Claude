@@ -32,27 +32,43 @@ function line(categoryId: string | null, limit: number, spent: number): BudgetLi
  * wants only — giving and saving are goals of their own (see the stewardship plan).
  * A category budget counts everything spent in that category.
  */
-export function budgetProgress(budgets: Budget[], expenses: Expense[], month: Date) {
+export function budgetProgress(
+  budgets: Budget[],
+  expenses: Expense[],
+  month: Date,
+  options: {
+    /** sub-category id -> parent id, so a budget on a parent includes what is spent under it */
+    parents?: Map<string, string>
+    /** reimbursable categories, left out of the overall budget */
+    reimbursable?: Set<string>
+  } = {},
+) {
+  const { parents, reimbursable } = options
   const monthExpenses = expenses.filter((e) => isSameMonth(parseISO(e.date), month))
   const sum = (items: Expense[]) => items.reduce((s, e) => s + e.amount, 0)
+  const inCategory = (e: Expense, id: string) => e.categoryId === id || parents?.get(e.categoryId) === id
 
   const overallBudget = budgets.find((b) => b.id === OVERALL_BUDGET_ID)
   const overall = overallBudget
     ? line(
         null,
         overallBudget.monthlyLimit,
-        sum(monthExpenses.filter((e) => e.type === 'need' || e.type === 'want')),
+        sum(
+          monthExpenses.filter(
+            (e) => (e.type === 'need' || e.type === 'want') && !reimbursable?.has(e.categoryId),
+          ),
+        ),
       )
     : null
 
   const categories = budgets
     .filter((b) => b.categoryId)
     .map((b) =>
-      line(b.categoryId!, b.monthlyLimit, sum(monthExpenses.filter((e) => e.categoryId === b.categoryId))),
+      line(b.categoryId!, b.monthlyLimit, sum(monthExpenses.filter((e) => inCategory(e, b.categoryId!)))),
     )
     .sort((a, b) => b.pct - a.pct)
 
-  return { overall, categories, spentByCategory: (id: string) => sum(monthExpenses.filter((e) => e.categoryId === id)) }
+  return { overall, categories, spentByCategory: (id: string) => sum(monthExpenses.filter((e) => inCategory(e, id))) }
 }
 
 export const BUDGET_STATUS_COLOR: Record<BudgetStatus, string> = {

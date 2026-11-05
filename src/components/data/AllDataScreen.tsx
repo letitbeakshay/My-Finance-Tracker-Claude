@@ -20,6 +20,9 @@ import { MonthNav } from '../ui/MonthNav'
 import { FirstFruitsCard } from '../stewardship/FirstFruitsCard'
 import { BudgetsView } from '../budget/BudgetsView'
 import { BudgetProgressCard } from '../budget/BudgetProgressCard'
+import { ReimbursementCard } from '../stewardship/ReimbursementCard'
+import { categoryPath, parentMap } from '../../lib/categoryTree'
+import { personalOnly, reimbursableIds } from '../../lib/reimbursement'
 import { StewardshipView } from '../stewardship/StewardshipView'
 import { SummaryCards } from './SummaryCards'
 import {
@@ -65,6 +68,8 @@ export function AllDataScreen({ onGive }: AllDataScreenProps) {
   const [addingLoan, setAddingLoan] = useState(false)
 
   const categoryMap = useMemo(() => new Map((categories ?? []).map((c) => [c.id, c])), [categories])
+  const reimbursable = useMemo(() => reimbursableIds(categories ?? []), [categories])
+  const parents = useMemo(() => parentMap(categories ?? []), [categories])
   const accountMap = useMemo(() => new Map((accounts ?? []).map((a) => [a.id, a])), [accounts])
 
   const monthExpenses = useMemo(
@@ -89,7 +94,8 @@ export function AllDataScreen({ onGive }: AllDataScreenProps) {
         date: e.date,
         createdAt: e.createdAt,
         icon: <CategoryIcon category={category ?? { id: e.categoryId, icon: '📦' }} size={20} />,
-        title: category?.name ?? 'Others',
+        title: categoryPath(category, categoryMap),
+        pleasesGod: e.pleasesGod,
         note: e.notes,
         accountLabel: (e.accountId && accountMap.get(e.accountId)?.label) || PAYMENT_METHOD_LABELS[e.paymentMethod],
         tag: { label: EXPENSE_TYPE_LABELS[e.type], color: TYPE_COLOR[e.type] },
@@ -130,14 +136,18 @@ export function AllDataScreen({ onGive }: AllDataScreenProps) {
   )
 
   const plan = useMemo(
-    () => (expenses && incomes && settings ? monthPlan(expenses, incomes, month, settings) : null),
-    [expenses, incomes, settings, month],
+    () =>
+      expenses && incomes && settings
+        ? monthPlan(personalOnly(expenses, reimbursable), incomes, month, settings)
+        : null,
+    [expenses, incomes, settings, month, reimbursable],
   )
 
   if (!expenses || !incomes || !loans) return null
 
   const totalIncome = monthIncomes.reduce((s, i) => s + i.amount, 0)
-  const totalExpenses = monthExpenses.reduce((s, e) => s + e.amount, 0)
+  // Reimbursable spending is paid back, so the totals show your own spending.
+  const totalExpenses = personalOnly(monthExpenses, reimbursable).reduce((s, e) => s + e.amount, 0)
   const cardSpend = accountSummaries
     .filter((s) => s.account.type === 'credit_card')
     .reduce((s, x) => s + x.spent, 0)
@@ -183,6 +193,7 @@ export function AllDataScreen({ onGive }: AllDataScreenProps) {
             income: monthIncomes.length,
             expenses: monthExpenses.length,
             loans: openLoans.length,
+            reimbursements: expenses.filter((e) => reimbursable.has(e.categoryId) && !e.reimbursed).length,
           }}
         />
 
@@ -197,8 +208,11 @@ export function AllDataScreen({ onGive }: AllDataScreenProps) {
                     expenses={expenses}
                     categories={categories ?? []}
                     month={month}
+                    parents={parents}
+                    reimbursable={reimbursable}
                     onOpenBudgets={() => setSection('budgets')}
                   />
+                  <ReimbursementCard expenses={expenses} categories={categories ?? []} limit={3} />
                 </div>
               )}
               <SummaryCards
@@ -230,6 +244,12 @@ export function AllDataScreen({ onGive }: AllDataScreenProps) {
           )}
 
           {section === 'budgets' && <BudgetsView month={month} />}
+
+          {section === 'reimbursements' && (
+            <div className="max-w-[720px]">
+              <ReimbursementCard expenses={expenses} categories={categories ?? []} />
+            </div>
+          )}
 
           {section === 'stewardship' && <StewardshipView month={month} onGive={onGive} />}
 

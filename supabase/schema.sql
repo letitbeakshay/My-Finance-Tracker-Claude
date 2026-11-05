@@ -158,6 +158,22 @@ alter table categories enable row level security;
 alter table payment_accounts enable row level security;
 alter table expenses enable row level security;
 alter table app_settings enable row level security;
+-- Sub-categories, "pleases God" and reimbursement tracking (see migration-categories-v2.sql).
+-- A category can sit under another one (Coffee under Eating Out).
+alter table categories add column if not exists parent_id text references categories(id) on delete set null;
+-- Spending here is paid back by someone else (kept apart from your own spending).
+alter table categories add column if not exists reimbursable boolean not null default false;
+-- The type suggested on the Type screen for this category.
+alter table categories add column if not exists default_type text
+  check (default_type in ('need', 'want', 'savings', 'giving'));
+
+-- Did this spending please God? (null = not answered, e.g. older expenses)
+alter table expenses add column if not exists pleases_god boolean;
+-- For reimbursable categories: has the money been paid back?
+alter table expenses add column if not exists reimbursed boolean not null default false;
+
+create index if not exists categories_parent_idx on categories (parent_id);
+
 alter table incomes enable row level security;
 alter table loans enable row level security;
 alter table reflections enable row level security;

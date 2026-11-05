@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { format } from 'date-fns'
 import { CategoryManager } from './CategoryManager'
+import { CategoryPlanCard } from './CategoryPlanCard'
 import { PaymentAccountManager } from './PaymentAccountManager'
 import { EmbedCodeCard } from './EmbedCodeCard'
 import { Card } from '../ui/Card'
@@ -65,6 +66,8 @@ export function SettingsScreen({ onBack, onLock }: SettingsScreenProps) {
         </button>
         <h1 className="text-[22px] font-bold">Settings</h1>
       </div>
+
+      <CategoryPlanCard />
 
       <CategoryManager />
 

@@ -1,6 +1,9 @@
 import { useMemo, useState } from 'react'
 import { parseISO } from 'date-fns'
-import { useAllPaymentAccounts, useCategories, useExpenses } from '../../hooks/useLiveData'
+import { useAllCategories, useAllPaymentAccounts, useExpenses } from '../../hooks/useLiveData'
+import { GodPleasingCard } from '../stewardship/GodPleasingCard'
+import { parentMap, topLevelId } from '../../lib/categoryTree'
+import { personalOnly, reimbursableIds } from '../../lib/reimbursement'
 import {
   categoryBreakdown,
   filterByMonth,
@@ -31,7 +34,7 @@ interface InsightsScreenProps {
 
 export function InsightsScreen({ onOpenSettings }: InsightsScreenProps) {
   const expenses = useExpenses()
-  const categories = useCategories()
+  const categories = useAllCategories()
   const accounts = useAllPaymentAccounts()
   const [month, setMonth] = useState(new Date())
   const [search, setSearch] = useState('')
@@ -42,10 +45,20 @@ export function InsightsScreen({ onOpenSettings }: InsightsScreenProps) {
   const categoryMap = useMemo(() => new Map((categories ?? []).map((c) => [c.id, c])), [categories])
   const accountMap = useMemo(() => new Map((accounts ?? []).map((a) => [a.id, a])), [accounts])
 
-  const monthExpenses = useMemo(() => filterByMonth(expenses ?? [], month), [expenses, month])
+  const reimbursable = useMemo(() => reimbursableIds(categories ?? []), [categories])
+  const parents = useMemo(() => parentMap(categories ?? []), [categories])
+  // Reimbursable spending is paid back, so these charts show your own spending only.
+  const monthExpenses = useMemo(
+    () => filterByMonth(personalOnly(expenses ?? [], reimbursable), month),
+    [expenses, reimbursable, month],
+  )
 
   const breakdown = useMemo(() => typeBreakdown(monthExpenses), [monthExpenses])
-  const catBreakdown = useMemo(() => categoryBreakdown(monthExpenses), [monthExpenses])
+  // Charts group sub-categories under their top-level category (Coffee counts as Eating Out).
+  const catBreakdown = useMemo(
+    () => categoryBreakdown(monthExpenses.map((e) => ({ ...e, categoryId: topLevelId(e.categoryId, parents) }))),
+    [monthExpenses, parents],
+  )
   const payBreakdown = useMemo(() => paymentMethodBreakdown(monthExpenses), [monthExpenses])
   const weeks = useMemo(() => weeklySpending(monthExpenses, month), [monthExpenses, month])
 
@@ -140,6 +153,8 @@ export function InsightsScreen({ onOpenSettings }: InsightsScreenProps) {
               <PaymentMethodChart breakdown={payBreakdown} />
               <TopCategories breakdown={catBreakdown} categoryMap={categoryMap} />
               <RegretList expenses={monthExpenses} categoryMap={categoryMap} onSelect={setSelected} />
+              {categories && <GodPleasingCard expenses={monthExpenses} categories={categories} />}
+              <div className="h-8" />
               <MonthlySummary
                 needsPct={breakdown.needsPct}
                 wantsPct={breakdown.wantsPct}

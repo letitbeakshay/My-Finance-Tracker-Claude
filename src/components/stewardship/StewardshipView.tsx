@@ -1,6 +1,8 @@
 import { useMemo } from 'react'
 import { format } from 'date-fns'
-import { useExpenses, useIncomes, useLoans, useReflections, useSettings } from '../../hooks/useLiveData'
+import { useAllCategories, useExpenses, useIncomes, useLoans, useReflections, useSettings } from '../../hooks/useLiveData'
+import { personalOnly, reimbursableIds } from '../../lib/reimbursement'
+import { GodPleasingCard } from './GodPleasingCard'
 import { debtSummary, monthPlan } from '../../lib/stewardship'
 import { verseOfTheDay } from '../../lib/scripture'
 import { VerseCard } from './VerseCard'
@@ -22,10 +24,14 @@ export function StewardshipView({ month, onGive }: StewardshipViewProps) {
   const loans = useLoans()
   const settings = useSettings()
   const reflections = useReflections()
+  const categories = useAllCategories()
 
   const plan = useMemo(
-    () => (expenses && incomes && settings ? monthPlan(expenses, incomes, month, settings) : null),
-    [expenses, incomes, settings, month],
+    () =>
+      expenses && incomes && settings
+        ? monthPlan(personalOnly(expenses, reimbursableIds(categories ?? [])), incomes, month, settings)
+        : null,
+    [expenses, incomes, settings, month, categories],
   )
   const debt = useMemo(() => debtSummary(loans ?? []), [loans])
 
@@ -41,6 +47,12 @@ export function StewardshipView({ month, onGive }: StewardshipViewProps) {
         <SplitCard plan={plan} givingPercent={settings.givingPercent} savingPercent={settings.savingPercent} />
         <DebtCard summary={debt} />
         <PlanCard settings={settings} />
+        {categories && expenses && (
+          <GodPleasingCard
+            expenses={expenses.filter((e) => e.date.startsWith(monthId))}
+            categories={categories}
+          />
+        )}
       </div>
       <ReflectionCard
         key={monthId}

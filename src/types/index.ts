@@ -19,6 +19,12 @@ export interface Category {
   sortOrder?: number
   /** Reserved for future account/wallet scoping. */
   walletId?: string
+  /** A sub-category sits under this top-level category (e.g. Coffee under Eating Out). */
+  parentId?: string
+  /** Spending here is paid back by someone else, so it is tracked apart from your own spending. */
+  reimbursable?: boolean
+  /** The type usually suggested for this category on the Type screen. */
+  defaultType?: ExpenseType
 }
 
 export type PaymentAccountType = 'bank_account' | 'credit_card'
@@ -53,6 +59,10 @@ export interface Expense {
   /** Specific bank account / credit card used, when relevant to paymentMethod. */
   accountId?: string
   notes?: string
+  /** Did this spending please God? undefined = not answered (older expenses). */
+  pleasesGod?: boolean
+  /** For reimbursable categories: has the money been paid back yet? */
+  reimbursed?: boolean
   date: string // ISO date (yyyy-MM-dd), the "spent on" date
   createdAt: number
   updatedAt: number

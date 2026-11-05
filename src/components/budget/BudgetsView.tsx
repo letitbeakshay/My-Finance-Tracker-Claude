@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Plus } from 'lucide-react'
-import { useBudgets, useCategories, useExpenses } from '../../hooks/useLiveData'
+import { useAllCategories, useBudgets, useExpenses } from '../../hooks/useLiveData'
+import { buildTree, parentMap } from '../../lib/categoryTree'
+import { reimbursableIds } from '../../lib/reimbursement'
 import { budgetRepo } from '../../db/repository'
 import { budgetProgress } from '../../lib/budgets'
 import { VERSES } from '../../lib/scripture'
@@ -53,14 +55,23 @@ function LimitInput({ value, onCommit }: { value?: number; onCommit: (limit: num
 export function BudgetsView({ month }: { month: Date }) {
   const budgets = useBudgets()
   const expenses = useExpenses()
-  const categories = useCategories()
+  const allCategories = useAllCategories()
+  const categories = useMemo(() => (allCategories ?? []).filter((c) => !c.archived), [allCategories])
   const [adding, setAdding] = useState(false)
 
   const progress = useMemo(
-    () => (budgets && expenses ? budgetProgress(budgets, expenses, month) : null),
-    [budgets, expenses, month],
+    () =>
+      budgets && expenses
+        ? budgetProgress(budgets, expenses, month, {
+            parents: parentMap(categories),
+            reimbursable: reimbursableIds(categories),
+          })
+        : null,
+    [budgets, expenses, month, categories],
   )
-  if (!budgets || !expenses || !categories || !progress) return null
+  if (!budgets || !expenses || !allCategories || !progress) return null
+  // A budget on a top-level category covers everything under it (Eating Out covers Coffee and Snacks).
+  const topLevel = buildTree(categories).map((n) => n.category)
 
   const limitFor = (id: string) => budgets.find((b) => b.id === id)?.monthlyLimit
   const lineFor = (id: string) => progress.categories.find((l) => l.categoryId === id)
@@ -94,7 +105,7 @@ export function BudgetsView({ month }: { month: Date }) {
         <div className="flex items-center justify-between gap-3 mb-1">
           <div>
             <h2 className="text-white text-[17px] font-bold">By category</h2>
-            <p className="text-tertiary text-[12px]">Leave blank for no limit</p>
+            <p className="text-tertiary text-[12px]">Covers everything under it. Leave blank for no limit</p>
           </div>
           <button
             type="button"
@@ -106,7 +117,7 @@ export function BudgetsView({ month }: { month: Date }) {
         </div>
 
         <div className="flex flex-col gap-5 mt-5">
-          {categories.map((c) => {
+          {topLevel.map((c) => {
             const line = lineFor(c.id)
             return (
               <div key={c.id}>

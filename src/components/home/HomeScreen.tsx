@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { format } from 'date-fns'
 import {
   useExpenses,
-  useCategories,
+  useAllCategories,
   useAllPaymentAccounts,
   useBudgets,
   useIncomes,
@@ -24,6 +24,9 @@ import { HandHeart, Target } from 'lucide-react'
 import { FirstFruitsCard } from '../stewardship/FirstFruitsCard'
 import { BudgetProgressCard } from '../budget/BudgetProgressCard'
 import { monthPlan } from '../../lib/stewardship'
+import { ReimbursementCard } from '../stewardship/ReimbursementCard'
+import { parentMap } from '../../lib/categoryTree'
+import { personalOnly, reimbursableIds } from '../../lib/reimbursement'
 import { TransactionSheet } from '../insights/TransactionSheet'
 import type { Expense } from '../../types'
 
@@ -43,7 +46,7 @@ export function HomeScreen({
   onGive,
 }: HomeScreenProps) {
   const expenses = useExpenses()
-  const categories = useCategories()
+  const categories = useAllCategories()
   const accounts = useAllPaymentAccounts()
   const budgets = useBudgets()
   const incomes = useIncomes()
@@ -61,19 +64,23 @@ export function HomeScreen({
     return map
   }, [accounts])
 
+  const reimbursable = useMemo(() => reimbursableIds(categories ?? []), [categories])
+  // Reimbursable spending is paid back, so it is left out of your own totals.
+  const personal = useMemo(() => personalOnly(expenses ?? [], reimbursable), [expenses, reimbursable])
+
   const monthExpenses = useMemo(
-    () => filterByMonth(expenses ?? [], today),
-    [expenses, today],
+    () => filterByMonth(personal, today),
+    [personal, today],
   )
 
   const breakdown = useMemo(() => typeBreakdown(monthExpenses), [monthExpenses])
-  const todayTotal = useMemo(() => todaySpending(expenses ?? [], today), [expenses, today])
+  const todayTotal = useMemo(() => todaySpending(personal, today), [personal, today])
   const monthTotal = useMemo(() => sum(monthExpenses), [monthExpenses])
   const recent = useMemo(() => (expenses ?? []).slice(0, 8), [expenses])
 
   const plan = useMemo(
-    () => (expenses && incomes && settings ? monthPlan(expenses, incomes, today, settings) : null),
-    [expenses, incomes, settings, today],
+    () => (expenses && incomes && settings ? monthPlan(personal, incomes, today, settings) : null),
+    [expenses, personal, incomes, settings, today],
   )
 
   void thisWeekSpending
@@ -131,11 +138,19 @@ export function HomeScreen({
             budgets={budgets}
             expenses={expenses}
             categories={categories}
+            parents={parentMap(categories)}
+            reimbursable={reimbursable}
             month={today}
             onOpenBudgets={onOpenBudgets}
           />
         )}
       </div>
+
+      {categories && (
+        <div className="mb-8 empty:hidden">
+          <ReimbursementCard expenses={expenses} categories={categories} limit={3} />
+        </div>
+      )}
 
       <div className="grid grid-cols-2 gap-3 mb-9">
         <TypeBreakdownCard

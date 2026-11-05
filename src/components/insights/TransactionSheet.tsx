@@ -7,6 +7,8 @@ import { expenseRepo } from '../../db/repository'
 import type { Category, Expense, PaymentAccount } from '../../types'
 import { EXPENSE_TYPE_COLORS as TYPE_COLOR, EXPENSE_TYPE_LABELS, PAYMENT_METHOD_LABELS } from '../../types'
 import { formatCurrency } from '../../lib/currency'
+import { useAllCategories } from '../../hooks/useLiveData'
+import { categoryPath } from '../../lib/categoryTree'
 
 interface TransactionSheetProps {
   expense: Expense | null
@@ -16,6 +18,7 @@ interface TransactionSheetProps {
 }
 
 export function TransactionSheet({ expense, category, account, onClose }: TransactionSheetProps) {
+  const allCategories = useAllCategories()
   const [editing, setEditing] = useState(false)
   const [confirmingDelete, setConfirmingDelete] = useState(false)
 
@@ -52,7 +55,9 @@ export function TransactionSheet({ expense, category, account, onClose }: Transa
           <p className="text-white text-[24px] font-bold leading-none tabular-nums">
             {formatCurrency(expense.amount)}
           </p>
-          <p className="text-secondary text-[14px]">{category?.name ?? 'Others'}</p>
+          <p className="text-secondary text-[14px]">
+            {categoryPath(category, new Map((allCategories ?? []).map((c) => [c.id, c])))}
+          </p>
         </div>
       </div>
 
@@ -69,6 +74,18 @@ export function TransactionSheet({ expense, category, account, onClose }: Transa
             >
               {EXPENSE_TYPE_LABELS[expense.type]}
             </span>
+          }
+        />
+        <Row
+          label="Pleases God?"
+          value={
+            expense.pleasesGod === undefined ? (
+              '—'
+            ) : (
+              <span className={expense.pleasesGod ? 'text-positive font-semibold' : 'text-danger font-semibold'}>
+                {expense.pleasesGod ? 'Yes' : 'No'}
+              </span>
+            )
           }
         />
         <Row label="Payment Method" value={PAYMENT_METHOD_LABELS[expense.paymentMethod]} />

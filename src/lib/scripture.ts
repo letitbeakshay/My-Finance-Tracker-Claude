@@ -9,6 +9,10 @@ export const VERSES = {
     ref: 'Psalm 24:1',
     text: "The earth is the LORD's, and the fulness thereof; the world, and they that dwell therein.",
   },
+  glory: {
+    ref: '1 Corinthians 10:31',
+    text: 'Whether therefore ye eat, or drink, or whatsoever ye do, do all to the glory of God.',
+  },
   provider: {
     ref: 'Deuteronomy 8:18',
     text: 'But thou shalt remember the LORD thy God: for it is he that giveth thee power to get wealth.',

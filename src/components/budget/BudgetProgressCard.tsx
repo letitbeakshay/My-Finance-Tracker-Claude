@@ -12,6 +12,9 @@ interface BudgetProgressCardProps {
   expenses: Expense[]
   categories: Category[]
   month: Date
+  /** sub-category id -> parent id, so a budget on a parent counts what is spent under it */
+  parents?: Map<string, string>
+  reimbursable?: Set<string>
   onOpenBudgets: () => void
   /** How many category budgets to preview (most used first). */
   limit?: number
@@ -23,10 +26,12 @@ export function BudgetProgressCard({
   expenses,
   categories,
   month,
+  parents,
+  reimbursable,
   onOpenBudgets,
   limit = 4,
 }: BudgetProgressCardProps) {
-  const progress = useMemo(() => budgetProgress(budgets, expenses, month), [budgets, expenses, month])
+  const progress = useMemo(() => budgetProgress(budgets, expenses, month, { parents, reimbursable }), [budgets, expenses, month, parents, reimbursable])
   const categoryMap = useMemo(() => new Map(categories.map((c) => [c.id, c])), [categories])
   const hasBudgets = progress.overall !== null || progress.categories.length > 0
 
