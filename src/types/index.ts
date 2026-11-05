@@ -63,6 +63,8 @@ export interface Expense {
   pleasesGod?: boolean
   /** For reimbursable categories: has the money been paid back yet? */
   reimbursed?: boolean
+  /** The bank's own reference number when imported from a statement; used to spot duplicates. */
+  bankRef?: string
   date: string // ISO date (yyyy-MM-dd), the "spent on" date
   createdAt: number
   updatedAt: number
@@ -86,6 +88,7 @@ export interface Income {
   accountId?: string
   date: string // ISO date (yyyy-MM-dd)
   notes?: string
+  bankRef?: string
   createdAt: number
 }
 

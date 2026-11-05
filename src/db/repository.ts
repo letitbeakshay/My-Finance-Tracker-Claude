@@ -37,7 +37,7 @@ function isMissingColumn(error: { code?: string } | null) {
   return error?.code === 'PGRST204' || error?.code === '42703'
 }
 
-const NEW_EXPENSE_COLUMNS = ['pleases_god', 'reimbursed'] as const
+const NEW_EXPENSE_COLUMNS = ['pleases_god', 'reimbursed', 'bank_ref'] as const
 
 function withoutNewColumns<T extends Record<string, unknown>>(row: T) {
   const copy: Record<string, unknown> = { ...row }
@@ -277,8 +277,13 @@ export const paymentAccountRepo = {
 export const incomeRepo = {
   async add(input: Omit<Income, 'id' | 'createdAt'>) {
     const row = incomeToRow({ ...input, id: generateId() })
-    const { data, error } = await supabase.from('incomes').insert(row).select().single<IncomeRow>()
-    if (error) throw error
+    let { data, error } = await supabase.from('incomes').insert(row).select().single<IncomeRow>()
+    if (isMissingColumn(error)) {
+      const { bank_ref: _omit, ...plain } = row
+      void _omit
+      ;({ data, error } = await supabase.from('incomes').insert(plain).select().single<IncomeRow>())
+    }
+    if (error || !data) throw error
     return rowToIncome(data)
   },
 

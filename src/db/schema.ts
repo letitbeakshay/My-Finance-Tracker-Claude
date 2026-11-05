@@ -31,6 +31,7 @@ export interface ExpenseRow {
   attachment_id: string | null
   // Absent until supabase/schema.sql has been applied (the app shows a banner when it has not).
   pleases_god?: boolean | null
+  bank_ref?: string | null
   reimbursed?: boolean | null
 }
 
@@ -107,6 +108,7 @@ export function rowToExpense(row: ExpenseRow): Expense {
     source: (row.source as Expense['source']) ?? 'manual',
     attachmentId: row.attachment_id ?? undefined,
     pleasesGod: row.pleases_god ?? undefined,
+    bankRef: row.bank_ref ?? undefined,
     reimbursed: row.reimbursed ?? false,
   }
 }
@@ -129,6 +131,7 @@ export function expenseToRow(
     attachment_id: expense.attachmentId ?? null,
     // Only sent when set, so older databases (without these columns) keep working.
     ...(expense.pleasesGod !== undefined ? { pleases_god: expense.pleasesGod } : {}),
+    ...(expense.bankRef ? { bank_ref: expense.bankRef } : {}),
     ...(expense.reimbursed !== undefined ? { reimbursed: expense.reimbursed } : {}),
   }
 }
@@ -201,6 +204,7 @@ export interface IncomeRow {
   source: string
   account_id: string | null
   notes: string | null
+  bank_ref?: string | null
   date: string
   created_at: string
 }
@@ -225,6 +229,7 @@ export function rowToIncome(row: IncomeRow): Income {
     source: row.source,
     accountId: row.account_id ?? undefined,
     notes: row.notes ?? undefined,
+    bankRef: row.bank_ref ?? undefined,
     date: row.date,
     createdAt: new Date(row.created_at).getTime(),
   }
@@ -237,6 +242,7 @@ export function incomeToRow(income: Omit<Income, 'createdAt'>): Partial<IncomeRo
     source: income.source,
     account_id: income.accountId ?? null,
     notes: income.notes ?? null,
+    ...(income.bankRef ? { bank_ref: income.bankRef } : {}),
     date: income.date,
   }
 }

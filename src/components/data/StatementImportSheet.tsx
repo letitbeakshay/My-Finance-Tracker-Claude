@@ -3,7 +3,7 @@ import { format, parseISO } from 'date-fns'
 import clsx from 'clsx'
 import { AlertCircle, Check, FileUp, Loader2, X } from 'lucide-react'
 import { Button } from '../ui/Button'
-import { useAllCategories, useExpenses, usePaymentAccounts } from '../../hooks/useLiveData'
+import { useAllCategories, useExpenses, useIncomes, usePaymentAccounts } from '../../hooks/useLiveData'
 import { expenseRepo, incomeRepo } from '../../db/repository'
 import { buildTree } from '../../lib/categoryTree'
 import { formatCurrency } from '../../lib/currency'
@@ -27,6 +27,8 @@ interface Line {
   type: ExpenseType
   /** Why it starts unticked: already in the app. */
   duplicate: boolean
+  /** true = the bank's reference is already saved (certain); false = only date and amount match (maybe). */
+  sure: boolean
 }
 
 const TYPES: { value: ExpenseType; label: string }[] = [
@@ -44,6 +46,7 @@ export function StatementImportSheet({ open, onClose }: { open: boolean; onClose
   const categories = useAllCategories()
   const accounts = usePaymentAccounts()
   const expenses = useExpenses()
+  const incomes = useIncomes()
   const fileRef = useRef<HTMLInputElement>(null)
   const [lines, setLines] = useState<Line[] | null>(null)
   const [fileName, setFileName] = useState('')
@@ -85,15 +88,19 @@ export function StatementImportSheet({ open, onClose }: { open: boolean; onClose
       if (!txns.length) throw new Error('empty')
       const learned = loadLearned()
       const seen = loadImportedRefs()
-      const have = new Set((expenses ?? []).map((e) => `${e.date}|${Math.round(e.amount * 100)}`))
+      for (const r of [...(expenses ?? []), ...(incomes ?? [])]) if (r.bankRef) seen.add(r.bankRef)
+      const have = new Set((expenses ?? []).map((e) => `${e.date}|${Math.round(e.amount * 100)}|d`))
+      for (const i of incomes ?? []) have.add(`${i.date}|${Math.round(i.amount * 100)}|c`)
       setFileName(file.name)
       setLines(
         txns.map((t) => {
           const s = t.direction === 'debit' ? suggestFor(t, categories, learned) : undefined
           const cat = s ? byId.get(s.categoryId) : undefined
-          const duplicate = (!!t.ref && seen.has(t.ref)) || (t.direction === 'debit' && have.has(`${t.date}|${Math.round(t.amount * 100)}`))
+          const sure = !!t.ref && seen.has(t.ref)
+          const duplicate = sure || have.has(`${t.date}|${Math.round(t.amount * 100)}|${t.direction === 'debit' ? 'd' : 'c'}`)
           return {
             txn: t,
+            sure,
             include: t.direction === 'debit' && !duplicate,
             categoryId: s?.categoryId ?? '',
             pleasesGod: s?.pleasesGod,
@@ -128,7 +135,7 @@ export function StatementImportSheet({ open, onClose }: { open: boolean; onClose
         const t = l.txn
         const notes = [t.name, t.note].filter(Boolean).join(' · ')
         if (t.direction === 'credit') {
-          await incomeRepo.add({ amount: t.amount, source: t.name, accountId: accountId || undefined, date: t.date, notes: t.note || undefined })
+          await incomeRepo.add({ amount: t.amount, source: t.name, accountId: accountId || undefined, date: t.date, notes: t.note || undefined, bankRef: t.ref || undefined })
         } else {
           await expenseRepo.add({
             amount: t.amount,
@@ -140,6 +147,7 @@ export function StatementImportSheet({ open, onClose }: { open: boolean; onClose
             pleasesGod: l.pleasesGod,
             reimbursed: byId.get(l.categoryId)?.reimbursable ? false : undefined,
             date: t.date,
+            bankRef: t.ref || undefined,
             source: 'bank_sync',
           })
           learnedOut.push({ name: t.name, note: t.note, learned: { categoryId: l.categoryId, pleasesGod: l.pleasesGod, type: l.type } })
@@ -205,7 +213,7 @@ export function StatementImportSheet({ open, onClose }: { open: boolean; onClose
         ) : (
           <>
             <div className="px-5 pb-3 flex flex-wrap items-center gap-x-4 gap-y-2">
-              <p className="text-secondary text-[13px] truncate max-w-full">{fileName} · {lines.length} transactions</p>
+              <p className="text-secondary text-[13px] truncate max-w-full">{fileName} · {lines.length} transactions{lines.some((l) => l.duplicate) && ` · ${lines.filter((l) => l.duplicate).length} already in your records (left unticked)`}</p>
               {bankAccounts.length > 0 && (
                 <label className="flex items-center gap-2 text-secondary text-[13px]">
                   Paid from
@@ -246,7 +254,7 @@ export function StatementImportSheet({ open, onClose }: { open: boolean; onClose
                         <p className="text-tertiary text-[12px] truncate">
                           <span className="md:hidden">{format(parseISO(l.txn.date), 'd MMM')} · </span>
                           {l.txn.note || (credit ? 'Money in' : l.txn.method === 'upi' ? 'UPI' : 'Bank')}
-                          {l.duplicate && ' · maybe already added'}
+                          {l.duplicate && (l.sure ? ' · already added' : ' · maybe already added')}
                         </p>
                       </div>
                       <span className={clsx('text-[15px] font-bold tabular-nums md:text-right shrink-0', credit ? 'text-positive' : 'text-white')}>

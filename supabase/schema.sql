@@ -169,6 +169,8 @@ alter table categories add column if not exists default_type text
 
 -- Did this spending please God? (null = not answered, e.g. older expenses)
 alter table expenses add column if not exists pleases_god boolean;
+alter table expenses add column if not exists bank_ref text;
+alter table incomes add column if not exists bank_ref text;
 -- For reimbursable categories: has the money been paid back?
 alter table expenses add column if not exists reimbursed boolean not null default false;
 
