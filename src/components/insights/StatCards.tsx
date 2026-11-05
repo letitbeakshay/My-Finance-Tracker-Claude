@@ -12,10 +12,10 @@ interface StatCardsProps {
 export function StatCards({ total, needs, wants, savings, giving }: StatCardsProps) {
   const items = [
     { label: 'Total Spent', amount: total, color: 'var(--color-white)' },
-    { label: 'Needs', amount: needs, color: '#66a7f6' },
-    { label: 'Wants', amount: wants, color: '#e39a5c' },
-    { label: 'Savings', amount: savings, color: '#4fc3d0' },
-    { label: 'Giving', amount: giving, color: '#dcc25e' },
+    { label: 'Needs', amount: needs, color: '#4f6f8f' },
+    { label: 'Wants', amount: wants, color: '#b8683a' },
+    { label: 'Savings', amount: savings, color: '#3f7f80' },
+    { label: 'Giving', amount: giving, color: '#a47b22' },
   ]
   return (
     <div className="grid grid-cols-2 gap-3 mb-8">

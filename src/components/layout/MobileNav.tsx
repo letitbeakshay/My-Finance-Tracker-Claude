@@ -48,7 +48,7 @@ export function MobileNav({ active, onExpense, onInsights, onAdd, onDashboard, o
     >
       <div
         className="pointer-events-auto flex items-center bg-card/95 backdrop-blur-xl border border-border rounded-3xl px-2 h-[68px]"
-        style={{ boxShadow: '0 8px 24px rgba(0,0,0,0.35)' }}
+        style={{ boxShadow: '0 8px 24px rgba(60,58,59,0.12)' }}
       >
         <Item label="Expense" icon={Receipt} active={active === 'expense'} onClick={onExpense} />
         <Item label="Insights" icon={ChartColumn} active={active === 'insights'} onClick={onInsights} />
@@ -59,8 +59,8 @@ export function MobileNav({ active, onExpense, onInsights, onAdd, onDashboard, o
             whileTap={{ scale: 0.9 }}
             onClick={onAdd}
             aria-label="Add expense"
-            className="w-14 h-14 rounded-full bg-accent text-black flex items-center justify-center -mt-7"
-            style={{ boxShadow: '0 6px 18px rgba(242,140,56,0.3)' }}
+            className="w-14 h-14 rounded-full bg-primary text-on-primary flex items-center justify-center -mt-7"
+            style={{ boxShadow: '0 6px 16px rgba(60,58,59,0.25)' }}
           >
             <Plus size={28} strokeWidth={2.75} />
           </motion.button>

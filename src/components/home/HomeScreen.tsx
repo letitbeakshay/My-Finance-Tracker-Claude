@@ -143,32 +143,32 @@ export function HomeScreen({
           icon="🙏"
           amount={breakdown.giving}
           percentage={breakdown.givingPct}
-          color="#dcc25e"
-          softColor="rgba(220,194,94,0.16)"
+          color="#a47b22"
+          softColor="rgba(164,123,34,0.16)"
         />
         <TypeBreakdownCard
           label="Needs"
           icon="🛒"
           amount={breakdown.needs}
           percentage={breakdown.needsPct}
-          color="#66a7f6"
-          softColor="rgba(102,167,246,0.14)"
+          color="#4f6f8f"
+          softColor="rgba(79,111,143,0.14)"
         />
         <TypeBreakdownCard
           label="Wants"
           icon="✨"
           amount={breakdown.wants}
           percentage={breakdown.wantsPct}
-          color="#e39a5c"
-          softColor="rgba(227,154,92,0.14)"
+          color="#b8683a"
+          softColor="rgba(184,104,58,0.14)"
         />
         <TypeBreakdownCard
           label="Savings"
           icon="💰"
           amount={breakdown.savings}
           percentage={breakdown.savingsPct}
-          color="#4fc3d0"
-          softColor="rgba(79,195,208,0.14)"
+          color="#3f7f80"
+          softColor="rgba(63,127,128,0.14)"
         />
       </div>
 

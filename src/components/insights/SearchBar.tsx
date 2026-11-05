@@ -35,7 +35,7 @@ export function SearchBar({ value, onChange, onOpenFilters, activeFilterCount }:
           />
         </svg>
         {activeFilterCount > 0 && (
-          <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-accent text-black text-[10px] font-bold flex items-center justify-center">
+          <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-primary text-on-primary text-[10px] font-bold flex items-center justify-center">
             {activeFilterCount}
           </span>
         )}

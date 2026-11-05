@@ -1,47 +1,62 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: system-ui, -apple-system, "SF Pro Text", "Segoe UI", Inter, Roboto, sans-serif;
+  --font-sans: "Instrument Sans", -apple-system, system-ui, "Segoe UI", sans-serif;
+  --font-display: "Bricolage Grotesque", -apple-system, system-ui, sans-serif;
 
-  /* Charcoal theme, modelled on the Antigravity editor: soft greys, thin borders, muted accents. */
-  --color-bg: #181818;
-  --color-surface: #2b2b2b;
-  --color-card: #1f1f1f;
-  --color-border: #333333;
-  --color-accent: #f28c38;
-  --color-accent-dim: #d9741f;
-  --color-accent-soft: rgba(242, 140, 56, 0.16);
-  --color-accent-ink: #f28c38;
+  /* Warm paper theme, matching swwyh.vercel.app: paper, charcoal ink, clay accent. */
+  --color-bg: #fcfbf9;
+  --color-surface: #f6f2ec;
+  --color-card: #ffffff;
+  --color-border: #e6ded4;
+
+  /* Primary actions are charcoal ink; clay is the soft highlight. */
+  --color-primary: #3c3a3b;
+  --color-primary-dim: #2b2a2b;
+  --color-on-primary: #fcfbf9;
+  --color-accent: #a1866f;
+  --color-accent-dim: #87694f;
+  --color-accent-soft: #efe6dc;
+  --color-accent-ink: #87694f;
   /* Good news: income, a positive net, a debt-free balance. */
-  --color-positive: #66a7f6;
-  --color-need: #66a7f6;
-  --color-need-soft: rgba(102, 167, 246, 0.16);
-  --color-want: #e39a5c;
-  --color-want-soft: rgba(227, 154, 92, 0.16);
-  --color-savings: #4fc3d0;
-  --color-savings-soft: rgba(79, 195, 208, 0.16);
-  --color-giving: #dcc25e;
-  --color-giving-soft: rgba(220, 194, 94, 0.16);
-  --color-danger: #e55e50;
-  --color-secondary: #9d9d9d;
-  --color-tertiary: #7d7d7d;
+  --color-positive: #4d7a56;
 
-  /* Primary text. Named "white" because the app's text-white class means "main text";
-     here that is a soft grey, not pure white. Use text-onfill on coloured fills. */
-  --color-white: #d0d0d0;
+  --color-need: #4f6f8f;
+  --color-need-soft: rgba(79, 111, 143, 0.14);
+  --color-want: #b8683a;
+  --color-want-soft: rgba(184, 104, 58, 0.14);
+  --color-savings: #3f7f80;
+  --color-savings-soft: rgba(63, 127, 128, 0.14);
+  --color-giving: #a47b22;
+  --color-giving-soft: rgba(164, 123, 34, 0.14);
+  --color-danger: #b84a3a;
+  --color-secondary: #5c5856;
+  --color-tertiary: #847b70;
+
+  /* Main text. Named "white" because the app's text-white class means "main text";
+     here that is the charcoal ink. Use text-onfill on coloured fills. */
+  --color-white: #3c3a3b;
   --color-onfill: #ffffff;
 
-  /* Smaller, flatter corners. */
-  --radius-card: 12px;
-  --radius-chip: 10px;
-  --radius-sheet: 16px;
-  --radius-xl: 8px;
-  --radius-2xl: 10px;
-  --radius-3xl: 14px;
+  --radius-card: 22px;
+  --radius-chip: 999px;
+  --radius-sheet: 28px;
+  --radius-xl: 12px;
+  --radius-2xl: 14px;
+  --radius-3xl: 22px;
+}
+
+@layer base {
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
 }
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
   /* Space above full-screen overlays. Phones have no top bar (the Expense/Dashboard
      switch is in the bottom menu), so this is just the safe area; desktop clears the toggle bar. */
   --topbar-h: calc(8px + env(safe-area-inset-top));

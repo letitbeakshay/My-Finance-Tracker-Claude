@@ -27,14 +27,14 @@ export function SegmentedControl<T extends string>({
             type="button"
             onClick={() => onChange(opt.value)}
             className="relative flex-1 h-11 rounded-xl text-[15px] font-semibold z-10"
-            style={{ color: active ? '#000' : 'var(--color-secondary)' }}
+            style={{ color: active ? '#fff' : 'var(--color-secondary)' }}
           >
             {active && (
               <motion.div
                 layoutId="segmented-bg"
                 transition={{ type: 'spring', stiffness: 500, damping: 35 }}
                 className="absolute inset-0 rounded-xl -z-10"
-                style={{ background: opt.color ?? '#f28c38' }}
+                style={{ background: opt.color ?? '#3c3a3b' }}
               />
             )}
             <span className="relative">{opt.label}</span>

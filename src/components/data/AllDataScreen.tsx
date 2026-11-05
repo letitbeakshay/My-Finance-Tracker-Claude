@@ -34,7 +34,7 @@ import { AddIncomeSheet } from './AddIncomeSheet'
 import { AddLoanSheet } from './AddLoanSheet'
 import { IncomeSheet, LoanSheet } from './ManageSheets'
 
-const INCOME_COLOR = '#66a7f6'
+const INCOME_COLOR = '#4d7a56'
 
 function inMonth(date: string, month: Date) {
   return isSameMonth(parseISO(date), month)
@@ -161,7 +161,7 @@ export function AllDataScreen({ onGive }: AllDataScreenProps) {
           <button
             type="button"
             onClick={() => setAddingIncome(true)}
-            className="flex-1 sm:flex-none h-11 px-5 rounded-2xl bg-accent text-black text-[15px] font-semibold"
+            className="flex-1 sm:flex-none h-11 px-5 rounded-2xl bg-primary text-on-primary text-[15px] font-semibold"
           >
             + Income
           </button>

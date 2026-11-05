@@ -99,7 +99,7 @@ export function BudgetsView({ month }: { month: Date }) {
           <button
             type="button"
             onClick={() => setAdding(true)}
-            className="shrink-0 h-10 pl-3 pr-4 rounded-xl bg-accent text-black text-[14px] font-semibold flex items-center gap-1.5"
+            className="shrink-0 h-10 pl-3 pr-4 rounded-xl bg-primary text-on-primary text-[14px] font-semibold flex items-center gap-1.5"
           >
             <Plus size={17} strokeWidth={2.6} /> Add
           </button>

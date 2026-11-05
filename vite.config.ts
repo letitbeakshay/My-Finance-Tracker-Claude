@@ -15,8 +15,8 @@ export default defineConfig({
         name: 'Finance Tracker',
         short_name: 'Finance',
         description: 'Log every expense in under 5 seconds.',
-        theme_color: '#181818',
-        background_color: '#181818',
+        theme_color: '#fcfbf9',
+        background_color: '#fcfbf9',
         display: 'standalone',
         orientation: 'portrait',
         icons: [

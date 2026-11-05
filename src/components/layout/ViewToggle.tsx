@@ -28,13 +28,13 @@ export function ViewToggle({ value, onChange }: ViewToggleProps) {
               type="button"
               onClick={() => onChange(opt.value)}
               className="relative flex-1 h-10 rounded-xl text-[14px] font-semibold z-10 transition-colors"
-              style={{ color: active ? '#000' : 'var(--color-secondary)' }}
+              style={{ color: active ? 'var(--color-on-primary)' : 'var(--color-secondary)' }}
             >
               {active && (
                 <motion.div
                   layoutId="view-toggle-bg"
                   transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-                  className="absolute inset-0 rounded-xl -z-10 bg-accent"
+                  className="absolute inset-0 rounded-xl -z-10 bg-primary"
                 />
               )}
               <span className="relative">{opt.label}</span>

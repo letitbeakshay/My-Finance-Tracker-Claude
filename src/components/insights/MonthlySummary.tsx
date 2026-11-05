@@ -9,10 +9,10 @@ interface MonthlySummaryProps {
 
 export function MonthlySummary({ needsPct, wantsPct, savingsPct, givingPct }: MonthlySummaryProps) {
   const items = [
-    { label: 'Giving', pct: givingPct, color: '#dcc25e' },
-    { label: 'Needs', pct: needsPct, color: '#66a7f6' },
-    { label: 'Wants', pct: wantsPct, color: '#e39a5c' },
-    { label: 'Savings', pct: savingsPct, color: '#4fc3d0' },
+    { label: 'Giving', pct: givingPct, color: '#a47b22' },
+    { label: 'Needs', pct: needsPct, color: '#4f6f8f' },
+    { label: 'Wants', pct: wantsPct, color: '#b8683a' },
+    { label: 'Savings', pct: savingsPct, color: '#3f7f80' },
   ]
   return (
     <Card className="mb-8">

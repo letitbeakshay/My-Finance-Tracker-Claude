@@ -121,8 +121,8 @@ export function AddBudgetSheet({ open, onClose, categories, budgetedIds }: AddBu
                 onClick={() => setIcon(e)}
                 className="aspect-square rounded-lg flex items-center justify-center text-[17px] border"
                 style={{
-                  borderColor: icon === e ? '#f28c38' : 'var(--color-border)',
-                  background: icon === e ? 'rgba(242,140,56,0.14)' : 'var(--color-surface)',
+                  borderColor: icon === e ? '#a1866f' : 'var(--color-border)',
+                  background: icon === e ? 'rgba(161,134,111,0.14)' : 'var(--color-surface)',
                 }}
               >
                 {e}
