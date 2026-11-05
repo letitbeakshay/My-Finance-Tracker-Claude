@@ -36,6 +36,7 @@ import { LoansPanel } from './LoansPanel'
 import { AccountsPanel, type AccountSummary } from './AccountsPanel'
 import { SectionNav, type Section } from './SectionNav'
 import { AddIncomeSheet } from './AddIncomeSheet'
+import { StatementImportSheet } from './StatementImportSheet'
 import { AddLoanSheet } from './AddLoanSheet'
 import { IncomeSheet, LoanSheet } from './ManageSheets'
 
@@ -68,6 +69,7 @@ export function AllDataScreen() {
   const [selectedLoan, setSelectedLoan] = useState<Loan | null>(null)
   const [addingIncome, setAddingIncome] = useState(false)
   const [addingLoan, setAddingLoan] = useState(false)
+  const [importing, setImporting] = useState(false)
 
   const categoryMap = useMemo(() => new Map((categories ?? []).map((c) => [c.id, c])), [categories])
   const reimbursable = useMemo(() => reimbursableIds(categories ?? []), [categories])
@@ -235,6 +237,7 @@ export function AllDataScreen() {
                   search={search}
                   onSearch={setSearch}
                   onSelect={handleSelect}
+                  onImport={() => setImporting(true)}
                 />
                 <div className="grid gap-5 lg:gap-6 md:grid-cols-2 xl:grid-cols-1 items-start">
                   <LoansPanel loans={loans} onAdd={() => setAddingLoan(true)} onSelect={setSelectedLoan} />
@@ -268,6 +271,7 @@ export function AllDataScreen() {
               onSearch={setSearch}
               onSelect={handleSelect}
               hideFilters={section !== 'transactions'}
+              onImport={() => setImporting(true)}
             />
           )}
 
@@ -300,6 +304,7 @@ export function AllDataScreen() {
         givingPercent={settings?.givingPercent ?? 10}
       />
       <AddLoanSheet open={addingLoan} onClose={() => setAddingLoan(false)} />
+      {importing && <StatementImportSheet open onClose={() => setImporting(false)} />}
     </div>
   )
 }

@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import { format, parseISO } from 'date-fns'
 import clsx from 'clsx'
-import { Check, X } from 'lucide-react'
+import { Check, FileUp, X } from 'lucide-react'
 import { Card } from '../ui/Card'
 import { Chip } from '../ui/Chip'
 import { formatCurrency } from '../../lib/currency'
@@ -39,6 +39,8 @@ interface TransactionsPanelProps {
   /** Hide the All/Expenses/Income chips (when the section already fixes the type). */
   hideFilters?: boolean
   title?: string
+  /** Shows an "Import statement" button that opens the bulk-import popup. */
+  onImport?: () => void
 }
 
 export function TransactionsPanel({
@@ -50,6 +52,7 @@ export function TransactionsPanel({
   onSelect,
   hideFilters,
   title = 'Transactions',
+  onImport,
 }: TransactionsPanelProps) {
   return (
     <Card padded={false} className="overflow-hidden">
@@ -62,6 +65,11 @@ export function TransactionsPanel({
             placeholder="Search"
             className="h-11 sm:w-48 bg-surface border border-border rounded-chip px-4 text-[16px] text-white placeholder:text-tertiary"
           />
+          {onImport && (
+            <button type="button" onClick={onImport} className="h-11 px-4 rounded-chip border border-border bg-surface text-white text-[15px] font-medium flex items-center justify-center gap-2">
+              <FileUp size={16} /> Import statement
+            </button>
+          )}
           {!hideFilters && (
           <div className="flex gap-2">
             {FILTERS.map((f) => (
