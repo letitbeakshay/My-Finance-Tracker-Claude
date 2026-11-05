@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
+import { effectiveBudgets } from '../lib/budgets'
 import type { AppSettings, Budget, BudgetItem, Category, Expense, Income, Loan, PaymentAccount, Reflection } from '../types'
 import {
   rowToBudget,
@@ -105,6 +106,13 @@ export function useReflections() {
 
 export function useBudgets() {
   return useSupabaseTable<BudgetRow, Budget>('budgets', rowToBudget, (q) => q.select('*'))
+}
+
+/** Category limits including those that come from the monthly plan. Undefined until loaded. */
+export function useEffectiveBudgets() {
+  const budgets = useBudgets()
+  const items = useBudgetItems()
+  return useMemo(() => (budgets ? effectiveBudgets(budgets, items ?? []) : undefined), [budgets, items])
 }
 
 export function useBudgetItems() {

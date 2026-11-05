@@ -21,17 +21,17 @@ export function WeeklyBarChart({ weeks }: WeeklyBarChartProps) {
               tick={{ fill: CHART_MUTED_TEXT, fontSize: 12 }}
             />
             <Tooltip
-              cursor={{ fill: 'rgba(60,58,59,0.05)' }}
+              cursor={{ fill: 'color-mix(in srgb, var(--color-white) 7%, transparent)' }}
               contentStyle={{
-                background: '#ffffff',
-                color: '#3c3a3b',
-                border: '1px solid #e6ded4',
+                background: 'var(--color-card)',
+                color: 'var(--color-white)',
+                border: '1px solid var(--color-border)',
                 borderRadius: 12,
                 fontSize: 13,
               }}
               formatter={(value) => formatCurrency(Number(value))}
             />
-            <Bar dataKey="amount" fill="#3987e5" radius={[4, 4, 0, 0]} maxBarSize={36} />
+            <Bar dataKey="amount" fill="var(--color-need)" radius={[4, 4, 0, 0]} maxBarSize={36} />
           </BarChart>
         </ResponsiveContainer>
       </div>

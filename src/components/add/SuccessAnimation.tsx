@@ -30,7 +30,7 @@ export function SuccessAnimation({ amount }: SuccessAnimationProps) {
         >
           <motion.path
             d="M5 13l4 4L19 7"
-            stroke="#87694f"
+            stroke="var(--color-accent-ink)"
             strokeWidth="3"
             strokeLinecap="round"
             strokeLinejoin="round"

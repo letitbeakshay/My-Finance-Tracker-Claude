@@ -13,10 +13,10 @@ const HomeIcon = ({ active }: { active: boolean }) => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
     <path
       d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z"
-      stroke={active ? '#87694f' : '#847b70'}
+      stroke={active ? 'var(--color-accent-ink)' : 'var(--color-tertiary)'}
       strokeWidth="2"
       strokeLinejoin="round"
-      fill={active ? 'rgba(161,134,111,0.12)' : 'none'}
+      fill={active ? 'color-mix(in srgb, var(--color-accent) 14%, transparent)' : 'none'}
     />
   </svg>
 )
@@ -25,7 +25,7 @@ const InsightsIcon = ({ active }: { active: boolean }) => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
     <path
       d="M5 19V11M12 19V5M19 19V14"
-      stroke={active ? '#87694f' : '#847b70'}
+      stroke={active ? 'var(--color-accent-ink)' : 'var(--color-tertiary)'}
       strokeWidth="2.5"
       strokeLinecap="round"
     />
@@ -58,7 +58,7 @@ export function BottomNav({ active, onChange, onAdd }: BottomNavProps) {
           style={{ boxShadow: '0 6px 16px rgba(60,58,59,0.25)' }}
         >
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-            <path d="M12 5v14M5 12h14" stroke="#fcfbf9" strokeWidth="2.75" strokeLinecap="round" />
+            <path d="M12 5v14M5 12h14" stroke="var(--color-on-primary)" strokeWidth="2.75" strokeLinecap="round" />
           </svg>
         </motion.button>
 

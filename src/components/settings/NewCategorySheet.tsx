@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { BottomSheet } from '../ui/BottomSheet'
 import { Button } from '../ui/Button'
 import { Chip } from '../ui/Chip'
@@ -13,12 +13,19 @@ interface NewCategorySheetProps {
   initial?: Category
   /** Top-level categories this one can be placed under. Omit to keep it simple (top level only). */
   parents?: Category[]
+  /** A starting name for a new category (e.g. what you just searched for). */
+  defaultName?: string
 }
 
-export function NewCategorySheet({ open, onClose, onCreated, initial, parents }: NewCategorySheetProps) {
+export function NewCategorySheet({ open, onClose, onCreated, initial, parents, defaultName }: NewCategorySheetProps) {
   const [name, setName] = useState(initial?.name ?? '')
   const [icon, setIcon] = useState(initial?.icon ?? '📦')
   const [parentId, setParentId] = useState<string | null>(initial?.parentId ?? null)
+
+  // Opening to add a category you just searched for starts with that name filled in.
+  useEffect(() => {
+    if (open && !initial && defaultName) setName(defaultName)
+  }, [open, initial, defaultName])
 
   async function handleSave() {
     if (!name.trim()) return
@@ -80,8 +87,8 @@ export function NewCategorySheet({ open, onClose, onCreated, initial, parents }:
             onClick={() => setIcon(e)}
             className="aspect-square rounded-xl flex items-center justify-center text-xl border"
             style={{
-              borderColor: icon === e ? '#a1866f' : 'var(--color-border)',
-              background: icon === e ? 'rgba(161,134,111,0.14)' : 'var(--color-surface)',
+              borderColor: icon === e ? 'var(--color-accent)' : 'var(--color-border)',
+              background: icon === e ? 'var(--color-accent-soft)' : 'var(--color-surface)',
             }}
           >
             {e}

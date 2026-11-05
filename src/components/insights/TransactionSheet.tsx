@@ -68,7 +68,7 @@ export function TransactionSheet({ expense, category, account, onClose }: Transa
             <span
               className="px-2.5 py-1 rounded-full text-[13px] font-semibold"
               style={{
-                background: `${TYPE_COLOR[expense.type]}22`,
+                background: `color-mix(in srgb, ${TYPE_COLOR[expense.type]} 14%, transparent)`,
                 color: TYPE_COLOR[expense.type],
               }}
             >

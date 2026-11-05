@@ -268,7 +268,7 @@ export function ExpenseWizard({ onDone, onCancel, preset }: ExpenseWizardProps) 
                       >
                         <span
                           className="w-11 h-11 rounded-full flex items-center justify-center"
-                          style={{ background: `${color}26`, color }}
+                          style={{ background: `color-mix(in srgb, ${color} 15%, transparent)`, color }}
                         >
                           <Icon size={22} />
                         </span>

@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Reorder } from 'framer-motion'
 import clsx from 'clsx'
-import { ChevronDown, GripVertical } from 'lucide-react'
+import { ChevronDown, GripVertical, Search, X } from 'lucide-react'
 import type { Category } from '../../types'
 import { Chip } from '../ui/Chip'
 import { NewCategorySheet } from '../settings/NewCategorySheet'
 import { categoryRepo } from '../../db/repository'
 import { BUDGET_STATUS_COLOR, type BudgetLine } from '../../lib/budgets'
+import { BudgetImpact } from '../budget/BudgetImpact'
 import { buildTree, categoryPath } from '../../lib/categoryTree'
 import { formatCurrency } from '../../lib/currency'
 
@@ -22,33 +23,6 @@ interface CategoryPickerProps {
   amount?: number
 }
 
-/** How a budget looks if `amount` is added to it. */
-function afterAdding(line: BudgetLine, amount: number) {
-  const usedPct = Math.min(100, (line.spent / line.limit) * 100)
-  const addPct = Math.min(100 - usedPct, (amount / line.limit) * 100)
-  const after = line.remaining - amount
-  const status = after < 0 ? 'over' : (line.spent + amount) / line.limit >= 0.8 ? 'warning' : 'ok'
-  return { usedPct, addPct, after, status } as const
-}
-
-function BudgetMeter({ line, amount }: { line: BudgetLine; amount: number }) {
-  const { usedPct, addPct, after, status } = afterAdding(line, amount)
-  const nowColor = BUDGET_STATUS_COLOR[line.status]
-  const afterColor = BUDGET_STATUS_COLOR[status]
-  return (
-    <>
-      <div className="mt-3 h-2 rounded-full bg-white/5 overflow-hidden flex">
-        <div className="h-full" style={{ width: `${usedPct}%`, background: nowColor }} />
-        <div className="h-full" style={{ width: `${addPct}%`, background: afterColor, opacity: 0.45 }} />
-      </div>
-      <p className="mt-2 text-[12px] tabular-nums" style={{ color: status === 'ok' ? 'var(--color-tertiary)' : afterColor }}>
-        {formatCurrency(line.spent)} of {formatCurrency(line.limit)} used ·{' '}
-        {after >= 0 ? `${formatCurrency(after)} left after this` : `${formatCurrency(-after)} over with this`}
-      </p>
-    </>
-  )
-}
-
 export function CategoryPicker({
   categories,
   value,
@@ -59,6 +33,7 @@ export function CategoryPicker({
 }: CategoryPickerProps) {
   const [creating, setCreating] = useState(false)
   const [reordering, setReordering] = useState(false)
+  const [query, setQuery] = useState('')
   const tree = useMemo(() => buildTree(categories), [categories])
   const byId = useMemo(() => new Map(categories.map((c) => [c.id, c])), [categories])
   const [order, setOrder] = useState(tree.map((n) => n.category))
@@ -70,6 +45,24 @@ export function CategoryPicker({
   useEffect(() => {
     if (!reordering) setOrder(tree.map((n) => n.category))
   }, [tree, reordering])
+
+  // Search: every word you type must appear in a category's name (or its parent's). Best matches first.
+  const tokens = query.trim().toLowerCase().split(/\s+/).filter(Boolean)
+  const searching = tokens.length > 0
+  const visible = useMemo(() => {
+    const hit = (text: string) => tokens.every((t) => text.toLowerCase().includes(t))
+    if (!searching) return tree.map((n, order) => ({ ...n, shown: n.children, parentHit: true, rank: 0, order }))
+    return tree
+      .flatMap((n, order) => {
+        const parentHit = hit(n.category.name)
+        const kids = n.children.filter((c) => hit(`${c.name} ${n.category.name}`))
+        if (!parentHit && kids.length === 0) return []
+        const startsWith = n.category.name.toLowerCase().startsWith(tokens[0])
+        return [{ ...n, shown: parentHit ? n.children : kids, parentHit, rank: parentHit ? (startsWith ? 0 : 1) : 2, order }]
+      })
+      .sort((a, b) => a.rank - b.rank || a.order - b.order)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tree, query])
 
   async function handleDone() {
     setReordering(false)
@@ -92,9 +85,11 @@ export function CategoryPicker({
   const sheet = (
     <NewCategorySheet
       open={creating}
+      defaultName={query.trim()}
       onClose={() => setCreating(false)}
       onCreated={(category) => {
         setCreating(false)
+        setQuery('')
         onChange(category.id)
       }}
     />
@@ -149,11 +144,48 @@ export function CategoryPicker({
   return (
     <>
       {header}
+      <div className="relative mb-3">
+        <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-tertiary pointer-events-none" />
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search categories"
+          aria-label="Search categories"
+          autoComplete="off"
+          autoCorrect="off"
+          enterKeyHint="search"
+          className="w-full h-12 bg-surface border border-border rounded-2xl pl-11 pr-11 text-white text-[16px] placeholder:text-tertiary"
+        />
+        {query && (
+          <button
+            type="button"
+            onClick={() => setQuery('')}
+            aria-label="Clear search"
+            className="absolute right-1.5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full flex items-center justify-center text-tertiary"
+          >
+            <X size={16} />
+          </button>
+        )}
+      </div>
+
+      {searching && visible.length === 0 && (
+        <div className="rounded-2xl border border-dashed border-border px-4 py-6 text-center">
+          <p className="text-secondary text-[14px] mb-3">No category matches “{query.trim()}”.</p>
+          <button
+            type="button"
+            onClick={() => setCreating(true)}
+            className="h-11 px-5 rounded-xl bg-primary text-on-primary text-[14px] font-semibold"
+          >
+            Create “{query.trim()}”
+          </button>
+        </div>
+      )}
+
       <div className="flex flex-col gap-2.5">
-        {tree.map(({ category, children }) => {
+        {visible.map(({ category, children, shown, parentHit }) => {
           const line = budgetLines?.get(category.id)
           const hasChildren = children.length > 0
-          const isOpen = effectiveOpen === category.id
+          const isOpen = searching ? hasChildren : effectiveOpen === category.id
           const chosenChild = children.find((c) => c.id === value)
           const selected = value === category.id || !!chosenChild
           return (
@@ -166,7 +198,12 @@ export function CategoryPicker({
             >
               <button
                 type="button"
-                onClick={() => (hasChildren ? setOpenId(isOpen ? '' : category.id) : onChange(category.id))}
+                onClick={() => {
+                  if (!hasChildren) {
+                    onChange(category.id)
+                    setQuery('')
+                  } else if (!searching) setOpenId(isOpen ? '' : category.id)
+                }}
                 aria-expanded={hasChildren ? isOpen : undefined}
                 className="w-full text-left p-3.5"
               >
@@ -191,22 +228,44 @@ export function CategoryPicker({
                     <ChevronDown size={18} className={clsx('text-tertiary shrink-0 transition-transform', isOpen && 'rotate-180')} />
                   )}
                 </div>
-                {line && <BudgetMeter line={line} amount={amount} />}
+                {line && <BudgetImpact line={line} amount={amount} />}
               </button>
 
               {hasChildren && isOpen && (
                 <div className="px-3.5 pb-3.5 -mt-0.5">
                   <p className="text-tertiary text-[12px] mb-2">What kind?</p>
                   <div className="flex flex-wrap gap-2">
-                    {children.map((c) => (
-                      <Chip key={c.id} selected={value === c.id} onClick={() => onChange(c.id)} className="h-10 px-3.5 text-[14px]">
+                    {shown.map((c) => (
+                      <Chip
+                        key={c.id}
+                        selected={value === c.id}
+                        onClick={() => {
+                          onChange(c.id)
+                          setQuery('')
+                        }}
+                        className="h-10 px-3.5 text-[14px]"
+                      >
                         <span>{c.icon}</span>
                         <span>{c.name}</span>
+                        {budgetLines?.get(c.id) && (
+                          <span className="text-[11px] font-semibold" style={{ color: BUDGET_STATUS_COLOR[budgetLines.get(c.id)!.status] }}>
+                            {budgetLines.get(c.id)!.remaining >= 0 ? `${formatCurrency(budgetLines.get(c.id)!.remaining)} left` : 'over'}
+                          </span>
+                        )}
                       </Chip>
                     ))}
-                    <Chip selected={value === category.id} onClick={() => onChange(category.id)} className="h-10 px-3.5 text-[14px]">
-                      <span>General</span>
-                    </Chip>
+                    {parentHit && (
+                      <Chip
+                        selected={value === category.id}
+                        onClick={() => {
+                          onChange(category.id)
+                          setQuery('')
+                        }}
+                        className="h-10 px-3.5 text-[14px]"
+                      >
+                        <span>General</span>
+                      </Chip>
+                    )}
                   </div>
                 </div>
               )}
@@ -214,14 +273,16 @@ export function CategoryPicker({
           )
         })}
 
-        <button
-          type="button"
-          onClick={() => setCreating(true)}
-          className="rounded-2xl border border-dashed border-border px-3.5 h-14 flex items-center gap-2.5 text-[15px] font-medium text-secondary"
-        >
-          <span className="text-[18px]">＋</span>
-          <span>New category</span>
-        </button>
+        {!searching && (
+          <button
+            type="button"
+            onClick={() => setCreating(true)}
+            className="rounded-2xl border border-dashed border-border px-3.5 h-14 flex items-center gap-2.5 text-[15px] font-medium text-secondary"
+          >
+            <span className="text-[18px]">＋</span>
+            <span>New category</span>
+          </button>
+        )}
       </div>
       {sheet}
     </>

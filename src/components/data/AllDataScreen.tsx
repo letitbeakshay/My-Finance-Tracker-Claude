@@ -18,6 +18,7 @@ import { EXPENSE_TYPE_COLORS as TYPE_COLOR, EXPENSE_TYPE_LABELS, PAYMENT_METHOD_
 import type { Expense, Income, Loan } from '../../types'
 import { TransactionSheet } from '../insights/TransactionSheet'
 import { MonthNav } from '../ui/MonthNav'
+import { ThemeToggle } from '../ui/ThemeToggle'
 import { FirstFruitsCard } from '../stewardship/FirstFruitsCard'
 import { BudgetsView } from '../budget/BudgetsView'
 import { BudgetProgressCard } from '../budget/BudgetProgressCard'
@@ -38,7 +39,7 @@ import { AddIncomeSheet } from './AddIncomeSheet'
 import { AddLoanSheet } from './AddLoanSheet'
 import { IncomeSheet, LoanSheet } from './ManageSheets'
 
-const INCOME_COLOR = '#4d7a56'
+const INCOME_COLOR = 'var(--color-positive)'
 
 function inMonth(date: string, month: Date) {
   return isSameMonth(parseISO(date), month)
@@ -166,7 +167,10 @@ export function AllDataScreen() {
   return (
     <div className="px-4 sm:px-6 lg:px-8 2xl:px-12 pt-3 pb-32 md:pb-16">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
-        <MonthNav month={month} onChange={setMonth} />
+        <div className="flex items-center justify-between gap-3">
+          <MonthNav month={month} onChange={setMonth} />
+          <ThemeToggle className="md:hidden" />
+        </div>
 
         <div className="flex gap-2.5">
           <button

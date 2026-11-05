@@ -9,9 +9,9 @@ export function SearchBar({ value, onChange, onOpenFilters, activeFilterCount }:
   return (
     <div className="flex items-center gap-2.5 mb-5">
       <div className="flex-1 h-12 bg-surface border border-border rounded-2xl flex items-center px-4 gap-2">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="shrink-0">
-          <circle cx="11" cy="11" r="7" stroke="#616161" strokeWidth="2" />
-          <path d="m20 20-3.5-3.5" stroke="#616161" strokeWidth="2" strokeLinecap="round" />
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="shrink-0 text-tertiary">
+          <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
+          <path d="m20 20-3.5-3.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
         </svg>
         <input
           value={value}

@@ -124,7 +124,7 @@ export function TransactionsPanel({
               <span className="hidden md:flex items-center">
                 <span
                   className="text-[12px] font-semibold rounded-full px-2.5 py-1"
-                  style={{ color: r.tag.color, background: `${r.tag.color}24` }}
+                  style={{ color: r.tag.color, background: `color-mix(in srgb, ${r.tag.color} 14%, transparent)` }}
                 >
                   {r.tag.label}
                 </span>

@@ -9,7 +9,7 @@ interface PlanChild {
   onlyIfExists?: boolean
 }
 
-interface PlanParent {
+export interface PlanParent {
   name: string
   icon: string
   defaultType: ExpenseType
@@ -29,6 +29,7 @@ export const CATEGORY_PLAN: PlanParent[] = [
       { name: 'Accha', icon: '👨' },
       { name: 'Grocery', icon: '🛒' },
       { name: 'Family expenses', icon: '👪' },
+      { name: 'Family allowance', icon: '💝' },
       { name: 'To Family', icon: '🏠', onlyIfExists: true },
     ],
   },
@@ -39,7 +40,11 @@ export const CATEGORY_PLAN: PlanParent[] = [
     children: [
       { name: 'Coffee', icon: '☕' },
       { name: 'Outside Meal', icon: '🍛', matches: ['food'] },
+      { name: 'Breakfast', icon: '🥞' },
+      { name: 'Food delivery', icon: '🛵' },
       { name: 'Snacks', icon: '🥪' },
+      { name: 'Sweets & Bakery', icon: '🍰' },
+      { name: 'Treating friends', icon: '🧑‍🤝‍🧑' },
     ],
   },
   { name: 'Shopping', icon: '🛍', defaultType: 'want' },
@@ -115,7 +120,7 @@ const norm = (s: string) => s.trim().toLowerCase()
  * Works out what to change so the existing categories match CATEGORY_PLAN. Nothing is ever deleted:
  * existing categories are reused (and moved or renamed), missing ones are created. Safe to re-run.
  */
-export function planCategories(existing: Category[], newId: () => string) {
+export function planCategories(existing: Category[], newId: () => string, plan: PlanParent[] = CATEGORY_PLAN) {
   const used = new Set<string>()
   const pool = [...existing].sort((a, b) => Number(!!a.archived) - Number(!!b.archived) || (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
   const find = (names: string[]) => {
@@ -143,7 +148,7 @@ export function planCategories(existing: Category[], newId: () => string) {
     return changes.parentId !== undefined ? 'moved' : Object.keys(changes).length ? 'moved' : 'kept'
   }
 
-  CATEGORY_PLAN.forEach((parent, i) => {
+  plan.forEach((parent, i) => {
     const ex = find([parent.name, ...(parent.matches ?? [])])
     let parentId: string
     let status: PlannedNode['status']

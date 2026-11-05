@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabaseClient'
-import { planCategories } from '../lib/categoryPlan'
+import { planCategories, type PlanParent } from '../lib/categoryPlan'
 import {
   OVERALL_BUDGET_ID,
   type AppSettings,
@@ -176,8 +176,8 @@ export const categoryPlanRepo = {
   },
 
   /** Applies the category plan. Creates what is missing and moves/renames what exists; never deletes. */
-  async apply(existing: Category[]) {
-    const { ops } = planCategories(existing, generateId)
+  async apply(existing: Category[], plan?: PlanParent[]) {
+    const { ops } = planCategories(existing, generateId, plan)
     for (const op of ops) {
       if (op.kind === 'create') {
         const { error } = await supabase.from('categories').insert({

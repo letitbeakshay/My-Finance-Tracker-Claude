@@ -27,9 +27,9 @@ export function PasscodeGate({ onUnlock }: PasscodeGateProps) {
   return (
     <div className="fixed inset-0 max-w-[560px] mx-auto bg-bg flex flex-col items-center justify-center px-8 gap-6 z-[100]">
       <div className="w-16 h-16 rounded-full bg-surface border border-border flex items-center justify-center">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-          <rect x="5" y="11" width="14" height="9" rx="2.5" stroke="#8e8e93" strokeWidth="2" />
-          <path d="M8 11V7a4 4 0 0 1 8 0v4" stroke="#8e8e93" strokeWidth="2" strokeLinecap="round" />
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" className="text-tertiary">
+          <rect x="5" y="11" width="14" height="9" rx="2.5" stroke="currentColor" strokeWidth="2" />
+          <path d="M8 11V7a4 4 0 0 1 8 0v4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
         </svg>
       </div>
 

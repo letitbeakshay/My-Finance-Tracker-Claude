@@ -39,7 +39,7 @@ export function FirstFruitsCard({ plan, givingPercent, onGive, compact }: FirstF
           <div className="h-2 rounded-full bg-white/5 overflow-hidden my-3">
             <div
               className="h-full rounded-full transition-all duration-700"
-              style={{ width: `${progress}%`, background: '#a47b22' }}
+              style={{ width: `${progress}%`, background: 'var(--color-giving)' }}
             />
           </div>
           {done ? (

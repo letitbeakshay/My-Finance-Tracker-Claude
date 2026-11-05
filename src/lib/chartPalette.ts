@@ -1,16 +1,16 @@
-// Earthy categorical steps from the validated reference palette (dataviz skill),
+// Theme-aware categorical steps (the colours are CSS variables, set per theme in index.css) from the validated reference palette (dataviz skill),
 // ordered for maximum adjacent CVD separation. Cards are white on the paper theme.
 export const CATEGORICAL_DARK = [
-  '#87694f', // clay
-  '#3c3a3b', // ink
-  '#5d8363', // sage
-  '#4f6f8f', // dusty blue
-  '#b8683a', // terracotta
-  '#a47b22', // ochre
-  '#8a6f8f', // mauve
-  '#3f7f80', // teal
+  'var(--chart-1)',
+  'var(--chart-2)',
+  'var(--chart-3)',
+  'var(--chart-4)',
+  'var(--chart-5)',
+  'var(--chart-6)',
+  'var(--chart-7)',
+  'var(--chart-8)',
 ]
 
-export const CHART_OTHER_COLOR = '#d9d0c4'
-export const CHART_MUTED_TEXT = '#847b70'
-export const CHART_GRIDLINE = '#e6ded4'
+export const CHART_OTHER_COLOR = 'var(--chart-other)'
+export const CHART_MUTED_TEXT = 'var(--color-tertiary)'
+export const CHART_GRIDLINE = 'var(--color-border)'

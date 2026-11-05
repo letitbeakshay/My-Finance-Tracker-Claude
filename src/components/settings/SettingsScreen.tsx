@@ -5,6 +5,8 @@ import { CategoryPlanCard } from './CategoryPlanCard'
 import { PaymentAccountManager } from './PaymentAccountManager'
 import { EmbedCodeCard } from './EmbedCodeCard'
 import { Card } from '../ui/Card'
+import { SegmentedControl } from '../ui/SegmentedControl'
+import { useTheme, type Theme } from '../../lib/theme'
 import { Button } from '../ui/Button'
 import { BottomSheet } from '../ui/BottomSheet'
 import { dataRepo } from '../../db/repository'
@@ -17,6 +19,7 @@ interface SettingsScreenProps {
 }
 
 export function SettingsScreen({ onBack, onLock }: SettingsScreenProps) {
+  const { theme, set: setTheme } = useTheme()
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [typed, setTyped] = useState('')
   const [deleteError, setDeleteError] = useState('')
@@ -77,7 +80,19 @@ export function SettingsScreen({ onBack, onLock }: SettingsScreenProps) {
         <h3 className="text-white text-[17px] font-bold mb-3">Data</h3>
         <Card className="flex flex-col gap-3">
           <Row label="Currency" value="₹ INR" />
-          <Row label="Theme" value="Dark only" />
+          <div className="flex items-center justify-between gap-4">
+            <span className="text-secondary text-[14px]">Theme</span>
+            <div className="w-[190px]">
+              <SegmentedControl<Theme>
+                options={[
+                  { value: 'light', label: 'Light' },
+                  { value: 'dark', label: 'Dark' },
+                ]}
+                value={theme}
+                onChange={setTheme}
+              />
+            </div>
+          </div>
           <div className="flex gap-3 pt-1">
             <Button variant="secondary" onClick={handleExportCSV}>
               Export CSV

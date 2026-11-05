@@ -1,5 +1,5 @@
 import { isSameMonth, parseISO } from 'date-fns'
-import { OVERALL_BUDGET_ID, type Budget, type Expense } from '../types'
+import { OVERALL_BUDGET_ID, type Budget, type BudgetItem, type Expense } from '../types'
 
 export type BudgetStatus = 'ok' | 'warning' | 'over'
 
@@ -75,7 +75,36 @@ export function budgetProgress(
 }
 
 export const BUDGET_STATUS_COLOR: Record<BudgetStatus, string> = {
-  ok: '#4d7a56',
-  warning: '#b36f17',
-  over: '#b84a3a',
+  ok: 'var(--color-positive)',
+  warning: 'var(--color-warning)',
+  over: 'var(--color-danger)',
+}
+
+/** A category limit, and whether it comes from the monthly plan (rather than being typed on the category). */
+export interface EffectiveBudget extends Budget {
+  fromPlan?: boolean
+  /** Names of the plan lines that make up a plan-derived limit. */
+  planNames?: string[]
+}
+
+/**
+ * Every limit that applies. A limit typed on a category wins; otherwise the plan lines linked to that
+ * category add up to its limit (Fuel ₹3,000 in the plan means Fuel is limited to ₹3,000).
+ */
+export function effectiveBudgets(budgets: Budget[], items: BudgetItem[]): EffectiveBudget[] {
+  const typed = new Set(budgets.filter((b) => b.categoryId).map((b) => b.categoryId))
+  const byCategory = new Map<string, BudgetItem[]>()
+  for (const item of items) {
+    if (!item.categoryId || typed.has(item.categoryId)) continue
+    byCategory.set(item.categoryId, [...(byCategory.get(item.categoryId) ?? []), item])
+  }
+  const derived: EffectiveBudget[] = [...byCategory].map(([categoryId, list]) => ({
+    id: `plan:${categoryId}`,
+    categoryId,
+    monthlyLimit: list.reduce((sum, i) => sum + i.amount, 0),
+    createdAt: 0,
+    fromPlan: true,
+    planNames: list.map((i) => i.name),
+  }))
+  return [...budgets, ...derived]
 }

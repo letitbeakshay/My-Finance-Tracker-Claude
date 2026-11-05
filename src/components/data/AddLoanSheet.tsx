@@ -9,8 +9,8 @@ const FIELD =
   'w-full h-14 bg-card border border-border rounded-2xl px-4 text-white text-[16px] placeholder:text-tertiary'
 
 const KIND_OPTIONS: { value: LoanKind; label: string; color: string }[] = [
-  { value: 'borrowed', label: 'I borrowed', color: '#b8683a' },
-  { value: 'lent', label: 'I lent', color: '#4f6f8f' },
+  { value: 'borrowed', label: 'I borrowed', color: 'var(--color-want)' },
+  { value: 'lent', label: 'I lent', color: 'var(--color-need)' },
 ]
 
 interface AddLoanSheetProps {

@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import { ThemeToggle } from '../ui/ThemeToggle'
 
 export type View = 'enter' | 'data'
 
@@ -19,7 +20,9 @@ export function ViewToggle({ value, onChange }: ViewToggleProps) {
       className="hidden md:block sticky top-0 z-[60] bg-bg/90 backdrop-blur-xl px-4 pb-2.5"
       style={{ paddingTop: 'calc(env(safe-area-inset-top) + 10px)' }}
     >
-      <div className="relative flex bg-surface border border-border rounded-2xl p-1 max-w-[380px] mx-auto">
+      <div className="grid grid-cols-[1fr_380px_1fr] items-center">
+      <div />
+      <div className="relative flex bg-surface border border-border rounded-2xl p-1">
         {OPTIONS.map((opt) => {
           const active = opt.value === value
           return (
@@ -41,6 +44,8 @@ export function ViewToggle({ value, onChange }: ViewToggleProps) {
             </button>
           )
         })}
+      </div>
+      <ThemeToggle className="justify-self-end" />
       </div>
     </div>
   )
