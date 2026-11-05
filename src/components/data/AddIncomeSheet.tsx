@@ -16,7 +16,7 @@ interface AddIncomeSheetProps {
   bankAccounts: PaymentAccount[]
   givingPercent: number
   /** Lets the user go straight to recording what they set aside to give. */
-  onGive: (amount: number) => void
+  onGive?: (amount: number) => void
 }
 
 export function AddIncomeSheet({ open, onClose, bankAccounts, givingPercent, onGive }: AddIncomeSheetProps) {
@@ -58,7 +58,7 @@ export function AddIncomeSheet({ open, onClose, bankAccounts, givingPercent, onG
       })
       setSavedAmount(numericAmount)
     } catch {
-      setError('Could not save. Make sure the latest supabase/schema.sql has been run.')
+      setError('Could not save. The database needs an update: use “Copy the SQL” in the box at the top of the app.')
     } finally {
       setSaving(false)
     }
@@ -128,7 +128,7 @@ function FirstFruitsPrompt({
   firstFruits: number
   givingPercent: number
   onDone: () => void
-  onGive: (amount: number) => void
+  onGive?: (amount: number) => void
 }) {
   return (
     <>
@@ -147,7 +147,7 @@ function FirstFruitsPrompt({
         <Button variant="secondary" onClick={onDone}>
           Done
         </Button>
-        {givingPercent > 0 && (
+        {givingPercent > 0 && onGive && (
           <Button
             onClick={() => {
               onDone()

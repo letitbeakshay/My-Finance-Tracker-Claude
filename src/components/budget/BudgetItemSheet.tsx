@@ -53,7 +53,7 @@ export function BudgetItemSheet({ open, onClose, item }: BudgetItemSheetProps) {
       else await budgetItemRepo.add({ name: name.trim(), amount: amountN, categoryId: categoryId ?? undefined })
       onClose()
     } catch {
-      setError('Could not save. Make sure supabase/migration-budget-plan.sql has been run.')
+      setError('Could not save. The database needs an update: use “Copy the SQL” in the box at the top of the app.')
     } finally {
       setBusy(false)
     }

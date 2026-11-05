@@ -24,6 +24,13 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
+      # Brings the database up to date with this version of the code (safe to repeat). Skipped
+      # quietly if the SUPABASE_ACCESS_TOKEN secret has not been set.
+      - name: Apply database setup
+        run: node scripts/db-migrate.mjs
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
       - run: npm run build
         env:
           VITE_BASE_PATH: /${{ github.event.repository.name }}/

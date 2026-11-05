@@ -96,8 +96,8 @@ export function CategoryPlanCard() {
             </p>
             {ready === false && (
               <p className="text-[13px] leading-relaxed rounded-2xl bg-accent-soft text-accent-ink px-4 py-3 mb-4">
-                One small update is needed in Supabase first: run <span className="font-semibold">migration-categories-v2.sql</span> in
-                the SQL Editor (it only adds new columns and keeps all your data), then come back and press the button.
+                One small database update is needed first: use <span className="font-semibold">Copy the SQL</span> in the box at the top of the app,
+                run it in Supabase (it only adds things and keeps all your data), then come back and press the button.
               </p>
             )}
             <div className="max-h-[42dvh] overflow-y-auto -mx-1 px-1 mb-5">

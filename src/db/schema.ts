@@ -29,7 +29,7 @@ export interface ExpenseRow {
   wallet_id: string | null
   source: string | null
   attachment_id: string | null
-  // Absent until the categories-v2 migration in supabase/ has been run.
+  // Absent until supabase/schema.sql has been applied (the app shows a banner when it has not).
   pleases_god?: boolean | null
   reimbursed?: boolean | null
 }
@@ -43,7 +43,7 @@ export interface CategoryRow {
   sort_order: number
   wallet_id: string | null
   created_at: string
-  // Absent until the categories-v2 migration in supabase/ has been run.
+  // Absent until supabase/schema.sql has been applied (the app shows a banner when it has not).
   parent_id?: string | null
   reimbursable?: boolean | null
   default_type?: ExpenseType | null
@@ -65,7 +65,7 @@ export interface AppSettingsRow {
   id: string
   currency: string
   onboarded_at: string | null
-  // Absent until the stewardship migration in supabase/schema.sql has been run.
+  // Absent until supabase/schema.sql has been applied (the app shows a banner when it has not).
   giving_percent?: number
   saving_percent?: number
   pause_threshold?: number

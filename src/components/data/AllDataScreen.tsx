@@ -13,6 +13,7 @@ import { INCOME_ICON } from '../../lib/dataIcons'
 import { CategoryIcon } from '../ui/CategoryIcon'
 import { formatMonthLabel } from '../../lib/analytics'
 import { monthPlan } from '../../lib/stewardship'
+import { readSession, writeSession } from '../../lib/session'
 import { EXPENSE_TYPE_COLORS as TYPE_COLOR, EXPENSE_TYPE_LABELS, PAYMENT_METHOD_LABELS } from '../../types'
 import type { Expense, Income, Loan } from '../../types'
 import { TransactionSheet } from '../insights/TransactionSheet'
@@ -43,12 +44,7 @@ function inMonth(date: string, month: Date) {
   return isSameMonth(parseISO(date), month)
 }
 
-interface AllDataScreenProps {
-  /** Opens the giving entry in the Enter expenses view, pre-filled with `amount`. */
-  onGive: (amount: number) => void
-}
-
-export function AllDataScreen({ onGive }: AllDataScreenProps) {
+export function AllDataScreen() {
   const expenses = useExpenses()
   const categories = useAllCategories()
   const accounts = useAllPaymentAccounts()
@@ -58,7 +54,12 @@ export function AllDataScreen({ onGive }: AllDataScreenProps) {
   const budgets = useBudgets()
 
   const [month, setMonth] = useState(() => new Date())
-  const [section, setSection] = useState<Section>('overview')
+  // Reopening (or a phone reloading the app) puts you back on the same Dashboard section.
+  const [section, setSectionState] = useState<Section>(() => (readSession()?.section as Section | undefined) ?? 'overview')
+  const setSection = (next: Section) => {
+    setSectionState(next)
+    writeSession({ section: next })
+  }
   const [filter, setFilter] = useState<TransactionFilter>('all')
   const [search, setSearch] = useState('')
   const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null)
@@ -202,7 +203,7 @@ export function AllDataScreen({ onGive }: AllDataScreenProps) {
             <>
               {plan && settings && budgets && (
                 <div className="grid gap-5 lg:gap-6 md:grid-cols-2 items-start mb-6">
-                  <FirstFruitsCard plan={plan} givingPercent={settings.givingPercent} onGive={onGive} compact />
+                  <FirstFruitsCard plan={plan} givingPercent={settings.givingPercent} compact />
                   <BudgetProgressCard
                     budgets={budgets}
                     expenses={expenses}
@@ -251,7 +252,7 @@ export function AllDataScreen({ onGive }: AllDataScreenProps) {
             </div>
           )}
 
-          {section === 'stewardship' && <StewardshipView month={month} onGive={onGive} />}
+          {section === 'stewardship' && <StewardshipView month={month} />}
 
           {(section === 'transactions' || section === 'income' || section === 'expenses') && (
             <TransactionsPanel
@@ -293,7 +294,6 @@ export function AllDataScreen({ onGive }: AllDataScreenProps) {
         onClose={() => setAddingIncome(false)}
         bankAccounts={(accounts ?? []).filter((a) => a.type === 'bank_account' && !a.archived)}
         givingPercent={settings?.givingPercent ?? 10}
-        onGive={onGive}
       />
       <AddLoanSheet open={addingLoan} onClose={() => setAddingLoan(false)} />
     </div>

@@ -49,7 +49,7 @@ function LimitInput({ value, onCommit }: { value?: number; onCommit: (limit: num
         aria-label="Monthly limit"
         className={FIELD}
       />
-      {error && <p className="text-danger text-[11px] mt-1">Not saved — run schema.sql</p>}
+      {error && <p className="text-danger text-[11px] mt-1">Not saved — database update needed</p>}
     </div>
   )
 }

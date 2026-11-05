@@ -8,8 +8,8 @@ import type { MonthPlan } from '../../lib/stewardship'
 interface FirstFruitsCardProps {
   plan: MonthPlan
   givingPercent: number
-  /** Opens the giving entry, pre-filled with what is still to give. */
-  onGive: (amount: number) => void
+  /** Opens the giving entry, pre-filled with what is still to give. Without it the card shows progress only. */
+  onGive?: (amount: number) => void
   compact?: boolean
 }
 
@@ -64,11 +64,13 @@ export function FirstFruitsCard({ plan, givingPercent, onGive, compact }: FirstF
         </p>
       )}
 
-      <div className="mt-4">
-        <Button variant={done || !hasIncome ? 'secondary' : 'primary'} onClick={() => onGive(plan.givingRemaining)}>
-          {done || !hasIncome ? 'Record giving' : 'Give now'}
-        </Button>
-      </div>
+      {onGive && (
+        <div className="mt-4">
+          <Button variant={done || !hasIncome ? 'secondary' : 'primary'} onClick={() => onGive(plan.givingRemaining)}>
+            {done || !hasIncome ? 'Record giving' : 'Give now'}
+          </Button>
+        </div>
+      )}
     </Card>
   )
 }

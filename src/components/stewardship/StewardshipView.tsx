@@ -14,7 +14,8 @@ import { ReflectionCard } from './ReflectionCard'
 
 interface StewardshipViewProps {
   month: Date
-  onGive: (amount: number) => void
+  /** Omit to show the stewardship picture without a way to record giving (the Dashboard). */
+  onGive?: (amount: number) => void
 }
 
 /** The full stewardship picture for one month. Loads its own data. */

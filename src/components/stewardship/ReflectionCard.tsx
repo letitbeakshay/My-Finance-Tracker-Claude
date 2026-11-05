@@ -82,7 +82,7 @@ export function ReflectionCard({ month, plan, owed, reflection }: ReflectionCard
 
       {status === 'error' && (
         <p className="text-danger text-[14px] mb-3">
-          Could not save. Make sure the latest supabase/schema.sql has been run.
+          Could not save. The database needs an update: use “Copy the SQL” in the box at the top of the app.
         </p>
       )}
 

@@ -34,7 +34,7 @@ export function ReimbursementCard({ expenses, categories, limit }: Reimbursement
     try {
       await expenseRepo.setReimbursed(id, true)
     } catch {
-      setError('Could not save. Make sure the latest supabase/migration-categories-v2.sql has been run.')
+      setError('Could not save. The database needs an update: use “Copy the SQL” in the box at the top of the app.')
     }
   }
 

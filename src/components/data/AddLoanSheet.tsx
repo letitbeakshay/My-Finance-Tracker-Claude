@@ -55,7 +55,7 @@ export function AddLoanSheet({ open, onClose }: AddLoanSheetProps) {
       })
       onClose()
     } catch {
-      setError('Could not save. Make sure the latest supabase/schema.sql has been run.')
+      setError('Could not save. The database needs an update: use “Copy the SQL” in the box at the top of the app.')
     } finally {
       setSaving(false)
     }

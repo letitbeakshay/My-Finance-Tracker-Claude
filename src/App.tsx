@@ -12,17 +12,23 @@ import type { AddExpensePreset } from './components/add/AddExpenseScreen'
 import { AllDataScreen } from './components/data/AllDataScreen'
 import { ViewToggle, type View } from './components/layout/ViewToggle'
 import { MobileNav, type MobileDestination } from './components/layout/MobileNav'
+import { DatabaseUpdateBanner } from './components/layout/DatabaseUpdateBanner'
 import { ensureSeeded } from './db/seed'
-import { isUnlocked } from './lib/auth'
+import { isUnlocked, touchSession } from './lib/auth'
+import { keepSessionFresh, readSession, writeSession } from './lib/session'
 
 type Route = Tab | 'add' | 'settings' | 'stewardship' | 'budgets'
 
-/** The app always opens on Expense. `?view=data` opens the Dashboard (handy for a bookmark). */
+/**
+ * A fresh open starts on Expense, ready to type an amount. If you were on the Dashboard a moment ago
+ * (and the phone just reloaded the app), you land back there. `?view=data` always opens the Dashboard.
+ */
 function initialView(): View {
-  return new URLSearchParams(location.search).get('view') === 'data' ? 'data' : 'enter'
+  if (new URLSearchParams(location.search).get('view') === 'data') return 'data'
+  return readSession()?.view === 'data' ? 'data' : 'enter'
 }
 
-/** Coming back after this long away starts a fresh expense, ready to type. */
+/** Coming back after this long, from the Expense screens, starts a fresh expense. The Dashboard is left alone. */
 const AWAY_MS = 20_000
 
 function App() {
@@ -35,9 +41,11 @@ function App() {
   useEffect(() => {
     // Drives the wider desktop layout for the Dashboard (see index.css).
     document.documentElement.dataset.view = view
+    writeSession({ view })
   }, [view])
 
   useEffect(() => {
+    touchSession()
     // Seeding defaults must never hold the first screen back or break it if the network is slow.
     ensureSeeded().catch((err) => console.error('Could not seed defaults', err))
   }, [])
@@ -47,12 +55,15 @@ function App() {
     function onVisibility() {
       if (document.hidden) {
         hiddenAt = Date.now()
+        keepSessionFresh()
         return
       }
+      touchSession() // using the app keeps you signed in for another 30 days
       if (!hiddenAt || Date.now() - hiddenAt < AWAY_MS) return
       hiddenAt = 0
-      // A half-typed expense is left alone; anywhere else, jump back to a fresh amount screen.
-      if (view === 'enter' && route === 'add') return
+      // Only the Expense home and Insights jump back to a fresh amount screen. The Dashboard, Settings,
+      // Budgets, Stewardship and a half-typed expense stay exactly where you left them.
+      if (view !== 'enter' || (route !== 'home' && route !== 'insights')) return
       setAddPreset(null)
       setView('enter')
       setRoute('add')
@@ -88,7 +99,9 @@ function App() {
       {/* Phones have no top bar; keep content clear of the status bar. */}
       <div className="md:hidden shrink-0" style={{ height: 'var(--topbar-h)' }} />
 
-      {view === 'data' && <AllDataScreen onGive={handleGive} />}
+      <DatabaseUpdateBanner />
+
+      {view === 'data' && <AllDataScreen />}
 
       {view === 'enter' && (
       <>
