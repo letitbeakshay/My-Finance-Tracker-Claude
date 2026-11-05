@@ -2,10 +2,10 @@
 // ordered for maximum adjacent CVD separation. Cards are #1f1f1f on the charcoal theme.
 export const CATEGORICAL_DARK = [
   '#3987e5', // blue
-  '#008300', // green
+  '#8a9bb0', // slate
   '#d55181', // magenta
   '#c98500', // yellow
-  '#199e70', // aqua
+  '#4fc3d0', // cyan
   '#d95926', // orange
   '#9085e9', // violet
   '#e66767', // red

@@ -33,7 +33,7 @@ import { AddIncomeSheet } from './AddIncomeSheet'
 import { AddLoanSheet } from './AddLoanSheet'
 import { IncomeSheet, LoanSheet } from './ManageSheets'
 
-const INCOME_COLOR = '#87c696'
+const INCOME_COLOR = '#66a7f6'
 
 function inMonth(date: string, month: Date) {
   return isSameMonth(parseISO(date), month)

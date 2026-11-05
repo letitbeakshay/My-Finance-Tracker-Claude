@@ -12,7 +12,7 @@ export function MonthlySummary({ needsPct, wantsPct, savingsPct, givingPct }: Mo
     { label: 'Giving', pct: givingPct, color: '#dcc25e' },
     { label: 'Needs', pct: needsPct, color: '#66a7f6' },
     { label: 'Wants', pct: wantsPct, color: '#e39a5c' },
-    { label: 'Savings', pct: savingsPct, color: '#87c696' },
+    { label: 'Savings', pct: savingsPct, color: '#4fc3d0' },
   ]
   return (
     <Card className="mb-8">

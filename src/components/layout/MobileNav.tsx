@@ -60,7 +60,7 @@ export function MobileNav({ active, onExpense, onInsights, onAdd, onDashboard, o
             onClick={onAdd}
             aria-label="Add expense"
             className="w-14 h-14 rounded-full bg-accent text-black flex items-center justify-center -mt-7"
-            style={{ boxShadow: '0 6px 18px rgba(135,198,150,0.3)' }}
+            style={{ boxShadow: '0 6px 18px rgba(102,167,246,0.3)' }}
           >
             <Plus size={28} strokeWidth={2.75} />
           </motion.button>

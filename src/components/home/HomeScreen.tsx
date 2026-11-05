@@ -167,8 +167,8 @@ export function HomeScreen({
           icon="💰"
           amount={breakdown.savings}
           percentage={breakdown.savingsPct}
-          color="#87c696"
-          softColor="rgba(135,198,150,0.14)"
+          color="#4fc3d0"
+          softColor="rgba(79,195,208,0.14)"
         />
       </div>
 
