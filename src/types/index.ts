@@ -122,8 +122,10 @@ export interface BudgetItem {
   id: string
   name: string
   amount: number
-  /** Optional: a category whose spending is shown against this line. */
+  /** Optional: the first category whose spending is shown against this line. */
   categoryId?: string
+  /** Every category linked to this line (spending from all of them is added up). */
+  categoryIds: string[]
   sortOrder: number
   createdAt: number
 }

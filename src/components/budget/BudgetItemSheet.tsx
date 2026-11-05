@@ -28,7 +28,7 @@ export function BudgetItemSheet({ open, onClose, item }: BudgetItemSheetProps) {
   )
   const [name, setName] = useState('')
   const [amount, setAmount] = useState('')
-  const [categoryId, setCategoryId] = useState<string | null>(null)
+  const [categoryIds, setCategoryIds] = useState<string[]>([])
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
 
@@ -36,7 +36,7 @@ export function BudgetItemSheet({ open, onClose, item }: BudgetItemSheetProps) {
     if (open) {
       setName(item?.name ?? '')
       setAmount(item ? String(item.amount) : '')
-      setCategoryId(item?.categoryId ?? null)
+      setCategoryIds(item?.categoryIds ?? [])
       setError('')
     }
   }, [open, item])
@@ -49,8 +49,8 @@ export function BudgetItemSheet({ open, onClose, item }: BudgetItemSheetProps) {
     setBusy(true)
     setError('')
     try {
-      if (item) await budgetItemRepo.update(item.id, { name: name.trim(), amount: amountN, categoryId: categoryId ?? undefined })
-      else await budgetItemRepo.add({ name: name.trim(), amount: amountN, categoryId: categoryId ?? undefined })
+      if (item) await budgetItemRepo.update(item.id, { name: name.trim(), amount: amountN, categoryIds })
+      else await budgetItemRepo.add({ name: name.trim(), amount: amountN, categoryIds })
       onClose()
     } catch {
       setError('Could not save. The database needs an update: use “Copy the SQL” in the box at the top of the app.')
@@ -97,14 +97,14 @@ export function BudgetItemSheet({ open, onClose, item }: BudgetItemSheetProps) {
       {choices.length > 0 && (
         <div className="mb-5">
           <p className="text-tertiary text-[12px] font-semibold uppercase tracking-wide mb-2">
-            Show spending from a category (optional)
+            Show spending from categories (pick one or more, optional)
           </p>
           <div className="flex flex-wrap gap-2 max-h-[26dvh] overflow-y-auto">
-            <Chip selected={categoryId === null} onClick={() => setCategoryId(null)} className="h-9 px-3 text-[14px]">
+            <Chip selected={categoryIds.length === 0} onClick={() => setCategoryIds([])} className="h-9 px-3 text-[14px]">
               None
             </Chip>
             {choices.map((c) => (
-              <Chip key={c.id} selected={categoryId === c.id} onClick={() => setCategoryId(c.id)} className="h-9 px-3 text-[14px]">
+              <Chip key={c.id} selected={categoryIds.includes(c.id)} onClick={() => setCategoryIds((cur) => (cur.includes(c.id) ? cur.filter((x) => x !== c.id) : [...cur, c.id]))} className="h-9 px-3 text-[14px]">
                 {categoryPath(c, byId)}
               </Chip>
             ))}

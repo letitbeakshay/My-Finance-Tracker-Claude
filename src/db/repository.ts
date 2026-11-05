@@ -3,7 +3,6 @@ import { planCategories, type PlanParent } from '../lib/categoryPlan'
 import {
   OVERALL_BUDGET_ID,
   type AppSettings,
-  type BudgetItem,
   type Category,
   type Expense,
   type Income,
@@ -357,32 +356,37 @@ export const budgetRepo = {
 }
 
 export const budgetItemRepo = {
-  async add(input: Pick<BudgetItem, 'name' | 'amount' | 'categoryId'>) {
+  async add(input: { name: string; amount: number; categoryIds: string[] }) {
     const { data: last } = await supabase
       .from('budget_items')
       .select('sort_order')
       .order('sort_order', { ascending: false })
       .limit(1)
       .maybeSingle<{ sort_order: number }>()
-    const { error } = await supabase.from('budget_items').insert({
+    const base = {
       id: generateId(),
       name: input.name,
       amount: input.amount,
-      category_id: input.categoryId ?? null,
+      category_id: input.categoryIds[0] ?? null,
       sort_order: (last?.sort_order ?? -1) + 1,
-    })
+    }
+    let { error } = await supabase.from('budget_items').insert({ ...base, category_ids: input.categoryIds })
+    // Database not updated yet for several categories: save with the first one only.
+    if (error && input.categoryIds.length <= 1) ({ error } = await supabase.from('budget_items').insert(base))
     if (error) throw error
   },
 
-  async update(id: string, changes: Partial<Pick<BudgetItem, 'name' | 'amount' | 'categoryId'>>) {
-    const { error } = await supabase
+  async update(id: string, changes: { name?: string; amount?: number; categoryIds?: string[] }) {
+    const base = {
+      ...(changes.name !== undefined ? { name: changes.name } : {}),
+      ...(changes.amount !== undefined ? { amount: changes.amount } : {}),
+      ...(changes.categoryIds ? { category_id: changes.categoryIds[0] ?? null } : {}),
+    }
+    let { error } = await supabase
       .from('budget_items')
-      .update({
-        ...(changes.name !== undefined ? { name: changes.name } : {}),
-        ...(changes.amount !== undefined ? { amount: changes.amount } : {}),
-        ...('categoryId' in changes ? { category_id: changes.categoryId ?? null } : {}),
-      })
+      .update({ ...base, ...(changes.categoryIds ? { category_ids: changes.categoryIds } : {}) })
       .eq('id', id)
+    if (error && (changes.categoryIds?.length ?? 0) <= 1) ({ error } = await supabase.from('budget_items').update(base).eq('id', id))
     if (error) throw error
   },
 

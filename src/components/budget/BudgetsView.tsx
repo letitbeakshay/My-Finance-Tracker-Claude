@@ -134,7 +134,8 @@ export function BudgetsView({ month }: { month: Date }) {
                   <span className="text-white font-bold text-[15px] tabular-nums">{formatCurrency(planTotal)}</span>
                 </div>
                 {(planItems ?? []).map((item) => {
-                  const spent = item.categoryId ? progress.spentByCategory(item.categoryId) : null
+                  const linked = item.categoryIds.filter((id) => !item.categoryIds.includes(allCategories.find((c) => c.id === id)?.parentId ?? ''))
+                  const spent = linked.length ? linked.reduce((sum, id) => sum + progress.spentByCategory(id), 0) : null
                   const pct = spent !== null && item.amount > 0 ? Math.min(100, (spent / item.amount) * 100) : 0
                   const over = spent !== null && spent > item.amount
                   return (

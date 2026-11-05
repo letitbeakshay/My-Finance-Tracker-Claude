@@ -95,7 +95,7 @@ export function effectiveBudgets(budgets: Budget[], items: BudgetItem[]): Effect
   const typed = new Set(budgets.filter((b) => b.categoryId).map((b) => b.categoryId))
   const byCategory = new Map<string, BudgetItem[]>()
   for (const item of items) {
-    if (!item.categoryId || typed.has(item.categoryId)) continue
+    if (!item.categoryId || item.categoryIds.length > 1 || typed.has(item.categoryId)) continue
     byCategory.set(item.categoryId, [...(byCategory.get(item.categoryId) ?? []), item])
   }
   const derived: EffectiveBudget[] = [...byCategory].map(([categoryId, list]) => ({
