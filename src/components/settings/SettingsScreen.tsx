@@ -17,6 +17,8 @@ interface SettingsScreenProps {
 
 export function SettingsScreen({ onBack, onLock }: SettingsScreenProps) {
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [typed, setTyped] = useState('')
+  const [deleteError, setDeleteError] = useState('')
 
   async function handleExportCSV() {
     const csv = await dataRepo.exportCSV()
@@ -29,9 +31,18 @@ export function SettingsScreen({ onBack, onLock }: SettingsScreenProps) {
   }
 
   async function handleDeleteAll() {
-    await dataRepo.deleteAll()
-    setConfirmDelete(false)
-    onBack()
+    setDeleteError('')
+    try {
+      // A backup file is saved first, so this can always be undone.
+      const json = await dataRepo.exportJSON()
+      downloadFile(json, `backup-before-delete-${format(new Date(), 'yyyy-MM-dd-HHmm')}.json`, 'application/json')
+      await dataRepo.deleteAll()
+      setConfirmDelete(false)
+      setTyped('')
+      onBack()
+    } catch {
+      setDeleteError('Something went wrong, so nothing more was deleted. Your backup file was still saved.')
+    }
   }
 
   function handleLock() {
@@ -91,16 +102,39 @@ export function SettingsScreen({ onBack, onLock }: SettingsScreenProps) {
 
       <p className="text-tertiary text-[12px] text-center">Finance Tracker · v1.0 · Synced with Supabase</p>
 
-      <BottomSheet open={confirmDelete} onClose={() => setConfirmDelete(false)}>
+      <BottomSheet
+        open={confirmDelete}
+        onClose={() => {
+          setConfirmDelete(false)
+          setTyped('')
+          setDeleteError('')
+        }}
+      >
         <h2 className="text-white text-[20px] font-bold mb-2">Delete all data?</h2>
-        <p className="text-secondary text-[14px] mb-6">
-          This permanently deletes every expense and category on this device. This cannot be undone.
+        <p className="text-secondary text-[14px] mb-4">
+          This deletes every expense, income, loan, budget, category and account. A backup file is
+          downloaded first. To continue, type <span className="text-white font-semibold">DELETE</span>.
         </p>
+        <input
+          value={typed}
+          onChange={(e) => setTyped(e.target.value)}
+          placeholder="Type DELETE"
+          autoCapitalize="characters"
+          className="w-full h-14 bg-card border border-border rounded-2xl px-4 text-white text-[16px] placeholder:text-tertiary mb-4"
+        />
+        {deleteError && <p className="text-danger text-[14px] mb-3">{deleteError}</p>}
         <div className="flex gap-3">
-          <Button variant="secondary" onClick={() => setConfirmDelete(false)}>
+          <Button
+            variant="secondary"
+            onClick={() => {
+              setConfirmDelete(false)
+              setTyped('')
+              setDeleteError('')
+            }}
+          >
             Cancel
           </Button>
-          <Button onClick={handleDeleteAll} className="bg-danger! text-onfill!">
+          <Button onClick={handleDeleteAll} disabled={typed.trim() !== 'DELETE'} className="bg-danger! text-onfill!">
             Delete Everything
           </Button>
         </div>

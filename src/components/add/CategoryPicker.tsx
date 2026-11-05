@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Reorder } from 'framer-motion'
+import { GripVertical } from 'lucide-react'
 import type { Category } from '../../types'
 import { Chip } from '../ui/Chip'
 import { NewCategorySheet } from '../settings/NewCategorySheet'
@@ -39,34 +40,29 @@ export function CategoryPicker({ categories, value, onChange }: CategoryPickerPr
       </div>
 
       {reordering ? (
-        <Reorder.Group
-          axis="x"
-          values={order}
-          onReorder={setOrder}
-          className="flex gap-2.5 overflow-x-auto -mx-6 px-6 pb-1"
-        >
+        <Reorder.Group axis="y" values={order} onReorder={setOrder} className="flex flex-col gap-2">
           {order.map((c) => (
             <Reorder.Item
               key={c.id}
               value={c}
-              className="shrink-0 rounded-chip px-3.5 h-11 flex items-center gap-1.5 text-[15px] font-medium border bg-surface border-border text-white cursor-grab active:cursor-grabbing"
-              whileDrag={{ scale: 1.06, zIndex: 10 }}
+              className="rounded-xl px-4 h-12 flex items-center gap-3 text-[15px] font-medium border bg-surface border-border text-white cursor-grab active:cursor-grabbing"
+              whileDrag={{ scale: 1.02, zIndex: 10 }}
             >
               <span>{c.icon}</span>
-              <span>{c.name}</span>
-              <span className="text-tertiary text-[12px] ml-1">⠿</span>
+              <span className="flex-1 truncate">{c.name}</span>
+              <GripVertical size={18} className="text-tertiary shrink-0" />
             </Reorder.Item>
           ))}
         </Reorder.Group>
       ) : (
-        <div className="flex gap-2.5 overflow-x-auto -mx-6 px-6 pb-1">
+        <div className="flex flex-wrap gap-2">
           {categories.map((c) => (
-            <Chip key={c.id} selected={value === c.id} onClick={() => onChange(c.id)}>
+            <Chip key={c.id} selected={value === c.id} onClick={() => onChange(c.id)} className="h-10 px-3.5 text-[14px]">
               <span>{c.icon}</span>
               <span>{c.name}</span>
             </Chip>
           ))}
-          <Chip onClick={() => setCreating(true)}>
+          <Chip onClick={() => setCreating(true)} className="h-10 px-3.5 text-[14px]">
             <span>＋</span>
             <span>New</span>
           </Chip>

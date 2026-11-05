@@ -22,7 +22,8 @@ function line(categoryId: string | null, limit: number, spent: number): BudgetLi
     spent,
     pct,
     remaining: limit - spent,
-    status: pct > 100 ? 'over' : pct >= 80 ? 'warning' : 'ok',
+    // Judged on the exact amounts, not the rounded percent: ₹1001 of ₹1000 is over.
+    status: spent > limit ? 'over' : limit > 0 && spent / limit >= 0.8 ? 'warning' : 'ok',
   }
 }
 

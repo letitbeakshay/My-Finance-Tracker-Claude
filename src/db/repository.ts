@@ -169,7 +169,13 @@ export const paymentAccountRepo = {
       .eq('account_id', id)
     if (countError) throw countError
 
-    if (count && count > 0) {
+    // Incomes can point at a bank account too; those must keep their link, so archive instead.
+    const { count: incomeCount } = await supabase
+      .from('incomes')
+      .select('id', { count: 'exact', head: true })
+      .eq('account_id', id)
+
+    if ((count && count > 0) || (incomeCount && incomeCount > 0)) {
       const { error } = await supabase
         .from('payment_accounts')
         .update({ archived: true })
@@ -273,19 +279,25 @@ export const budgetRepo = {
 }
 
 export const dataRepo = {
+  /** A full backup of everything entered, including incomes, loans, budgets and reflections. */
   async exportJSON() {
-    const [{ data: expenses }, { data: categories }, { data: accounts }, { data: settings }] =
-      await Promise.all([
-        supabase.from('expenses').select('*'),
-        supabase.from('categories').select('*'),
-        supabase.from('payment_accounts').select('*'),
-        supabase.from('app_settings').select('*'),
-      ])
-    return JSON.stringify(
-      { expenses, categories, accounts, settings, exportedAt: Date.now() },
-      null,
-      2,
-    )
+    const tables = [
+      'expenses',
+      'categories',
+      'payment_accounts',
+      'app_settings',
+      'incomes',
+      'loans',
+      'budgets',
+      'reflections',
+    ] as const
+    const results = await Promise.all(tables.map((t) => supabase.from(t).select('*')))
+    const backup: Record<string, unknown> = { exportedAt: Date.now() }
+    tables.forEach((t, i) => {
+      // A table missing from an older database just means nothing was ever entered in it.
+      backup[t] = results[i].data ?? []
+    })
+    return JSON.stringify(backup, null, 2)
   },
 
   async exportCSV() {
@@ -313,11 +325,22 @@ export const dataRepo = {
     return csv
   },
 
+  /** Removes everything. Children first so foreign keys never block it; stops at the first real error. */
   async deleteAll() {
-    // Delete-all with a broad match since these tables have no auth-scoped owner column yet.
-    await supabase.from('expenses').delete().not('id', 'is', null)
-    await supabase.from('categories').delete().not('id', 'is', null)
-    await supabase.from('payment_accounts').delete().not('id', 'is', null)
-    await supabase.from('app_settings').delete().not('id', 'is', null)
+    const tables = [
+      'budgets',
+      'incomes',
+      'loans',
+      'reflections',
+      'expenses',
+      'categories',
+      'payment_accounts',
+      'app_settings',
+    ]
+    for (const table of tables) {
+      const { error } = await supabase.from(table).delete().not('id', 'is', null)
+      // PGRST205: the table doesn't exist yet in an older database, so there is nothing to delete.
+      if (error && error.code !== 'PGRST205') throw error
+    }
   },
 }

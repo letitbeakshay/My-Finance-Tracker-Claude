@@ -11,6 +11,11 @@ const FIELD =
 
 export function IncomeSheet({ income, onClose }: { income: Income | null; onClose: () => void }) {
   const [busy, setBusy] = useState(false)
+  const [confirming, setConfirming] = useState(false)
+
+  useEffect(() => {
+    setConfirming(false)
+  }, [income])
 
   async function handleDelete() {
     if (!income) return
@@ -34,8 +39,13 @@ export function IncomeSheet({ income, onClose }: { income: Income | null; onClos
           </p>
           {income.notes && <p className="text-secondary text-[15px] mb-4">{income.notes}</p>}
           <div className="mt-6">
-            <Button variant="secondary" onClick={handleDelete} disabled={busy} className="!text-danger">
-              Delete income
+            <Button
+              variant="secondary"
+              onClick={confirming ? handleDelete : () => setConfirming(true)}
+              disabled={busy}
+              className="!text-danger"
+            >
+              {confirming ? 'Tap again to delete this income' : 'Delete income'}
             </Button>
           </div>
         </>
@@ -47,9 +57,11 @@ export function IncomeSheet({ income, onClose }: { income: Income | null; onClos
 export function LoanSheet({ loan, onClose }: { loan: Loan | null; onClose: () => void }) {
   const [payment, setPayment] = useState('')
   const [busy, setBusy] = useState(false)
+  const [confirming, setConfirming] = useState(false)
 
   useEffect(() => {
     setPayment(loan?.emi ? String(loan.emi) : '')
+    setConfirming(false)
   }, [loan])
 
   async function handlePayment() {
@@ -105,8 +117,13 @@ export function LoanSheet({ loan, onClose }: { loan: Loan | null; onClose: () =>
               </Button>
             </div>
           )}
-          <Button variant="secondary" onClick={handleDelete} disabled={busy} className="!text-danger">
-            Delete loan
+          <Button
+            variant="secondary"
+            onClick={confirming ? handleDelete : () => setConfirming(true)}
+            disabled={busy}
+            className="!text-danger"
+          >
+            {confirming ? 'Tap again to delete this loan' : 'Delete loan'}
           </Button>
         </>
       )}

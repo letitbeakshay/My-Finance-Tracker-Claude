@@ -24,14 +24,14 @@ export function PaymentAccountPicker({
 
   return (
     <>
-      <div className="flex gap-2.5 overflow-x-auto -mx-6 px-6 pb-1">
+      <div className="flex flex-wrap gap-2">
         {filtered.map((a) => (
-          <Chip key={a.id} selected={value === a.id} onClick={() => onChange(a.id)}>
+          <Chip key={a.id} selected={value === a.id} onClick={() => onChange(a.id)} className="h-10 px-3.5 text-[14px]">
             <span>{a.icon}</span>
             <span>{a.label}</span>
           </Chip>
         ))}
-        <Chip onClick={() => setCreating(true)}>
+        <Chip onClick={() => setCreating(true)} className="h-10 px-3.5 text-[14px]">
           <span>＋</span>
           <span>{accountType === 'credit_card' ? 'Add Card' : 'Add Account'}</span>
         </Chip>

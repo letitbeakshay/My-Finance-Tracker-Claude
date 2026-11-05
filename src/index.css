@@ -76,6 +76,7 @@ html,
 body,
 #root {
   height: 100%;
+  overflow-x: clip;
   background: var(--color-bg);
 }
 
@@ -85,6 +86,7 @@ body {
   color: var(--color-white);
   font-family: var(--font-sans);
   overscroll-behavior-y: none;
+  overscroll-behavior-x: none;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -137,4 +139,18 @@ select:focus {
 
 .animate-pop-in {
   animation: pop-in 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* iOS Safari sizes date inputs from their content, which can push the page sideways. */
+input[type='date'] {
+  -webkit-appearance: none;
+  appearance: none;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 3.5rem;
+  text-align: left;
+}
+
+input[type='date']::-webkit-date-and-time-value {
+  text-align: left;
 }

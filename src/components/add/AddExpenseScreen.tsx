@@ -123,7 +123,7 @@ export function AddExpenseScreen({ onDone, onCancel, editExpense, preset }: AddE
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full touch-pan-y">
       <div className="flex items-center justify-between px-6 pt-3 pb-2">
         <button
           type="button"
@@ -139,7 +139,7 @@ export function AddExpenseScreen({ onDone, onCancel, editExpense, preset }: AddE
         <div className="w-10" />
       </div>
 
-      <div className="flex-1 overflow-y-auto px-6 pb-6">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden px-6 pb-6">
         <AmountInput value={amount} onChange={setAmount} />
 
         <div className="mb-7">
@@ -201,7 +201,7 @@ export function AddExpenseScreen({ onDone, onCancel, editExpense, preset }: AddE
             value={date}
             max={format(new Date(), 'yyyy-MM-dd')}
             onChange={(e) => setDate(e.target.value)}
-            className="w-full h-14 bg-surface border border-border rounded-2xl px-4 text-white text-[15px]"
+            className="block w-full min-w-0 max-w-full h-14 bg-surface border border-border rounded-2xl px-4 text-white text-[15px] text-left appearance-none"
           />
         </div>
       </div>
