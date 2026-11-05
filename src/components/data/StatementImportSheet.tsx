@@ -5,7 +5,7 @@ import { AlertCircle, Check, FileUp, Loader2, X } from 'lucide-react'
 import { Button } from '../ui/Button'
 import { useAllCategories, useExpenses, usePaymentAccounts } from '../../hooks/useLiveData'
 import { expenseRepo, incomeRepo } from '../../db/repository'
-import { buildTree, categoryPath } from '../../lib/categoryTree'
+import { buildTree } from '../../lib/categoryTree'
 import { formatCurrency } from '../../lib/currency'
 import {
   learnKey,
@@ -260,7 +260,7 @@ export function StatementImportSheet({ open, onClose }: { open: boolean; onClose
                       <>
                         <select value={l.categoryId} onChange={(e) => setCategory(i, e.target.value)} aria-label="Category" className={clsx(SELECT, flag && !l.categoryId && 'border-warning')}>
                           <option value="">Choose category</option>
-                          {choices.map((c) => (<option key={c.id} value={c.id}>{categoryPath(c, byId)}</option>))}
+                          {choices.map((c) => (<option key={c.id} value={c.id}>{c.name}</option>))}
                         </select>
                         <div className="grid grid-cols-[1fr_110px] gap-1.5 md:contents">
                         <div className="grid grid-cols-2 gap-1.5">

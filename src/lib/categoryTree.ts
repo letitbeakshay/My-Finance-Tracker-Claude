@@ -35,11 +35,9 @@ export function topLevelId(id: string, parents: Map<string, string>) {
   return parents.get(id) ?? id
 }
 
-/** "Eating Out › Coffee" for a sub-category, plain name otherwise. */
-export function categoryPath(category: Category | undefined, all: Map<string, Category>) {
-  if (!category) return 'Others'
-  const parent = category.parentId ? all.get(category.parentId) : undefined
-  return parent ? `${parent.name} › ${category.name}` : category.name
+/** How a category is shown everywhere: just its own name (no parent in front). */
+export function categoryPath(category: Category | undefined, _all?: Map<string, Category>) {
+  return category ? category.name : 'Others'
 }
 
 /** The type to suggest for a category: its own, or its parent's. */

@@ -4,7 +4,7 @@ import { Button } from '../ui/Button'
 import { Chip } from '../ui/Chip'
 import { useAllCategories } from '../../hooks/useLiveData'
 import { budgetItemRepo } from '../../db/repository'
-import { buildTree, categoryPath } from '../../lib/categoryTree'
+import { buildTree } from '../../lib/categoryTree'
 import type { BudgetItem } from '../../types'
 
 const FIELD =
@@ -21,7 +21,6 @@ interface BudgetItemSheetProps {
 export function BudgetItemSheet({ open, onClose, item }: BudgetItemSheetProps) {
   const categories = useAllCategories()
   // Every category, each sub-category right after its parent.
-  const byId = useMemo(() => new Map((categories ?? []).map((c) => [c.id, c])), [categories])
   const choices = useMemo(
     () => buildTree((categories ?? []).filter((c) => !c.archived)).flatMap((n) => [n.category, ...n.children]),
     [categories],
@@ -105,7 +104,7 @@ export function BudgetItemSheet({ open, onClose, item }: BudgetItemSheetProps) {
             </Chip>
             {choices.map((c) => (
               <Chip key={c.id} selected={categoryIds.includes(c.id)} onClick={() => setCategoryIds((cur) => (cur.includes(c.id) ? cur.filter((x) => x !== c.id) : [...cur, c.id]))} className="h-9 px-3 text-[14px]">
-                {categoryPath(c, byId)}
+                {c.name}
               </Chip>
             ))}
           </div>
