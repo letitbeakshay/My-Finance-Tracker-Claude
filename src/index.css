@@ -145,6 +145,9 @@ select:focus {
 input[type='date'] {
   -webkit-appearance: none;
   appearance: none;
+  /* iPhone Safari pins the date text to the top of the field; a centring flex row fixes that. */
+  display: flex;
+  align-items: center;
   min-width: 0;
   max-width: 100%;
   min-height: 3.5rem;
