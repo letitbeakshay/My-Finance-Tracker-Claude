@@ -84,14 +84,14 @@ export function NewPaymentAccountSheet({
           value={bankName}
           onChange={(e) => setBankName(e.target.value)}
           placeholder="Bank name (optional)"
-          className="w-full h-14 bg-card border border-border rounded-2xl px-4 text-white text-[15px] placeholder:text-tertiary"
+          className="w-full h-14 bg-card border border-border rounded-2xl px-4 text-white text-[16px] placeholder:text-tertiary"
         />
         <input
           value={last4}
           onChange={(e) => setLast4(e.target.value.replace(/[^0-9]/g, '').slice(0, 4))}
           inputMode="numeric"
           placeholder="Last 4 digits (optional)"
-          className="w-full h-14 bg-card border border-border rounded-2xl px-4 text-white text-[15px] placeholder:text-tertiary"
+          className="w-full h-14 bg-card border border-border rounded-2xl px-4 text-white text-[16px] placeholder:text-tertiary"
         />
       </div>
 

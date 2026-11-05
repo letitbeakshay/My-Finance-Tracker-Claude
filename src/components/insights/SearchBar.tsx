@@ -17,7 +17,7 @@ export function SearchBar({ value, onChange, onOpenFilters, activeFilterCount }:
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder="Search category, amount, notes..."
-          className="flex-1 bg-transparent text-white text-[14px] placeholder:text-tertiary"
+          className="flex-1 bg-transparent text-white text-[16px] placeholder:text-tertiary"
         />
       </div>
       <button

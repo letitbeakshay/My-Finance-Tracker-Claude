@@ -11,7 +11,7 @@ import { BudgetBar } from './BudgetBar'
 import { NewCategorySheet } from '../settings/NewCategorySheet'
 
 const FIELD =
-  'w-28 h-11 bg-surface border border-border rounded-xl px-3 text-white text-[15px] text-right tabular-nums placeholder:text-tertiary'
+  'w-28 h-11 bg-surface border border-border rounded-xl px-3 text-white text-[16px] text-right tabular-nums placeholder:text-tertiary'
 
 function LimitInput({ value, onCommit }: { value?: number; onCommit: (limit: number) => Promise<void> }) {
   const [text, setText] = useState(value ? String(value) : '')

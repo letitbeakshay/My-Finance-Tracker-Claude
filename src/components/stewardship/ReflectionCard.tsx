@@ -9,7 +9,7 @@ import { VERSES } from '../../lib/scripture'
 import type { Reflection } from '../../types'
 
 const AREA =
-  'w-full min-h-[84px] bg-surface border border-border rounded-2xl px-4 py-3 text-white text-[15px] placeholder:text-tertiary resize-y'
+  'w-full min-h-[84px] bg-surface border border-border rounded-2xl px-4 py-3 text-white text-[16px] placeholder:text-tertiary resize-y'
 
 const PROMPTS = [
   { key: 'gratitude', label: 'What am I grateful to God for this month?' },

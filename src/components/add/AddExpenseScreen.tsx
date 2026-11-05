@@ -78,7 +78,8 @@ export function AddExpenseScreen({ onDone, onCancel, editExpense, preset }: AddE
     if (next === 'giving' && categories?.some((c) => c.id === 'tithe')) setCategoryId('tithe')
   }
 
-  const pauseThreshold = settings?.pauseThreshold ?? 0
+  // Until the saved plan has loaded, use the default so a fast save can't skip the pause.
+  const pauseThreshold = settings?.pauseThreshold ?? 2000
 
   async function handleSave(skipPause = false) {
     if (!canSave || !effectiveCategoryId) return
@@ -188,7 +189,7 @@ export function AddExpenseScreen({ onDone, onCancel, editExpense, preset }: AddE
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             placeholder="Add a note (optional)"
-            className="w-full h-14 bg-surface border border-border rounded-2xl px-4 text-white text-[15px] placeholder:text-tertiary"
+            className="w-full h-14 bg-surface border border-border rounded-2xl px-4 text-white text-[16px] placeholder:text-tertiary"
           />
         </div>
 
@@ -201,7 +202,7 @@ export function AddExpenseScreen({ onDone, onCancel, editExpense, preset }: AddE
             value={date}
             max={format(new Date(), 'yyyy-MM-dd')}
             onChange={(e) => setDate(e.target.value)}
-            className="block w-full min-w-0 max-w-full h-14 bg-surface border border-border rounded-2xl px-4 text-white text-[15px] text-left appearance-none"
+            className="block w-full min-w-0 max-w-full h-14 bg-surface border border-border rounded-2xl px-4 text-white text-[16px] text-left appearance-none"
           />
         </div>
       </div>

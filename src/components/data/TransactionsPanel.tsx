@@ -57,7 +57,7 @@ export function TransactionsPanel({
             value={search}
             onChange={(e) => onSearch(e.target.value)}
             placeholder="Search"
-            className="h-11 sm:w-48 bg-surface border border-border rounded-chip px-4 text-[15px] text-white placeholder:text-tertiary"
+            className="h-11 sm:w-48 bg-surface border border-border rounded-chip px-4 text-[16px] text-white placeholder:text-tertiary"
           />
           {!hideFilters && (
           <div className="flex gap-2">

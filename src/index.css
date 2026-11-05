@@ -154,3 +154,23 @@ input[type='date'] {
 input[type='date']::-webkit-date-and-time-value {
   text-align: left;
 }
+
+/* Never let the page pan sideways. Nested scrollers (tab bars, tables) still can. */
+html {
+  overflow-x: hidden;
+}
+
+html,
+body {
+  touch-action: pan-y;
+}
+
+/* iPhone Safari zooms the whole page in when you tap any input below 16px, and then it
+   drifts left and right. Keep every input at 16px or more on phones (the big amount keeps its own size). */
+@media (max-width: 767px) {
+  input:not([aria-label='Amount']):not([type='checkbox']):not([type='radio']),
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
