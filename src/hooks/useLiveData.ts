@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
-import type { AppSettings, Budget, Category, Expense, Income, Loan, PaymentAccount, Reflection } from '../types'
+import type { AppSettings, Budget, BudgetItem, Category, Expense, Income, Loan, PaymentAccount, Reflection } from '../types'
 import {
   rowToBudget,
+  rowToBudgetItem,
   rowToCategory,
   rowToExpense,
   rowToIncome,
@@ -10,6 +11,7 @@ import {
   rowToReflection,
   rowToPaymentAccount,
   type AppSettingsRow,
+  type BudgetItemRow,
   type BudgetRow,
   type CategoryRow,
   type ExpenseRow,
@@ -103,6 +105,12 @@ export function useReflections() {
 
 export function useBudgets() {
   return useSupabaseTable<BudgetRow, Budget>('budgets', rowToBudget, (q) => q.select('*'))
+}
+
+export function useBudgetItems() {
+  return useSupabaseTable<BudgetItemRow, BudgetItem>('budget_items', rowToBudgetItem, (q) =>
+    q.select('*').order('sort_order', { ascending: true }),
+  )
 }
 
 export function useCategories() {

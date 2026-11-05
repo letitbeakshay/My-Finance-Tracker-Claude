@@ -1,6 +1,7 @@
 import type {
   Category,
   Budget,
+  BudgetItem,
   Expense,
   ExpenseType,
   Income,
@@ -281,6 +282,26 @@ export function rowToBudget(row: BudgetRow): Budget {
     id: row.id,
     categoryId: row.category_id ?? undefined,
     monthlyLimit: Number(row.monthly_limit),
+    createdAt: new Date(row.created_at).getTime(),
+  }
+}
+
+export interface BudgetItemRow {
+  id: string
+  name: string
+  amount: number
+  category_id: string | null
+  sort_order: number
+  created_at: string
+}
+
+export function rowToBudgetItem(row: BudgetItemRow): BudgetItem {
+  return {
+    id: row.id,
+    name: row.name,
+    amount: Number(row.amount),
+    categoryId: row.category_id ?? undefined,
+    sortOrder: row.sort_order,
     createdAt: new Date(row.created_at).getTime(),
   }
 }

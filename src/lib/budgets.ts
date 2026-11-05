@@ -41,18 +41,21 @@ export function budgetProgress(
     parents?: Map<string, string>
     /** reimbursable categories, left out of the overall budget */
     reimbursable?: Set<string>
+    /** the total of the monthly plan; when set it is the overall limit */
+    overallLimit?: number
   } = {},
 ) {
-  const { parents, reimbursable } = options
+  const { parents, reimbursable, overallLimit } = options
   const monthExpenses = expenses.filter((e) => isSameMonth(parseISO(e.date), month))
   const sum = (items: Expense[]) => items.reduce((s, e) => s + e.amount, 0)
   const inCategory = (e: Expense, id: string) => e.categoryId === id || parents?.get(e.categoryId) === id
 
   const overallBudget = budgets.find((b) => b.id === OVERALL_BUDGET_ID)
-  const overall = overallBudget
+  const overallTotal = overallLimit && overallLimit > 0 ? overallLimit : overallBudget?.monthlyLimit
+  const overall = overallTotal
     ? line(
         null,
-        overallBudget.monthlyLimit,
+        overallTotal,
         sum(
           monthExpenses.filter(
             (e) => (e.type === 'need' || e.type === 'want') && !reimbursable?.has(e.categoryId),

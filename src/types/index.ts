@@ -117,6 +117,17 @@ export interface Budget {
 
 export const OVERALL_BUDGET_ID = 'overall'
 
+/** One line of the monthly plan (PNB EMI ₹12,000, Fuel ₹3,000…). Their total is the overall monthly budget. */
+export interface BudgetItem {
+  id: string
+  name: string
+  amount: number
+  /** Optional: a category whose spending is shown against this line. */
+  categoryId?: string
+  sortOrder: number
+  createdAt: number
+}
+
 /** Placeholder shape for future recurring-expense automation. Not used yet. */
 export interface RecurringExpense {
   id: string

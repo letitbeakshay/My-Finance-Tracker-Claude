@@ -3,6 +3,7 @@ import { planCategories } from '../lib/categoryPlan'
 import {
   OVERALL_BUDGET_ID,
   type AppSettings,
+  type BudgetItem,
   type Category,
   type Expense,
   type Income,
@@ -355,6 +356,42 @@ export const budgetRepo = {
   },
 }
 
+export const budgetItemRepo = {
+  async add(input: Pick<BudgetItem, 'name' | 'amount' | 'categoryId'>) {
+    const { data: last } = await supabase
+      .from('budget_items')
+      .select('sort_order')
+      .order('sort_order', { ascending: false })
+      .limit(1)
+      .maybeSingle<{ sort_order: number }>()
+    const { error } = await supabase.from('budget_items').insert({
+      id: generateId(),
+      name: input.name,
+      amount: input.amount,
+      category_id: input.categoryId ?? null,
+      sort_order: (last?.sort_order ?? -1) + 1,
+    })
+    if (error) throw error
+  },
+
+  async update(id: string, changes: Partial<Pick<BudgetItem, 'name' | 'amount' | 'categoryId'>>) {
+    const { error } = await supabase
+      .from('budget_items')
+      .update({
+        ...(changes.name !== undefined ? { name: changes.name } : {}),
+        ...(changes.amount !== undefined ? { amount: changes.amount } : {}),
+        ...('categoryId' in changes ? { category_id: changes.categoryId ?? null } : {}),
+      })
+      .eq('id', id)
+    if (error) throw error
+  },
+
+  async remove(id: string) {
+    const { error } = await supabase.from('budget_items').delete().eq('id', id)
+    if (error) throw error
+  },
+}
+
 export const dataRepo = {
   /** A full backup of everything entered, including incomes, loans, budgets and reflections. */
   async exportJSON() {
@@ -366,6 +403,7 @@ export const dataRepo = {
       'incomes',
       'loans',
       'budgets',
+      'budget_items',
       'reflections',
     ] as const
     const results = await Promise.all(tables.map((t) => supabase.from(t).select('*')))
@@ -405,6 +443,7 @@ export const dataRepo = {
   /** Removes everything. Children first so foreign keys never block it; stops at the first real error. */
   async deleteAll() {
     const tables = [
+      'budget_items',
       'budgets',
       'incomes',
       'loans',

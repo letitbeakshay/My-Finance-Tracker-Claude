@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { ChevronRight, Target } from 'lucide-react'
 import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
+import { useBudgetItems } from '../../hooks/useLiveData'
 import { BudgetBar } from './BudgetBar'
 import { budgetProgress } from '../../lib/budgets'
 import { CategoryIcon } from '../ui/CategoryIcon'
@@ -31,7 +32,12 @@ export function BudgetProgressCard({
   onOpenBudgets,
   limit = 4,
 }: BudgetProgressCardProps) {
-  const progress = useMemo(() => budgetProgress(budgets, expenses, month, { parents, reimbursable }), [budgets, expenses, month, parents, reimbursable])
+  const planItems = useBudgetItems()
+  const planTotal = (planItems ?? []).reduce((sum, i) => sum + i.amount, 0)
+  const progress = useMemo(
+    () => budgetProgress(budgets, expenses, month, { parents, reimbursable, overallLimit: planTotal }),
+    [budgets, expenses, month, parents, reimbursable, planTotal],
+  )
   const categoryMap = useMemo(() => new Map(categories.map((c) => [c.id, c])), [categories])
   const hasBudgets = progress.overall !== null || progress.categories.length > 0
 

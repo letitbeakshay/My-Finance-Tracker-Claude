@@ -25,6 +25,7 @@ const EXPENSES: E[] = [
   ['e11', 10000, 'investment', 'savings', 'bank_transfer', 'acc2', 'SIP', 2, true],
   ['e12', 1000, 'helping-others', 'giving', 'upi', null, 'Food for the hungry', 1, true],
   ['e13', 299, 'recharge', 'need', 'upi', null, null, 0, true],
+  ['e14', 10000, 'amma', 'need', 'bank_transfer', 'acc2', 'Amma allowance', 2, true],
 ]
 
 export const DEMO_TABLES: Record<string, unknown[]> = {
@@ -64,6 +65,15 @@ export const DEMO_TABLES: Record<string, unknown[]> = {
     { id: 'shopping', category_id: 'shopping', monthly_limit: 5500, created_at: now },
     { id: 'fuel', category_id: 'fuel', monthly_limit: 3000, created_at: now },
     { id: 'family-support', category_id: 'family-support', monthly_limit: 30000, created_at: now },
+  ],
+  budget_items: [
+    { id: 'bi1', name: 'PNB EMI', amount: 12000, category_id: null, sort_order: 0, created_at: now },
+    { id: 'bi2', name: 'Phone EMI', amount: 3900, category_id: null, sort_order: 1, created_at: now },
+    { id: 'bi3', name: 'Amma', amount: 10000, category_id: 'amma', sort_order: 2, created_at: now },
+    { id: 'bi4', name: 'Fuel', amount: 3000, category_id: 'fuel', sort_order: 3, created_at: now },
+    { id: 'bi5', name: 'Other My Expense', amount: 3000, category_id: 'other-expenses', sort_order: 4, created_at: now },
+    { id: 'bi6', name: 'Insurance EMI', amount: 6800, category_id: null, sort_order: 5, created_at: now },
+    { id: 'bi7', name: 'Aswathy Fees EMI', amount: 12000, category_id: null, sort_order: 6, created_at: now },
   ],
   reflections: [],
   app_settings: [
