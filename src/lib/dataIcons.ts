@@ -23,7 +23,6 @@ import {
   Shirt,
   Smartphone,
   Target,
-  Tag,
   TrendingUp,
   UtensilsCrossed,
   Wallet,
@@ -56,8 +55,9 @@ const CATEGORY_ICONS: Record<string, LucideIcon> = {
   charity: HeartHandshake,
 }
 
-export function categoryIcon(categoryId?: string): LucideIcon {
-  return (categoryId && CATEGORY_ICONS[categoryId]) || Tag
+/** The built-in line icon for a category id, or undefined for categories the user created. */
+export function builtInCategoryIcon(categoryId?: string): LucideIcon | undefined {
+  return categoryId ? CATEGORY_ICONS[categoryId] : undefined
 }
 
 export const ACCOUNT_ICONS: Record<PaymentAccountType, LucideIcon> = {

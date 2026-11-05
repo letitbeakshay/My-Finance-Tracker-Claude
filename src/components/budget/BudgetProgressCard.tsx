@@ -4,7 +4,7 @@ import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
 import { BudgetBar } from './BudgetBar'
 import { budgetProgress } from '../../lib/budgets'
-import { categoryIcon } from '../../lib/dataIcons'
+import { CategoryIcon } from '../ui/CategoryIcon'
 import type { Budget, Category, Expense } from '../../types'
 
 interface BudgetProgressCardProps {
@@ -57,11 +57,11 @@ export function BudgetProgressCard({
           )}
           {progress.categories.slice(0, limit).map((b) => {
             const category = categoryMap.get(b.categoryId!)
-            const Icon = categoryIcon(b.categoryId!)
             return (
               <div key={b.categoryId}>
                 <p className="text-white font-medium text-[15px] mb-1.5 flex items-center gap-2">
-                  <Icon size={16} className="text-secondary" /> {category?.name ?? 'Category'}
+                  <CategoryIcon category={category ?? { id: b.categoryId!, icon: '📦' }} size={16} className="text-secondary" />{' '}
+                  {category?.name ?? 'Category'}
                 </p>
                 <BudgetBar line={b} />
               </div>

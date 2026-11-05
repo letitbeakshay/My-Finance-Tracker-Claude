@@ -2,12 +2,8 @@ import { useState } from 'react'
 import { BottomSheet } from '../ui/BottomSheet'
 import { Button } from '../ui/Button'
 import { categoryRepo } from '../../db/repository'
+import { CATEGORY_EMOJI_OPTIONS } from '../../lib/categoryEmoji'
 import type { Category } from '../../types'
-
-const EMOJI_OPTIONS = [
-  '🍔', '☕', '🛵', '🛍', '🍿', '🏠', '💊', '📱', '📚', '👕',
-  '🎁', '✈️', '💼', '💡', '🏦', '💰', '📦', '🎮', '🐾', '🧾',
-]
 
 interface NewCategorySheetProps {
   open: boolean
@@ -53,15 +49,15 @@ export function NewCategorySheet({ open, onClose, onCreated, initial }: NewCateg
       </div>
 
       <div className="grid grid-cols-8 gap-2 mb-6">
-        {EMOJI_OPTIONS.map((e) => (
+        {CATEGORY_EMOJI_OPTIONS.map((e) => (
           <button
             key={e}
             type="button"
             onClick={() => setIcon(e)}
             className="aspect-square rounded-xl flex items-center justify-center text-xl border"
             style={{
-              borderColor: icon === e ? '#66a7f6' : 'var(--color-border)',
-              background: icon === e ? 'rgba(102,167,246,0.14)' : 'var(--color-surface)',
+              borderColor: icon === e ? '#f28c38' : 'var(--color-border)',
+              background: icon === e ? 'rgba(242,140,56,0.14)' : 'var(--color-surface)',
             }}
           >
             {e}

@@ -34,7 +34,7 @@ export function SegmentedControl<T extends string>({
                 layoutId="segmented-bg"
                 transition={{ type: 'spring', stiffness: 500, damping: 35 }}
                 className="absolute inset-0 rounded-xl -z-10"
-                style={{ background: opt.color ?? '#66a7f6' }}
+                style={{ background: opt.color ?? '#f28c38' }}
               />
             )}
             <span className="relative">{opt.label}</span>

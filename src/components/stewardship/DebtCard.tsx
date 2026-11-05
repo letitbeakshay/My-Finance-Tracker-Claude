@@ -12,7 +12,7 @@ export function DebtCard({ summary }: { summary: ReturnType<typeof debtSummary> 
       <p className="text-tertiary text-[12px] mb-4">Loans I have borrowed</p>
 
       {debtFree ? (
-        <p className="text-accent-ink text-[15px] font-medium">No outstanding debt. Praise God.</p>
+        <p className="text-positive text-[15px] font-medium">No outstanding debt. Praise God.</p>
       ) : (
         <>
           <p className="text-white text-[28px] font-bold tabular-nums leading-none mb-3">

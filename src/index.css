@@ -8,10 +8,12 @@
   --color-surface: #2b2b2b;
   --color-card: #1f1f1f;
   --color-border: #333333;
-  --color-accent: #66a7f6;
-  --color-accent-dim: #4f8fe0;
-  --color-accent-soft: rgba(102, 167, 246, 0.16);
-  --color-accent-ink: #66a7f6;
+  --color-accent: #f28c38;
+  --color-accent-dim: #d9741f;
+  --color-accent-soft: rgba(242, 140, 56, 0.16);
+  --color-accent-ink: #f28c38;
+  /* Good news: income, a positive net, a debt-free balance. */
+  --color-positive: #66a7f6;
   --color-need: #66a7f6;
   --color-need-soft: rgba(102, 167, 246, 0.16);
   --color-want: #e39a5c;

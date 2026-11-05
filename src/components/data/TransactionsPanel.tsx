@@ -126,7 +126,7 @@ export function TransactionsPanel({
               <span
                 className={clsx(
                   'font-semibold text-[15px] tabular-nums shrink-0 md:text-right',
-                  r.kind === 'income' ? 'text-accent-ink' : 'text-white',
+                  r.kind === 'income' ? 'text-positive' : 'text-white',
                 )}
               >
                 {r.kind === 'income' ? '+' : '−'}
