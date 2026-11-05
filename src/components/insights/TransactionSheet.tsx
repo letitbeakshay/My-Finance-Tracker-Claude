@@ -6,7 +6,6 @@ import { AddExpenseScreen } from '../add/AddExpenseScreen'
 import { expenseRepo } from '../../db/repository'
 import type { Category, Expense, PaymentAccount } from '../../types'
 import { EXPENSE_TYPE_COLORS as TYPE_COLOR, EXPENSE_TYPE_LABELS, PAYMENT_METHOD_LABELS } from '../../types'
-import { textShade } from '../../lib/colors'
 import { formatCurrency } from '../../lib/currency'
 
 interface TransactionSheetProps {
@@ -65,7 +64,7 @@ export function TransactionSheet({ expense, category, account, onClose }: Transa
               className="px-2.5 py-1 rounded-full text-[13px] font-semibold"
               style={{
                 background: `${TYPE_COLOR[expense.type]}22`,
-                color: textShade(TYPE_COLOR[expense.type]),
+                color: TYPE_COLOR[expense.type],
               }}
             >
               {EXPENSE_TYPE_LABELS[expense.type]}

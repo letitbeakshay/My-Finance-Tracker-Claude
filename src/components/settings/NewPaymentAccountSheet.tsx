@@ -6,8 +6,8 @@ import { paymentAccountRepo } from '../../db/repository'
 import type { PaymentAccount, PaymentAccountType } from '../../types'
 
 const TYPE_OPTIONS: { value: PaymentAccountType; label: string; color: string }[] = [
-  { value: 'bank_account', label: 'Bank Account', color: '#5b9dff' },
-  { value: 'credit_card', label: 'Credit Card', color: '#ff9f43' },
+  { value: 'bank_account', label: 'Bank Account', color: '#66a7f6' },
+  { value: 'credit_card', label: 'Credit Card', color: '#e39a5c' },
 ]
 
 const ICON_BY_TYPE: Record<PaymentAccountType, string> = {

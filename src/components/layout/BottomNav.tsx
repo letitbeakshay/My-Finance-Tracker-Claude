@@ -13,10 +13,10 @@ const HomeIcon = ({ active }: { active: boolean }) => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
     <path
       d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z"
-      stroke={active ? '#0a8a3c' : '#8a8b90'}
+      stroke={active ? '#87c696' : '#7d7d7d'}
       strokeWidth="2"
       strokeLinejoin="round"
-      fill={active ? 'rgba(36,217,104,0.12)' : 'none'}
+      fill={active ? 'rgba(135,198,150,0.12)' : 'none'}
     />
   </svg>
 )
@@ -25,7 +25,7 @@ const InsightsIcon = ({ active }: { active: boolean }) => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
     <path
       d="M5 19V11M12 19V5M19 19V14"
-      stroke={active ? '#0a8a3c' : '#8a8b90'}
+      stroke={active ? '#87c696' : '#7d7d7d'}
       strokeWidth="2.5"
       strokeLinecap="round"
     />
@@ -37,7 +37,7 @@ export function BottomNav({ active, onChange, onAdd }: BottomNavProps) {
     <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[560px] px-6 pb-6 pt-2 z-30 pointer-events-none">
       <div
         className="pointer-events-auto flex items-center justify-between bg-surface/95 backdrop-blur-xl border border-border rounded-[28px] px-8 h-[76px]"
-        style={{ boxShadow: '0 8px 28px rgba(40,36,20,0.14)' }}
+        style={{ boxShadow: '0 8px 24px rgba(0,0,0,0.35)' }}
       >
         <button
           type="button"
@@ -55,10 +55,10 @@ export function BottomNav({ active, onChange, onAdd }: BottomNavProps) {
           whileTap={{ scale: 0.9 }}
           onClick={onAdd}
           className="w-16 h-16 rounded-full bg-accent flex items-center justify-center -mt-8"
-          style={{ boxShadow: '0 8px 22px rgba(36,217,104,0.4)' }}
+          style={{ boxShadow: '0 6px 18px rgba(135,198,150,0.3)' }}
         >
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-            <path d="M12 5v14M5 12h14" stroke="#0B0B0B" strokeWidth="2.75" strokeLinecap="round" />
+            <path d="M12 5v14M5 12h14" stroke="#181818" strokeWidth="2.75" strokeLinecap="round" />
           </svg>
         </motion.button>
 

@@ -11,6 +11,7 @@ import { BudgetsScreen } from './components/budget/BudgetsScreen'
 import type { AddExpensePreset } from './components/add/AddExpenseScreen'
 import { AllDataScreen } from './components/data/AllDataScreen'
 import { ViewToggle, type View } from './components/layout/ViewToggle'
+import { MobileNav, type MobileDestination } from './components/layout/MobileNav'
 import { ensureSeeded } from './db/seed'
 import { isUnlocked } from './lib/auth'
 
@@ -64,11 +65,16 @@ function App() {
     setRoute('add')
   }
 
+  const mobileActive: MobileDestination =
+    view === 'data' ? 'dashboard' : route === 'insights' ? 'insights' : 'expense'
+
   const tab: Tab = route === 'insights' ? 'insights' : 'home'
 
   return (
     <div className="flex-1 flex flex-col min-h-0">
       <ViewToggle value={view} onChange={setView} />
+      {/* Phones have no top bar; keep content clear of the status bar. */}
+      <div className="md:hidden shrink-0" style={{ height: 'var(--topbar-h)' }} />
 
       {view === 'data' && <AllDataScreen onGive={handleGive} />}
 
@@ -172,9 +178,34 @@ function App() {
       </AnimatePresence>
 
       {route !== 'add' && route !== 'settings' && route !== 'stewardship' && route !== 'budgets' && (
-        <BottomNav active={tab} onChange={setRoute} onAdd={() => setRoute('add')} />
+        <div className="hidden md:block">
+          <BottomNav active={tab} onChange={setRoute} onAdd={() => setRoute('add')} />
+        </div>
       )}
       </>
+      )}
+
+      {(view === 'data' || route === 'home' || route === 'insights') && (
+        <MobileNav
+          active={mobileActive}
+          onExpense={() => {
+            setView('enter')
+            setRoute('home')
+          }}
+          onInsights={() => {
+            setView('enter')
+            setRoute('insights')
+          }}
+          onAdd={() => {
+            setView('enter')
+            setRoute('add')
+          }}
+          onDashboard={() => setView('data')}
+          onSettings={() => {
+            setView('enter')
+            setRoute('settings')
+          }}
+        />
       )}
     </div>
   )

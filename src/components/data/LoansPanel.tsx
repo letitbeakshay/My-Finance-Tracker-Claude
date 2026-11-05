@@ -32,7 +32,7 @@ export function LoansPanel({ loans, onAdd, onSelect }: LoansPanelProps) {
         <div className="flex flex-col gap-4">
           {sorted.map((loan) => {
             const pct = loan.principal > 0 ? Math.min(100, (loan.paid / loan.principal) * 100) : 0
-            const color = loan.kind === 'borrowed' ? '#ff9f43' : '#5b9dff'
+            const color = loan.kind === 'borrowed' ? '#e39a5c' : '#66a7f6'
             return (
               <button
                 key={loan.id}

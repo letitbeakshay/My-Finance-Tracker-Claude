@@ -24,7 +24,7 @@ export function CountTheCostSheet({ amount, onProceed, onCancel }: CountTheCostS
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         onClick={onCancel}
-        className="absolute inset-0 bg-black/45"
+        className="absolute inset-0 bg-black/70"
       />
       <motion.div
         initial={{ y: '100%' }}

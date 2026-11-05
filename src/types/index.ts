@@ -168,8 +168,8 @@ export const EXPENSE_TYPE_LABELS: Record<ExpenseType, string> = {
 }
 
 export const EXPENSE_TYPE_COLORS: Record<ExpenseType, string> = {
-  need: '#5b9dff',
-  want: '#ff9f43',
-  savings: '#24d968',
-  giving: '#e3b341',
+  need: '#66a7f6',
+  want: '#e39a5c',
+  savings: '#87c696',
+  giving: '#dcc25e',
 }

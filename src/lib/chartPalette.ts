@@ -1,5 +1,5 @@
-// Categorical steps from the validated reference palette (dataviz skill),
-// ordered for maximum adjacent CVD separation. Cards are white on this light theme.
+// Dark-mode categorical steps from the validated reference palette (dataviz skill),
+// ordered for maximum adjacent CVD separation. Cards are #1f1f1f on the charcoal theme.
 export const CATEGORICAL_DARK = [
   '#3987e5', // blue
   '#008300', // green
@@ -11,6 +11,6 @@ export const CATEGORICAL_DARK = [
   '#e66767', // red
 ]
 
-export const CHART_OTHER_COLOR = '#c9c6ba'
-export const CHART_MUTED_TEXT = '#6f6e68'
-export const CHART_GRIDLINE = '#e2dfd5'
+export const CHART_OTHER_COLOR = '#4a4a4a'
+export const CHART_MUTED_TEXT = '#8a8a8a'
+export const CHART_GRIDLINE = '#2b2b2b'

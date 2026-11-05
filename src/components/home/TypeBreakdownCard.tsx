@@ -1,5 +1,4 @@
 import { Card } from '../ui/Card'
-import { textShade } from '../../lib/colors'
 import { formatCurrency } from '../../lib/currency'
 
 interface TypeBreakdownCardProps {
@@ -38,7 +37,7 @@ export function TypeBreakdownCard({
             style={{ width: `${Math.min(percentage, 100)}%`, background: color }}
           />
         </div>
-        <span className="text-[12px] font-medium" style={{ color: textShade(color) }}>
+        <span className="text-[12px] font-medium" style={{ color }}>
           {percentage}%
         </span>
       </div>

@@ -25,7 +25,7 @@ interface SectionNavProps {
 export function SectionNav({ value, onChange, counts }: SectionNavProps) {
   return (
     <nav
-      aria-label="All data sections"
+      aria-label="Dashboard sections"
       className="flex gap-2 overflow-x-auto -mx-4 px-4 sm:-mx-6 sm:px-6 pb-1 mb-5 lg:mx-0 lg:px-0 lg:mb-0 lg:pb-0 lg:flex-col lg:gap-1 lg:overflow-visible lg:sticky lg:top-[76px] lg:self-start"
     >
       {ITEMS.map((item) => {

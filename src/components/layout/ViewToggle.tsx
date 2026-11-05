@@ -3,8 +3,8 @@ import { motion } from 'framer-motion'
 export type View = 'enter' | 'data'
 
 const OPTIONS: { value: View; label: string }[] = [
-  { value: 'enter', label: 'Enter expenses' },
-  { value: 'data', label: 'All data' },
+  { value: 'enter', label: 'Expense' },
+  { value: 'data', label: 'Dashboard' },
 ]
 
 interface ViewToggleProps {
@@ -12,11 +12,11 @@ interface ViewToggleProps {
   onChange: (view: View) => void
 }
 
-/** Sticky top bar holding the Enter expenses / All data switch. */
+/** Sticky top bar with the Expense / Dashboard switch. Desktop only; phones use MobileNav. */
 export function ViewToggle({ value, onChange }: ViewToggleProps) {
   return (
     <div
-      className="sticky top-0 z-[60] bg-bg/90 backdrop-blur-xl px-4 pb-2.5"
+      className="hidden md:block sticky top-0 z-[60] bg-bg/90 backdrop-blur-xl px-4 pb-2.5"
       style={{ paddingTop: 'calc(env(safe-area-inset-top) + 10px)' }}
     >
       <div className="relative flex bg-surface border border-border rounded-2xl p-1 max-w-[380px] mx-auto">

@@ -33,7 +33,7 @@ import { AddIncomeSheet } from './AddIncomeSheet'
 import { AddLoanSheet } from './AddLoanSheet'
 import { IncomeSheet, LoanSheet } from './ManageSheets'
 
-const INCOME_COLOR = '#24d968'
+const INCOME_COLOR = '#87c696'
 
 function inMonth(date: string, month: Date) {
   return isSameMonth(parseISO(date), month)
@@ -153,7 +153,7 @@ export function AllDataScreen({ onGive }: AllDataScreenProps) {
   }
 
   return (
-    <div className="px-4 sm:px-6 lg:px-8 pt-3 pb-16">
+    <div className="px-4 sm:px-6 lg:px-8 pt-3 pb-32 md:pb-16">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
         <MonthNav month={month} onChange={setMonth} />
 

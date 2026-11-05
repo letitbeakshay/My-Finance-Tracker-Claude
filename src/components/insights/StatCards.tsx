@@ -1,5 +1,4 @@
 import { Card } from '../ui/Card'
-import { textShade } from '../../lib/colors'
 import { formatCurrency } from '../../lib/currency'
 
 interface StatCardsProps {
@@ -13,17 +12,17 @@ interface StatCardsProps {
 export function StatCards({ total, needs, wants, savings, giving }: StatCardsProps) {
   const items = [
     { label: 'Total Spent', amount: total, color: 'var(--color-white)' },
-    { label: 'Needs', amount: needs, color: '#5b9dff' },
-    { label: 'Wants', amount: wants, color: '#ff9f43' },
-    { label: 'Savings', amount: savings, color: '#24d968' },
-    { label: 'Giving', amount: giving, color: '#e3b341' },
+    { label: 'Needs', amount: needs, color: '#66a7f6' },
+    { label: 'Wants', amount: wants, color: '#e39a5c' },
+    { label: 'Savings', amount: savings, color: '#87c696' },
+    { label: 'Giving', amount: giving, color: '#dcc25e' },
   ]
   return (
     <div className="grid grid-cols-2 gap-3 mb-8">
       {items.map((item) => (
         <Card key={item.label} className="flex flex-col gap-1.5">
           <p className="text-secondary text-[13px]">{item.label}</p>
-          <p className="text-[21px] font-bold tabular-nums" style={{ color: textShade(item.color) }}>
+          <p className="text-[21px] font-bold tabular-nums" style={{ color: item.color }}>
             {formatCurrency(item.amount)}
           </p>
         </Card>

@@ -55,7 +55,7 @@ export function budgetProgress(budgets: Budget[], expenses: Expense[], month: Da
 }
 
 export const BUDGET_STATUS_COLOR: Record<BudgetStatus, string> = {
-  ok: '#24d968',
-  warning: '#ff9f43',
-  over: '#ff5c5c',
+  ok: '#87c696',
+  warning: '#e39a5c',
+  over: '#e55e50',
 }

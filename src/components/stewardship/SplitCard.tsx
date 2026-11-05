@@ -10,14 +10,14 @@ interface SplitCardProps {
 
 export function SplitCard({ plan, givingPercent, savingPercent }: SplitCardProps) {
   const rows = [
-    { label: 'Give', amount: plan.given, pct: plan.givenPct, goal: givingPercent, color: '#e3b341' },
-    { label: 'Save', amount: plan.saved, pct: plan.savedPct, goal: savingPercent, color: '#24d968' },
+    { label: 'Give', amount: plan.given, pct: plan.givenPct, goal: givingPercent, color: '#dcc25e' },
+    { label: 'Save', amount: plan.saved, pct: plan.savedPct, goal: savingPercent, color: '#87c696' },
     {
       label: 'Live',
       amount: plan.lived,
       pct: plan.livedPct,
       goal: Math.max(0, 100 - givingPercent - savingPercent),
-      color: '#5b9dff',
+      color: '#66a7f6',
     },
   ]
 
