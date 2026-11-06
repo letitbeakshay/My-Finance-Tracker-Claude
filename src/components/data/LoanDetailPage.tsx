@@ -43,6 +43,11 @@ export function LoanDetailPage({ loan, onBack }: { loan: Loan; onBack: () => voi
   }, [loan.id])
 
   const paidCount = rows.filter((r) => r.paid).length
+  const nextUnpaid = rows.find((r) => !r.paid)
+  const monthKey = format(new Date(), 'yyyy-MM')
+  // This month's EMI is done when its instalment is ticked, or the next one still to pay falls in a later month.
+  const thisMonthRow = rows.find((r) => r.date?.slice(0, 7) === monthKey)
+  const paidThisMonth = !!(thisMonthRow?.paid || (nextUnpaid?.date && nextUnpaid.date.slice(0, 7) > monthKey))
   const shown = rows.map((r, i) => ({ r, balance: balances[i] })).filter(({ r }) => (view === 'all' ? true : view === 'paid' ? r.paid : !r.paid))
 
   async function tick(n: number, paid: boolean) {
@@ -164,9 +169,22 @@ export function LoanDetailPage({ loan, onBack }: { loan: Loan; onBack: () => voi
           </Card>
 
           <div className="flex flex-col gap-3">
-            {!loan.closed && stats.hasPlan && (
+            {!loan.closed && stats.hasPlan && paidThisMonth && (
+              <div className="rounded-2xl border border-positive bg-positive/10 px-5 py-4 flex items-center gap-3">
+                <span className="w-9 h-9 rounded-full bg-positive text-on-type flex items-center justify-center shrink-0">
+                  <Check size={20} strokeWidth={3} />
+                </span>
+                <span>
+                  <span className="block text-white text-[16px] font-semibold">{format(new Date(), 'MMMM')} EMI already paid</span>
+                  {nextUnpaid?.date && <span className="block text-secondary text-[13px]">Next EMI {format(parseISO(nextUnpaid.date), 'd MMM yyyy')}</span>}
+                </span>
+              </div>
+            )}
+            {!loan.closed && stats.hasPlan && !paidThisMonth && nextUnpaid && (
               <Button onClick={() => loanRepo.recordEmi(loan)} disabled={busy}>
-                I paid this month’s EMI
+                {nextUnpaid.date && nextUnpaid.date.slice(0, 7) < monthKey
+                  ? `Mark ${format(parseISO(nextUnpaid.date), 'MMM yyyy')} EMI as paid`
+                  : 'I paid this month’s EMI'}
               </Button>
             )}
             <div className="flex gap-3">
