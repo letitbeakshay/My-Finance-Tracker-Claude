@@ -234,7 +234,7 @@ export function AllDataScreen() {
                 youOwe={youOwe}
                 owedToYou={owedToYou}
               />
-              <div className="grid gap-5 lg:gap-6 xl:grid-cols-[minmax(0,1fr)_380px] items-start">
+              <div className="grid gap-5 lg:gap-6 items-start">
                 <TransactionsPanel
                   rows={rows}
                   filter={filter}
@@ -244,7 +244,7 @@ export function AllDataScreen() {
                   onSelect={handleSelect}
                   onImport={() => setImporting(true)}
                 />
-                <div className="grid gap-5 lg:gap-6 md:grid-cols-2 xl:grid-cols-1 items-start">
+                <div className="grid gap-5 lg:gap-6 md:grid-cols-2 items-start">
                   <LoansPanel loans={loans} onAdd={() => setAddingLoan(true)} onSelect={setSelectedLoan} />
                   <AccountsPanel
                     summaries={accountSummaries}
@@ -282,7 +282,7 @@ export function AllDataScreen() {
           )}
 
           {!selectedLoan && section === 'loans' && (
-            <LoansPanel loans={loans} onAdd={() => setAddingLoan(true)} onSelect={setSelectedLoan} />
+            <LoansPanel loans={loans} onAdd={() => setAddingLoan(true)} onSelect={setSelectedLoan} showDebtFree />
           )}
 
           {!selectedLoan && section === 'accounts' && (

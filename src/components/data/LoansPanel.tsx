@@ -10,9 +10,11 @@ interface LoansPanelProps {
   loans: Loan[]
   onAdd: () => void
   onSelect: (loan: Loan) => void
+  /** Show the "Becoming debt-free" scripture and tips under the list (on the Loans page). */
+  showDebtFree?: boolean
 }
 
-export function LoansPanel({ loans, onAdd, onSelect }: LoansPanelProps) {
+export function LoansPanel({ loans, onAdd, onSelect, showDebtFree }: LoansPanelProps) {
   // Snowball: the smallest balance is cleared first, so it comes first; closed loans go last.
   const rows = loans.map((loan) => ({ loan, stats: loanStats(loan) }))
   const open = rows.filter((r) => !r.loan.closed && r.loan.kind === 'borrowed').sort((a, b) => a.stats.outstanding - b.stats.outstanding)
@@ -96,7 +98,7 @@ export function LoansPanel({ loans, onAdd, onSelect }: LoansPanelProps) {
           })}
         </div>
       )}
-      <DebtFreeCard open={open} />
+      {showDebtFree && <DebtFreeCard open={open} />}
     </Card>
   )
 }

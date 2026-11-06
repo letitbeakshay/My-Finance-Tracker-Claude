@@ -86,7 +86,8 @@ export function SavingsPlanSheet({ open, onClose, plan, onSaved }: Props) {
         await savingsPlanRepo.update(plan, values)
         onSaved?.({ ...plan, ...values })
       } else {
-        onSaved?.(await savingsPlanRepo.add(values))
+        const created = await savingsPlanRepo.add(values)
+        onSaved?.(created)
       }
       onClose()
     } catch {
