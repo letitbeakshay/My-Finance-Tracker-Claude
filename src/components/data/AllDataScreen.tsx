@@ -219,7 +219,6 @@ export function AllDataScreen() {
                     reimbursable={reimbursable}
                     onOpenBudgets={() => setSection('budgets')}
                   />
-                  <ReimbursementCard expenses={expenses} categories={categories ?? []} limit={3} />
                 </div>
               )}
               <SummaryCards
