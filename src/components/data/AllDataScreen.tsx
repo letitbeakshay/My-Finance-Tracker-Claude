@@ -218,6 +218,7 @@ export function AllDataScreen() {
                     parents={parents}
                     reimbursable={reimbursable}
                     onOpenBudgets={() => setSection('budgets')}
+                    limit={0}
                   />
                 </div>
               )}

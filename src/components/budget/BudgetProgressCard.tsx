@@ -78,7 +78,7 @@ export function BudgetProgressCard({
               </div>
             )
           })}
-          {progress.categories.length > limit && (
+          {limit > 0 && progress.categories.length > limit && (
             <p className="text-tertiary text-[12px]">+{progress.categories.length - limit} more in Manage</p>
           )}
         </div>
