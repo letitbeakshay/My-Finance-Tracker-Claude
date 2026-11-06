@@ -128,7 +128,7 @@ export function ExpenseForm({ onDone, onCancel, editExpense }: ExpenseFormProps)
         {accountType && accounts && (
           <div className="mb-7">
             <p className="text-secondary text-[13px] font-medium mb-2.5 uppercase tracking-wide">
-              {accountType === 'credit_card' ? 'Which Credit Card?' : accountType === 'debit_card' ? 'Which Debit Card or Account?' : 'Which Bank Account?'}
+              {accountType === 'credit_card' ? 'Which Credit Card?' : accountType === 'debit_card' ? 'Which Debit Card or Account?' : paymentMethod === 'upi' ? 'Which Bank is this UPI from?' : 'Which Bank Account?'}
             </p>
             <PaymentAccountPicker
               accounts={accounts}

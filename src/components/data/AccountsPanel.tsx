@@ -55,6 +55,7 @@ function Row({
 export function AccountsPanel({ summaries, unassignedSpend, monthLabel }: AccountsPanelProps) {
   const [editing, setEditing] = useState<PaymentAccount | null>(null)
   const [adding, setAdding] = useState(false)
+  const [addingBank, setAddingBank] = useState(false)
   const cards = summaries.filter((s) => s.account.type === 'credit_card')
   const debit = summaries.filter((s) => s.account.type === 'debit_card')
   const banks = summaries.filter((s) => s.account.type === 'bank_account')
@@ -102,12 +103,25 @@ export function AccountsPanel({ summaries, unassignedSpend, monthLabel }: Accoun
         {summaries.length === 0 && <p className="text-secondary text-[14px]">No cards or accounts yet. Tap Add to create one.</p>}
         {group('Credit cards', cards, true)}
         {group('Debit cards', debit, cards.length === 0)}
-        {group('Bank accounts', banks, cards.length + debit.length === 0)}
-        <p className="text-secondary text-[12px] font-semibold uppercase tracking-wide mt-1">Other</p>
-        <Row icon={UNASSIGNED_ICON} title="UPI, cash & wallet" sub="No specific account" spent={unassignedSpend} />
+        {banks.length > 0 ? (
+          group('Bank accounts', banks, cards.length + debit.length === 0)
+        ) : (
+          <div className="rounded-2xl border border-dashed border-border p-4">
+            <p className="text-white text-[15px] font-semibold">Add your bank accounts</p>
+            <p className="text-tertiary text-[13px] mt-1 leading-relaxed">
+              Then, when you pay by UPI, you can say which bank it came from instead of just “UPI”.
+            </p>
+            <button type="button" onClick={() => setAddingBank(true)} className="mt-3 h-10 px-4 rounded-xl bg-primary text-on-primary text-[14px] font-semibold">
+              Add bank account
+            </button>
+          </div>
+        )}
+        <p className="text-secondary text-[12px] font-semibold uppercase tracking-wide mt-1">Not linked to an account</p>
+        <Row icon={UNASSIGNED_ICON} title="Cash, wallet & UPI with no bank picked" sub="Pick a bank when you add an expense to move it out of here" spent={unassignedSpend} />
       </div>
 
       <NewPaymentAccountSheet open={adding} onClose={() => setAdding(false)} onSaved={() => setAdding(false)} />
+      <NewPaymentAccountSheet open={addingBank} defaultType="bank_account" onClose={() => setAddingBank(false)} onSaved={() => setAddingBank(false)} />
       <NewPaymentAccountSheet
         open={!!editing}
         initial={editing ?? undefined}

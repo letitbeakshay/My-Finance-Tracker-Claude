@@ -53,6 +53,7 @@ export interface PaymentAccount {
 
 /** Which PaymentMethod values can have a specific PaymentAccount attached. */
 export const PAYMENT_METHOD_ACCOUNT_TYPE: Partial<Record<PaymentMethod, PaymentAccountType>> = {
+  upi: 'bank_account',
   credit_card: 'credit_card',
   debit_card: 'debit_card',
   bank_transfer: 'bank_account',

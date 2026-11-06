@@ -7,6 +7,7 @@ import { AmountInput } from './AmountInput'
 import { CategoryPicker } from './CategoryPicker'
 import { PaymentMethodPicker } from './PaymentMethodPicker'
 import { PaymentAccountPicker } from './PaymentAccountPicker'
+import { lastAccountFor, rememberAccount } from '../../lib/lastAccount'
 import { SuccessAnimation } from './SuccessAnimation'
 import { CountTheCostSheet } from './CountTheCostSheet'
 import { PleasesGodPicker } from './PleasesGodPicker'
@@ -89,9 +90,18 @@ export function ExpenseWizard({ onDone, onCancel, preset }: ExpenseWizardProps) 
       isFirstRender.current = false
       return
     }
-    // A different payment method means any picked card/account may no longer apply.
-    setAccountId(null)
+    // A different payment method means any picked card/account may no longer apply; start from the one used last time.
+    const last = lastAccountFor(paymentMethod)
+    setAccountId(last && accounts?.some((a) => a.id === last) ? last : null)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [paymentMethod])
+
+  // Once the accounts have loaded, start with the one used last for this payment method.
+  useEffect(() => {
+    const last = lastAccountFor(paymentMethod)
+    if (last && accounts?.some((a) => a.id === last)) setAccountId((cur) => cur ?? last)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [accounts])
 
   // Budget progress for the month of the expense being added.
   const budgetLines = useMemo(() => {
@@ -131,6 +141,7 @@ export function ExpenseWizard({ onDone, onCancel, preset }: ExpenseWizardProps) 
       date,
       pleasesGod: pleasesGod ?? undefined,
     })
+    rememberAccount(paymentMethod, accountId)
     setShowSuccess(true)
     setTimeout(onDone, 900)
   }
@@ -332,7 +343,7 @@ export function ExpenseWizard({ onDone, onCancel, preset }: ExpenseWizardProps) 
                 {accountType && accounts && (
                   <div className="mb-4">
                     <p className={LABEL}>
-                      {accountType === 'credit_card' ? 'Which credit card?' : accountType === 'debit_card' ? 'Which debit card or account?' : 'Which bank account?'}
+                      {accountType === 'credit_card' ? 'Which credit card?' : accountType === 'debit_card' ? 'Which debit card or account?' : paymentMethod === 'upi' ? 'Which bank is this UPI from?' : 'Which bank account?'}
                     </p>
                     <PaymentAccountPicker
                       accounts={accounts}
