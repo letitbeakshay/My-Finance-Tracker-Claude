@@ -7,7 +7,7 @@ import { Chip } from '../ui/Chip'
 import { NewCategorySheet } from '../settings/NewCategorySheet'
 import { categoryRepo } from '../../db/repository'
 import { BUDGET_STATUS_COLOR, type BudgetLine } from '../../lib/budgets'
-import { BudgetImpact } from '../budget/BudgetImpact'
+import { BudgetBadge, BudgetImpact } from '../budget/BudgetImpact'
 import { buildTree, categoryPath } from '../../lib/categoryTree'
 import { formatCurrency } from '../../lib/currency'
 
@@ -220,9 +220,7 @@ export function CategoryPicker({
                     )}
                   </span>
                   {line && (
-                    <span className="text-[13px] font-semibold tabular-nums shrink-0" style={{ color: BUDGET_STATUS_COLOR[line.status] }}>
-                      {line.pct}% used
-                    </span>
+                    <BudgetBadge line={line} amount={amount} />
                   )}
                   {hasChildren && (
                     <ChevronDown size={18} className={clsx('text-tertiary shrink-0 transition-transform', isOpen && 'rotate-180')} />

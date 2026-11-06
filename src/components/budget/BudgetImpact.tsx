@@ -1,4 +1,3 @@
-import clsx from 'clsx'
 import { AlertTriangle, CheckCircle2, CircleAlert } from 'lucide-react'
 import { BUDGET_STATUS_COLOR, type BudgetLine } from '../../lib/budgets'
 import { formatCurrency } from '../../lib/currency'
@@ -15,71 +14,44 @@ export function afterAdding(line: BudgetLine, amount: number) {
 const LABEL = { ok: 'Within budget', warning: 'Close to limit', over: 'Over budget' } as const
 const ICON = { ok: CheckCircle2, warning: CircleAlert, over: AlertTriangle } as const
 
-function Stat({ label, value, color }: { label: string; value: string; color?: string }) {
+/** Status badge for a budget after adding `amount` to it. */
+export function BudgetBadge({ line, amount }: { line: BudgetLine; amount: number }) {
+  const { status } = afterAdding(line, amount)
+  const color = BUDGET_STATUS_COLOR[status]
+  const Icon = ICON[status]
   return (
-    <div className="rounded-xl bg-surface px-3 py-2">
-      <p className="text-tertiary text-[11px] font-medium">{label}</p>
-      <p className="text-[15px] font-bold tabular-nums mt-0.5" style={{ color: color ?? 'var(--color-white)' }}>
-        {value}
-      </p>
-    </div>
+    <span
+      className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold shrink-0"
+      style={{ color, background: `color-mix(in srgb, ${color} 14%, transparent)` }}
+    >
+      <Icon size={12} strokeWidth={2.4} /> {LABEL[status]}
+    </span>
   )
 }
 
 /**
- * The budget panel shown while adding an expense: how much of the limit is used, how much is left now,
- * and what is left once this expense is added (or how far over it goes).
+ * The budget panel shown while adding an expense: a bar and one short line with what is used,
+ * what is left now and what is left once this expense is added. The status badge sits in the card header.
  */
 export function BudgetImpact({ line, amount }: { line: BudgetLine; amount: number }) {
   const { usedPct, addPct, after, status } = afterAdding(line, amount)
   const nowColor = BUDGET_STATUS_COLOR[line.status]
   const color = BUDGET_STATUS_COLOR[status]
-  const Icon = ICON[status]
+  const leftNow = line.remaining >= 0 ? formatCurrency(line.remaining) : `${formatCurrency(-line.remaining)} over`
 
   return (
-    <div className="mt-3">
-      <div className="flex items-center justify-between gap-2">
-        <p className="text-white text-[14px] font-semibold tabular-nums">
-          {formatCurrency(line.spent)}
-          <span className="text-tertiary text-[12px] font-medium"> of {formatCurrency(line.limit)} used</span>
-        </p>
-        <span
-          className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold shrink-0"
-          style={{ color, background: `color-mix(in srgb, ${color} 14%, transparent)` }}
-        >
-          <Icon size={13} strokeWidth={2.4} /> {LABEL[status]}
-        </span>
-      </div>
-
-      <div className="relative mt-2.5 h-2.5 rounded-full bg-white/5 overflow-hidden flex">
+    <div className="mt-2">
+      <div className="h-2 rounded-full bg-white/5 overflow-hidden flex">
         <div className="h-full" style={{ width: `${usedPct}%`, background: nowColor }} />
         <div className="h-full" style={{ width: `${addPct}%`, background: color, opacity: 0.45 }} />
       </div>
-      <p className="text-tertiary text-[11px] mt-1 flex justify-between">
-        <span>Used</span>
-        <span>This expense</span>
+      <p className="text-[12px] mt-1.5 tabular-nums text-tertiary leading-snug">
+        <span className="text-white font-semibold">{formatCurrency(line.spent)}</span> of {formatCurrency(line.limit)} used · left now{' '}
+        <span className="text-white font-semibold">{leftNow}</span> · after this {formatCurrency(amount)}{' '}
+        <span className="font-semibold" style={{ color: status === 'ok' ? 'var(--color-white)' : color }}>
+          {after >= 0 ? `${formatCurrency(after)} left` : `${formatCurrency(-after)} over`}
+        </span>
       </p>
-
-      <div className="grid grid-cols-2 gap-2 mt-2">
-        <Stat
-          label="Left now"
-          value={line.remaining >= 0 ? formatCurrency(line.remaining) : `${formatCurrency(-line.remaining)} over`}
-          color={line.remaining >= 0 ? undefined : nowColor}
-        />
-        <Stat
-          label={`After this ${formatCurrency(amount)}`}
-          value={after >= 0 ? `${formatCurrency(after)} left` : `${formatCurrency(-after)} over`}
-          color={status === 'ok' ? undefined : color}
-        />
-      </div>
-
-      {status !== 'ok' && (
-        <p className={clsx('text-[12px] font-medium mt-2 leading-snug')} style={{ color }}>
-          {status === 'over'
-            ? `This puts you ${formatCurrency(-after)} over your limit.`
-            : `You are about to hit your limit: only ${formatCurrency(after)} will be left.`}
-        </p>
-      )}
     </div>
   )
 }
