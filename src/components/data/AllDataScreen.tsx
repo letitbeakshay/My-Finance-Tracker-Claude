@@ -24,7 +24,7 @@ import { BudgetsView } from '../budget/BudgetsView'
 import { BudgetProgressCard } from '../budget/BudgetProgressCard'
 import { ReimbursementCard } from '../stewardship/ReimbursementCard'
 import { categoryPath, parentMap } from '../../lib/categoryTree'
-import { personalOnly, reimbursableIds } from '../../lib/reimbursement'
+import { earnedOnly, isReimbursementIncome, personalOnly, reimbursableIds } from '../../lib/reimbursement'
 import { StewardshipView } from '../stewardship/StewardshipView'
 import { SummaryCards } from './SummaryCards'
 import {
@@ -119,7 +119,7 @@ export function AllDataScreen() {
         title: i.source,
         note: i.notes,
         accountLabel: (i.accountId && accountMap.get(i.accountId)?.label) || '—',
-        tag: { label: 'Income', color: INCOME_COLOR },
+        tag: isReimbursementIncome(i) ? { label: 'Paid back', color: 'var(--color-secondary)' } : { label: 'Income', color: INCOME_COLOR },
         amount: i.amount,
       })
     }
@@ -152,7 +152,7 @@ export function AllDataScreen() {
 
   if (!expenses || !incomes || !loans) return null
 
-  const totalIncome = monthIncomes.reduce((s, i) => s + i.amount, 0)
+  const totalIncome = earnedOnly(monthIncomes).reduce((s, i) => s + i.amount, 0)
   // Reimbursable spending is paid back, so the totals show your own spending.
   const totalExpenses = personalOnly(monthExpenses, reimbursable).reduce((s, e) => s + e.amount, 0)
   const cardSpend = accountSummaries

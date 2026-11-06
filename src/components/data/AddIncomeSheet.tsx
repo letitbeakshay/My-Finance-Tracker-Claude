@@ -1,8 +1,12 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { format } from 'date-fns'
 import { BottomSheet } from '../ui/BottomSheet'
 import { Button } from '../ui/Button'
-import { incomeRepo } from '../../db/repository'
+import { Check } from 'lucide-react'
+import clsx from 'clsx'
+import { expenseRepo, incomeRepo } from '../../db/repository'
+import { useAllCategories, useExpenses } from '../../hooks/useLiveData'
+import { pendingReimbursements, reimbursableIds } from '../../lib/reimbursement'
 import { formatCurrency } from '../../lib/currency'
 import { VERSES } from '../../lib/scripture'
 import type { PaymentAccount } from '../../types'
@@ -28,6 +32,16 @@ export function AddIncomeSheet({ open, onClose, bankAccounts, givingPercent, onG
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [savedAmount, setSavedAmount] = useState<number | null>(null)
+  const [isReimb, setIsReimb] = useState(false)
+  const [ticked, setTicked] = useState<Set<string>>(new Set())
+  const [paidBack, setPaidBack] = useState<number | null>(null)
+  const expenses = useExpenses()
+  const categories = useAllCategories()
+  const pending = useMemo(
+    () => pendingReimbursements(expenses ?? [], reimbursableIds(categories ?? [])).sort((a, b) => (a.date < b.date ? 1 : -1)),
+    [expenses, categories],
+  )
+  const tickedTotal = pending.filter((e) => ticked.has(e.id)).reduce((s, e) => s + e.amount, 0)
 
   useEffect(() => {
     if (open) {
@@ -38,17 +52,25 @@ export function AddIncomeSheet({ open, onClose, bankAccounts, givingPercent, onG
       setNotes('')
       setError('')
       setSavedAmount(null)
+      setIsReimb(false)
+      setTicked(new Set())
+      setPaidBack(null)
     }
   }, [open])
 
   const numericAmount = parseFloat(amount) || 0
-  const canSave = !!source.trim() && numericAmount > 0 && !saving
+  const canSave = (isReimb ? ticked.size > 0 || !!source.trim() : !!source.trim()) && numericAmount > 0 && !saving
 
   async function handleSave() {
     if (!canSave) return
     setSaving(true)
     setError('')
     try {
+      if (isReimb) {
+        await expenseRepo.settleReimbursements(pending.filter((e) => ticked.has(e.id)), { amount: numericAmount, date, accountId: accountId || undefined })
+        setPaidBack(numericAmount)
+        return
+      }
       await incomeRepo.add({
         source: source.trim(),
         amount: numericAmount,
@@ -66,7 +88,15 @@ export function AddIncomeSheet({ open, onClose, bankAccounts, givingPercent, onG
 
   return (
     <BottomSheet open={open} onClose={onClose}>
-      {savedAmount !== null ? (
+      {paidBack !== null ? (
+        <>
+          <h2 className="text-white text-[20px] font-bold mb-1">Paid back</h2>
+          <p className="text-secondary text-[15px] mb-5">
+            {formatCurrency(paidBack)} recorded as money returned. It is not counted as income, so your first fruits stay right.
+          </p>
+          <Button onClick={onClose}>Done</Button>
+        </>
+      ) : savedAmount !== null ? (
         <FirstFruitsPrompt
           firstFruits={(savedAmount * givingPercent) / 100}
           givingPercent={givingPercent}
@@ -75,7 +105,63 @@ export function AddIncomeSheet({ open, onClose, bankAccounts, givingPercent, onG
         />
       ) : (
         <>
-      <h2 className="text-white text-[20px] font-bold mb-5">Add income</h2>
+      <h2 className="text-white text-[20px] font-bold mb-4">Add income</h2>
+      {pending.length > 0 && (
+        <div className="mb-4">
+          <p className="text-tertiary text-[12px] font-semibold uppercase tracking-wide mb-2">Is this money paid back to you?</p>
+          <div className="grid grid-cols-2 gap-2">
+            {([[false, 'No, it is income'], [true, 'Yes, a reimbursement']] as const).map(([v, label]) => (
+              <button
+                key={String(v)}
+                type="button"
+                onClick={() => setIsReimb(v)}
+                aria-pressed={isReimb === v}
+                className={clsx('h-12 rounded-2xl border text-[14px] font-semibold', isReimb === v ? 'bg-accent-soft border-accent text-accent-ink' : 'bg-surface border-border text-white')}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+      {isReimb && (
+        <div className="mb-4">
+          <p className="text-tertiary text-[12px] font-semibold uppercase tracking-wide mb-2">Which expenses did it cover?</p>
+          <div className="flex flex-col gap-2 max-h-[28dvh] overflow-y-auto">
+            {pending.map((e) => {
+              const on = ticked.has(e.id)
+              return (
+                <button
+                  key={e.id}
+                  type="button"
+                  onClick={() => {
+                    const next = new Set(ticked)
+                    if (on) next.delete(e.id)
+                    else next.add(e.id)
+                    setTicked(next)
+                    const total = pending.filter((x) => next.has(x.id)).reduce((s, x) => s + x.amount, 0)
+                    setAmount(total ? String(Math.round(total * 100) / 100) : '')
+                    if (!source.trim()) setSource('Reimbursement')
+                  }}
+                  className={clsx('flex items-center gap-3 rounded-2xl border px-3.5 py-3 text-left', on ? 'bg-accent-soft border-accent' : 'bg-surface border-border')}
+                >
+                  <span className={clsx('w-6 h-6 rounded-md border-2 flex items-center justify-center shrink-0', on ? 'bg-positive border-positive text-on-type' : 'border-border bg-card')}>
+                    {on && <Check size={15} strokeWidth={3} />}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-white text-[14px] font-medium truncate">{e.notes || 'Reimbursable expense'}</span>
+                    <span className="block text-tertiary text-[12px]">{format(new Date(e.date), 'd MMM')}</span>
+                  </span>
+                  <span className="text-white text-[14px] font-semibold tabular-nums">{formatCurrency(e.amount)}</span>
+                </button>
+              )
+            })}
+          </div>
+          {ticked.size > 0 && numericAmount !== tickedTotal && (
+            <p className="text-warning text-[12px] mt-2">You ticked {formatCurrency(tickedTotal)} but entered {formatCurrency(numericAmount)}. Check the amount.</p>
+          )}
+        </div>
+      )}
       <div className="flex flex-col gap-3 mb-6">
         <input
           autoFocus
@@ -111,7 +197,7 @@ export function AddIncomeSheet({ open, onClose, bankAccounts, givingPercent, onG
       </div>
       {error && <p className="text-danger text-[14px] mb-3">{error}</p>}
       <Button onClick={handleSave} disabled={!canSave}>
-        Add income
+        {isReimb ? 'Record money paid back' : 'Add income'}
       </Button>
         </>
       )}

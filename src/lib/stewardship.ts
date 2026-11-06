@@ -1,3 +1,4 @@
+import { earnedOnly } from './reimbursement'
 import { format, isSameMonth, parseISO } from 'date-fns'
 import type { AppSettings, Expense, Income, Loan, Reflection } from '../types'
 import { formatCurrency } from './currency'
@@ -29,7 +30,8 @@ export function monthPlan(
 ): MonthPlan {
   const inMonth = (date: string) => isSameMonth(parseISO(date), month)
   const monthExpenses = expenses.filter((e) => inMonth(e.date))
-  const income = sumAmounts(incomes.filter((i) => inMonth(i.date)))
+  // Money paid back to you (reimbursements) is not income, so it does not raise first fruits or targets.
+  const income = sumAmounts(earnedOnly(incomes).filter((i) => inMonth(i.date)))
   const given = sumAmounts(monthExpenses.filter((e) => e.type === 'giving'))
   const saved = sumAmounts(monthExpenses.filter((e) => e.type === 'savings'))
   const lived = sumAmounts(monthExpenses.filter((e) => e.type === 'need' || e.type === 'want'))

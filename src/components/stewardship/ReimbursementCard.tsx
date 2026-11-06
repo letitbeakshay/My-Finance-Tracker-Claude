@@ -2,7 +2,8 @@ import { useMemo, useState } from 'react'
 import { format, parseISO } from 'date-fns'
 import { Receipt } from 'lucide-react'
 import { Card } from '../ui/Card'
-import { expenseRepo } from '../../db/repository'
+import { usePaymentAccounts } from '../../hooks/useLiveData'
+import { ReceivedSheet } from './ReceivedSheet'
 import { formatCurrency } from '../../lib/currency'
 import { categoryPath } from '../../lib/categoryTree'
 import { pendingReimbursements, reimbursableIds } from '../../lib/reimbursement'
@@ -17,7 +18,8 @@ interface ReimbursementCardProps {
 
 /** Expenses you paid for someone else and are waiting to get back. Hidden when there are none. */
 export function ReimbursementCard({ expenses, categories, limit }: ReimbursementCardProps) {
-  const [error, setError] = useState('')
+  const [receiving, setReceiving] = useState<Expense | null>(null)
+  const accounts = usePaymentAccounts()
   const byId = useMemo(() => new Map(categories.map((c) => [c.id, c])), [categories])
   const ids = useMemo(() => reimbursableIds(categories), [categories])
   const pending = useMemo(
@@ -28,15 +30,6 @@ export function ReimbursementCard({ expenses, categories, limit }: Reimbursement
 
   const total = pending.reduce((s, e) => s + e.amount, 0)
   const shown = limit ? pending.slice(0, limit) : pending
-
-  async function markReceived(id: string) {
-    setError('')
-    try {
-      await expenseRepo.setReimbursed(id, true)
-    } catch {
-      setError('Could not save. The database needs an update: use “Copy the SQL” in the box at the top of the app.')
-    }
-  }
 
   return (
     <Card>
@@ -68,7 +61,7 @@ export function ReimbursementCard({ expenses, categories, limit }: Reimbursement
                 <span className="text-white font-semibold text-[14px] tabular-nums shrink-0">{formatCurrency(e.amount)}</span>
                 <button
                   type="button"
-                  onClick={() => markReceived(e.id)}
+                  onClick={() => setReceiving(e)}
                   className="h-9 px-3 rounded-full bg-accent-soft text-accent-ink text-[13px] font-semibold shrink-0"
                 >
                   Received
@@ -81,7 +74,7 @@ export function ReimbursementCard({ expenses, categories, limit }: Reimbursement
           )}
         </>
       )}
-      {error && <p className="text-danger text-[13px] mt-3">{error}</p>}
+      <ReceivedSheet expense={receiving} bankAccounts={(accounts ?? []).filter((a) => a.type === 'bank_account')} onClose={() => setReceiving(null)} />
     </Card>
   )
 }

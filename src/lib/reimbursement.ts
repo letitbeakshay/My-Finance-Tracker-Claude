@@ -1,4 +1,4 @@
-import type { Category, Expense } from '../types'
+import type { Category, Expense, Income } from '../types'
 
 /** Ids of reimbursable categories, plus everything under them. */
 export function reimbursableIds(categories: Category[]) {
@@ -15,4 +15,16 @@ export function personalOnly(expenses: Expense[], reimbursable: Set<string>) {
 
 export function pendingReimbursements(expenses: Expense[], reimbursable: Set<string>) {
   return expenses.filter((e) => reimbursable.has(e.categoryId) && !e.reimbursed)
+}
+
+/** Money that came back to you for something you paid on someone else's behalf. It is not earned income. */
+export const REIMBURSEMENT_PREFIX = 'Reimbursement'
+
+export function isReimbursementIncome(income: Pick<Income, 'source'>) {
+  return income.source.trim().toLowerCase().startsWith(REIMBURSEMENT_PREFIX.toLowerCase())
+}
+
+/** Income you earned: what first fruits, saving targets and your monthly totals are worked out from. */
+export function earnedOnly<T extends Pick<Income, 'source'>>(incomes: T[]) {
+  return incomes.filter((i) => !isReimbursementIncome(i))
 }

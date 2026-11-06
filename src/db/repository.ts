@@ -1,6 +1,7 @@
 import { supabase } from '../lib/supabaseClient'
 import { planCategories, type PlanParent } from '../lib/categoryPlan'
 import { buildSchedule } from '../lib/loanMath'
+import { REIMBURSEMENT_PREFIX } from '../lib/reimbursement'
 import {
   OVERALL_BUDGET_ID,
   type AppSettings,
@@ -82,6 +83,24 @@ export const expenseRepo = {
       .update({ reimbursed, updated_at: new Date().toISOString() })
       .eq('id', id)
     if (error) throw error
+  },
+
+  /**
+   * Money came back for some reimbursable expenses: mark them paid back and record the credit in the bank account,
+   * so the account tallies. It is saved as a "Reimbursement" credit, which is not counted as income.
+   */
+  async settleReimbursements(
+    expenses: Pick<Expense, 'id' | 'notes' | 'amount'>[],
+    credit: { amount: number; date: string; accountId?: string },
+  ) {
+    for (const e of expenses) await this.setReimbursed(e.id, true)
+    const names = expenses.map((e) => e.notes).filter(Boolean).slice(0, 3).join(', ')
+    await incomeRepo.add({
+      amount: credit.amount,
+      source: `${REIMBURSEMENT_PREFIX}${names ? `: ${names}` : ''}${expenses.length > 3 ? ` +${expenses.length - 3} more` : ''}`,
+      accountId: credit.accountId,
+      date: credit.date,
+    })
   },
 
   async remove(id: string) {
