@@ -276,6 +276,12 @@ export function ExpenseWizard({ onDone, onCancel, preset }: ExpenseWizardProps) 
                     if (sug && !typeTouched) setType(sug)
                   }}
                 />
+                {categoryId && suggested === 'savings' && (
+                  <div className="mt-6">
+                    <p className={LABEL}>Which savings plan is this for?</p>
+                    <SavingsPlanPicker value={savingsPlanId} onChange={setSavingsPlanId} showProgress />
+                  </div>
+                )}
               </>
             )}
 
