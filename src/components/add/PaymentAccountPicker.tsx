@@ -18,7 +18,7 @@ export function PaymentAccountPicker({
 }: PaymentAccountPickerProps) {
   const [creating, setCreating] = useState(false)
   const filtered = useMemo(
-    () => accounts.filter((a) => a.type === accountType),
+    () => accounts.filter((a) => a.type === accountType || (accountType === 'debit_card' && a.type === 'bank_account')),
     [accounts, accountType],
   )
 
@@ -33,7 +33,7 @@ export function PaymentAccountPicker({
         ))}
         <Chip onClick={() => setCreating(true)} className="h-10 px-3.5 text-[14px]">
           <span>＋</span>
-          <span>{accountType === 'credit_card' ? 'Add Card' : 'Add Account'}</span>
+          <span>{accountType === 'bank_account' ? 'Add Account' : 'Add Card'}</span>
         </Chip>
       </div>
 

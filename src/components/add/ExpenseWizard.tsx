@@ -332,7 +332,7 @@ export function ExpenseWizard({ onDone, onCancel, preset }: ExpenseWizardProps) 
                 {accountType && accounts && (
                   <div className="mb-4">
                     <p className={LABEL}>
-                      {accountType === 'credit_card' ? 'Which credit card?' : 'Which bank account?'}
+                      {accountType === 'credit_card' ? 'Which credit card?' : accountType === 'debit_card' ? 'Which debit card or account?' : 'Which bank account?'}
                     </p>
                     <PaymentAccountPicker
                       accounts={accounts}

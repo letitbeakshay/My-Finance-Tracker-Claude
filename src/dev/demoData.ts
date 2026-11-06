@@ -55,7 +55,7 @@ export const DEMO_TABLES: Record<string, unknown[]> = {
     { id: 'i3', amount: 1450, source: 'Interest', account_id: 'acc2', notes: null, date: d(0), created_at: now },
   ],
   loans: [
-    { id: 'l1', name: 'Car loan — HDFC', kind: 'borrowed', principal: 640000, paid: 215000, emi: 14200, next_due_date: format(addDays(new Date(), 6), 'yyyy-MM-dd'), notes: null, closed: false, created_at: now },
+    { id: 'l1', name: 'Car loan — HDFC', kind: 'borrowed', principal: 640000, paid: 215000, emi: 14200, interest_rate: 9.5, tenure_months: 60, emis_paid: 18, next_due_date: format(addDays(new Date(), 6), 'yyyy-MM-dd'), notes: null, closed: false, created_at: now },
     { id: 'l2', name: 'Laptop EMI', kind: 'borrowed', principal: 96000, paid: 72000, emi: 8000, next_due_date: format(addDays(new Date(), 12), 'yyyy-MM-dd'), notes: null, closed: false, created_at: now },
     { id: 'l3', name: 'Lent to Ravi', kind: 'lent', principal: 25000, paid: 5000, emi: null, next_due_date: null, notes: null, closed: false, created_at: now },
   ],

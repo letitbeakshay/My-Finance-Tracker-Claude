@@ -49,6 +49,16 @@ create table if not exists payment_accounts (
   created_at timestamptz not null default now()
 );
 
+alter table payment_accounts add column if not exists interest_rate numeric;
+alter table payment_accounts add column if not exists credit_limit numeric;
+alter table payment_accounts add column if not exists statement_day integer;
+alter table payment_accounts add column if not exists due_day integer;
+
+-- Debit cards are a third kind of account.
+alter table payment_accounts drop constraint if exists payment_accounts_type_check;
+alter table payment_accounts add constraint payment_accounts_type_check
+  check (type in ('bank_account', 'debit_card', 'credit_card'));
+
 create table if not exists expenses (
   id text primary key,
   amount numeric not null,
@@ -103,6 +113,10 @@ create table if not exists loans (
   closed boolean not null default false,
   created_at timestamptz not null default now()
 );
+
+alter table loans add column if not exists interest_rate numeric;
+alter table loans add column if not exists tenure_months integer;
+alter table loans add column if not exists emis_paid integer not null default 0;
 
 -- Stewardship plan (giving / saving targets, large-purchase pause).
 alter table app_settings add column if not exists giving_percent numeric not null default 10;

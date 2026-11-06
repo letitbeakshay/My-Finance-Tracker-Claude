@@ -56,6 +56,10 @@ export interface PaymentAccountRow {
   type: PaymentAccountType
   bank_name: string | null
   last4: string | null
+  interest_rate?: number | null
+  credit_limit?: number | null
+  statement_day?: number | null
+  due_day?: number | null
   icon: string
   archived: boolean
   sort_order: number
@@ -176,6 +180,10 @@ export function rowToPaymentAccount(row: PaymentAccountRow): PaymentAccount {
     type: row.type,
     bankName: row.bank_name ?? undefined,
     last4: row.last4 ?? undefined,
+    interestRate: row.interest_rate == null ? undefined : Number(row.interest_rate),
+    creditLimit: row.credit_limit == null ? undefined : Number(row.credit_limit),
+    statementDay: row.statement_day ?? undefined,
+    dueDay: row.due_day ?? undefined,
     icon: row.icon,
     archived: row.archived,
     sortOrder: row.sort_order,
@@ -192,6 +200,10 @@ export function paymentAccountToRow(
     type: account.type,
     bank_name: account.bankName ?? null,
     last4: account.last4 ?? null,
+    interest_rate: account.interestRate ?? null,
+    credit_limit: account.creditLimit ?? null,
+    statement_day: account.statementDay ?? null,
+    due_day: account.dueDay ?? null,
     icon: account.icon,
     archived: account.archived ?? false,
     sort_order: account.sortOrder ?? 0,
@@ -216,6 +228,9 @@ export interface LoanRow {
   principal: number
   paid: number
   emi: number | null
+  interest_rate?: number | null
+  tenure_months?: number | null
+  emis_paid?: number | null
   next_due_date: string | null
   notes: string | null
   closed: boolean
@@ -255,6 +270,9 @@ export function rowToLoan(row: LoanRow): Loan {
     principal: Number(row.principal),
     paid: Number(row.paid),
     emi: row.emi == null ? undefined : Number(row.emi),
+    interestRate: row.interest_rate == null ? undefined : Number(row.interest_rate),
+    tenureMonths: row.tenure_months == null ? undefined : Number(row.tenure_months),
+    emisPaid: Number(row.emis_paid ?? 0),
     nextDueDate: row.next_due_date ?? undefined,
     notes: row.notes ?? undefined,
     closed: row.closed,
@@ -270,6 +288,9 @@ export function loanToRow(loan: Omit<Loan, 'createdAt'>): Partial<LoanRow> {
     principal: loan.principal,
     paid: loan.paid,
     emi: loan.emi ?? null,
+    interest_rate: loan.interestRate ?? null,
+    tenure_months: loan.tenureMonths ?? null,
+    emis_paid: loan.emisPaid,
     next_due_date: loan.nextDueDate ?? null,
     notes: loan.notes ?? null,
     closed: loan.closed,

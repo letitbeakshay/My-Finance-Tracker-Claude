@@ -63,6 +63,7 @@ export function builtInCategoryIcon(categoryId?: string): LucideIcon | undefined
 
 export const ACCOUNT_ICONS: Record<PaymentAccountType, LucideIcon> = {
   bank_account: Landmark,
+  debit_card: CreditCard,
   credit_card: CreditCard,
 }
 

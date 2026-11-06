@@ -1,5 +1,7 @@
 import { supabase } from '../lib/supabaseClient'
+import { addMonths, format, parseISO } from 'date-fns'
 import { planCategories, type PlanParent } from '../lib/categoryPlan'
+import { loanStats } from '../lib/loanMath'
 import {
   OVERALL_BUDGET_ID,
   type AppSettings,
@@ -209,6 +211,12 @@ export const categoryPlanRepo = {
   },
 }
 
+function withoutCardColumns(row: Record<string, unknown>) {
+  const copy = { ...row }
+  for (const key of ['interest_rate', 'credit_limit', 'statement_day', 'due_day']) delete copy[key]
+  return copy
+}
+
 export const paymentAccountRepo = {
   async add(input: Omit<PaymentAccount, 'id' | 'createdAt'>) {
     const id = generateId()
@@ -223,19 +231,17 @@ export const paymentAccountRepo = {
       sortOrder = (maxRow?.sort_order ?? -1) + 1
     }
     const row = paymentAccountToRow({ ...input, id, sortOrder })
-    const { data, error } = await supabase
-      .from('payment_accounts')
-      .insert(row)
-      .select()
-      .single<PaymentAccountRow>()
-    if (error) throw error
+    let { data, error } = await supabase.from('payment_accounts').insert(row).select().single<PaymentAccountRow>()
+    if (isMissingColumn(error)) ({ data, error } = await supabase.from('payment_accounts').insert(withoutCardColumns(row)).select().single<PaymentAccountRow>())
+    if (error || !data) throw error
     return rowToPaymentAccount(data)
   },
 
   async update(id: string, changes: Partial<Omit<PaymentAccount, 'id' | 'createdAt'>>) {
     const row = paymentAccountToRow({ id, ...changes } as PaymentAccount)
     delete row.id
-    const { error } = await supabase.from('payment_accounts').update(row).eq('id', id)
+    let { error } = await supabase.from('payment_accounts').update(row).eq('id', id)
+    if (isMissingColumn(error)) ({ error } = await supabase.from('payment_accounts').update(withoutCardColumns(row)).eq('id', id))
     if (error) throw error
   },
 
@@ -293,12 +299,47 @@ export const incomeRepo = {
   },
 }
 
+const NEW_LOAN_COLUMNS = ['interest_rate', 'tenure_months', 'emis_paid'] as const
+
+function withoutLoanColumns(row: Record<string, unknown>) {
+  const copy = { ...row }
+  for (const key of NEW_LOAN_COLUMNS) delete copy[key]
+  return copy
+}
+
+export type LoanInput = Pick<Loan, 'name' | 'kind' | 'principal' | 'paid' | 'emi' | 'interestRate' | 'tenureMonths' | 'emisPaid' | 'nextDueDate'>
+
 export const loanRepo = {
-  async add(input: Omit<Loan, 'id' | 'createdAt' | 'paid' | 'closed'>) {
-    const row = loanToRow({ ...input, id: generateId(), paid: 0, closed: false })
-    const { data, error } = await supabase.from('loans').insert(row).select().single<LoanRow>()
-    if (error) throw error
+  async add(input: LoanInput) {
+    const row = loanToRow({ ...input, id: generateId(), closed: false })
+    let { data, error } = await supabase.from('loans').insert(row).select().single<LoanRow>()
+    if (isMissingColumn(error)) ({ data, error } = await supabase.from('loans').insert(withoutLoanColumns(row)).select().single<LoanRow>())
+    if (error || !data) throw error
     return rowToLoan(data)
+  },
+
+  /** Saves new details for a loan (amount, rate, EMIs paid…). */
+  async update(loan: Loan, changes: Partial<LoanInput>) {
+    const next = { ...loan, ...changes }
+    const row = loanToRow(next)
+    delete row.id
+    let { error } = await supabase.from('loans').update(row).eq('id', loan.id)
+    if (isMissingColumn(error)) ({ error } = await supabase.from('loans').update(withoutLoanColumns(row)).eq('id', loan.id))
+    if (error) throw error
+  },
+
+  /** Records one paid EMI: moves the due date on a month and keeps "paid so far" in step. */
+  async recordEmi(loan: Loan) {
+    const emisPaid = loan.emisPaid + 1
+    const stats = loanStats({ ...loan, emisPaid })
+    const paid = stats.principalPaid
+    const closed = stats.outstanding <= 0.005
+    await this.update(loan, {
+      emisPaid,
+      paid,
+      nextDueDate: loan.nextDueDate ? format(addMonths(parseISO(loan.nextDueDate), 1), 'yyyy-MM-dd') : undefined,
+    })
+    if (closed) await supabase.from('loans').update({ closed: true }).eq('id', loan.id)
   },
 
   /** Records a repayment; closes the loan once the principal is fully paid. */

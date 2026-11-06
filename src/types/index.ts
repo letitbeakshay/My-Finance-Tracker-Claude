@@ -27,7 +27,7 @@ export interface Category {
   defaultType?: ExpenseType
 }
 
-export type PaymentAccountType = 'bank_account' | 'credit_card'
+export type PaymentAccountType = 'bank_account' | 'debit_card' | 'credit_card'
 
 /** A specific bank account or credit card the user pays from/with —
  * distinct from PaymentMethod (the general channel: UPI/card/cash/etc). */
@@ -37,6 +37,14 @@ export interface PaymentAccount {
   type: PaymentAccountType
   bankName?: string
   last4?: string
+  /** Credit cards: yearly interest rate in percent charged on unpaid balance. */
+  interestRate?: number
+  /** Credit cards: the spending limit on the card. */
+  creditLimit?: number
+  /** Credit cards: day of the month the bill is generated. */
+  statementDay?: number
+  /** Credit cards: day of the month the bill is due. */
+  dueDay?: number
   icon: string
   archived?: boolean
   sortOrder?: number
@@ -46,7 +54,7 @@ export interface PaymentAccount {
 /** Which PaymentMethod values can have a specific PaymentAccount attached. */
 export const PAYMENT_METHOD_ACCOUNT_TYPE: Partial<Record<PaymentMethod, PaymentAccountType>> = {
   credit_card: 'credit_card',
-  debit_card: 'bank_account',
+  debit_card: 'debit_card',
   bank_transfer: 'bank_account',
 }
 
@@ -103,6 +111,12 @@ export interface Loan {
   /** Amount repaid so far; outstanding = principal - paid. */
   paid: number
   emi?: number
+  /** Yearly interest rate in percent. */
+  interestRate?: number
+  /** Total number of monthly instalments the loan was taken for. */
+  tenureMonths?: number
+  /** How many EMIs have been paid so far. */
+  emisPaid: number
   nextDueDate?: string // ISO date (yyyy-MM-dd)
   notes?: string
   closed: boolean
