@@ -309,12 +309,30 @@ function withoutLoanColumns(row: Record<string, unknown>) {
 
 export type LoanInput = Pick<Loan, 'name' | 'kind' | 'principal' | 'paid' | 'emi' | 'interestRate' | 'tenureMonths' | 'emisPaid' | 'nextDueDate'> & { schedule?: Installment[] | null }
 
+/** Every loan gets its own sub-category under EMI, so an expense can say exactly which EMI it paid. */
+export async function ensureLoanCategory(loanName: string) {
+  try {
+    const { data: cats } = await supabase.from('categories').select('id,name,parent_id,archived')
+    const list = (cats ?? []) as { id: string; name: string; parent_id: string | null; archived: boolean }[]
+    let emi = list.find((c) => c.id === 'emi') ?? list.find((c) => !c.archived && c.name.toLowerCase() === 'emi')
+    if (!emi) {
+      const made = await categoryRepo.add({ name: 'EMI', icon: '🏦', defaultType: 'need' })
+      emi = { id: made.id, name: 'EMI', parent_id: null, archived: false }
+    }
+    if (list.some((c) => !c.archived && c.parent_id === emi!.id && c.name.toLowerCase() === loanName.toLowerCase())) return
+    await categoryRepo.add({ name: loanName, icon: '🏦', parentId: emi.id, defaultType: 'need' })
+  } catch {
+    /* the loan itself is saved; the category can be added later from Settings */
+  }
+}
+
 export const loanRepo = {
   async add(input: LoanInput) {
     const row = loanToRow({ ...input, schedule: input.schedule ?? undefined, id: generateId(), closed: false })
     let { data, error } = await supabase.from('loans').insert(row).select().single<LoanRow>()
     if (isMissingColumn(error)) ({ data, error } = await supabase.from('loans').insert(withoutLoanColumns(row)).select().single<LoanRow>())
     if (error || !data) throw error
+    await ensureLoanCategory(input.name)
     return rowToLoan(data)
   },
 

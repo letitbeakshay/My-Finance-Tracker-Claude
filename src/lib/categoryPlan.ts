@@ -65,6 +65,7 @@ export const CATEGORY_PLAN: PlanParent[] = [
       { name: 'Missions', icon: '🌍' },
     ],
   },
+  { name: 'EMI', icon: '🏦', defaultType: 'need', matches: ['emi'] },
   { name: 'Fuel', icon: '🛵', defaultType: 'need' },
   { name: 'Recharge', icon: '📱', defaultType: 'need' },
   {
@@ -83,7 +84,6 @@ export const CATEGORY_PLAN: PlanParent[] = [
       { name: 'Travel', icon: '✈️' },
       { name: 'Rent', icon: '🏠' },
       { name: 'Bills', icon: '💡' },
-      { name: 'EMI', icon: '🏦' },
       { name: 'Education', icon: '📚' },
       { name: 'Clothing', icon: '👕' },
       { name: 'Gift', icon: '🎁' },
