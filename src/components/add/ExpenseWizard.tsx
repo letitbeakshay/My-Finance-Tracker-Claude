@@ -13,7 +13,7 @@ import { PleasesGodPicker } from './PleasesGodPicker'
 import type { AddExpensePreset } from './AddExpenseScreen'
 import { Button } from '../ui/Button'
 import {
-  useBudgets,
+  useEffectiveBudgets,
   useCategories,
   useExpenses,
   usePaymentAccounts,
@@ -55,7 +55,7 @@ export function ExpenseWizard({ onDone, onCancel, preset }: ExpenseWizardProps) 
   const categories = useCategories()
   const accounts = usePaymentAccounts()
   const settings = useSettings()
-  const budgets = useBudgets()
+  const budgets = useEffectiveBudgets()
   const expenses = useExpenses()
 
   const amountRef = useRef<HTMLInputElement>(null)

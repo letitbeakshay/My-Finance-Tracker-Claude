@@ -3,7 +3,7 @@ import { isSameMonth, parseISO } from 'date-fns'
 import {
   useAllCategories,
   useAllPaymentAccounts,
-  useBudgets,
+  useEffectiveBudgets,
   useExpenses,
   useIncomes,
   useLoans,
@@ -53,7 +53,7 @@ export function AllDataScreen() {
   const incomes = useIncomes()
   const loans = useLoans()
   const settings = useSettings()
-  const budgets = useBudgets()
+  const budgets = useEffectiveBudgets()
 
   const [month, setMonth] = useState(() => new Date())
   // Reopening (or a phone reloading the app) puts you back on the same Dashboard section.

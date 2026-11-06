@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Plus } from 'lucide-react'
-import { useAllCategories, useBudgetItems, useBudgets, useExpenses } from '../../hooks/useLiveData'
+import { ChevronRight, Plus } from 'lucide-react'
+import { useAllCategories, useBudgetItems, useEffectiveBudgets, useExpenses } from '../../hooks/useLiveData'
 import { buildTree, parentMap } from '../../lib/categoryTree'
 import { reimbursableIds } from '../../lib/reimbursement'
 import { budgetRepo } from '../../db/repository'
@@ -12,6 +12,7 @@ import { CategoryIcon } from '../ui/CategoryIcon'
 import { BudgetBar } from './BudgetBar'
 import { NewCategorySheet } from '../settings/NewCategorySheet'
 import { BudgetItemSheet } from './BudgetItemSheet'
+import { BudgetSpendDetail, type BudgetDetailTarget } from './BudgetSpendDetail'
 import { formatCurrency } from '../../lib/currency'
 import type { BudgetItem } from '../../types'
 
@@ -56,12 +57,13 @@ function LimitInput({ value, onCommit }: { value?: number; onCommit: (limit: num
 
 /** Every category with an optional monthly limit, plus a way to add a new category. */
 export function BudgetsView({ month }: { month: Date }) {
-  const budgets = useBudgets()
+  const budgets = useEffectiveBudgets()
   const expenses = useExpenses()
   const allCategories = useAllCategories()
   const categories = useMemo(() => (allCategories ?? []).filter((c) => !c.archived), [allCategories])
   const planItems = useBudgetItems()
   const [adding, setAdding] = useState(false)
+  const [detail, setDetail] = useState<BudgetDetailTarget | null>(null)
   const [itemSheet, setItemSheet] = useState<{ open: boolean; item: BudgetItem | null }>({ open: false, item: null })
 
   // The total of the monthly plan, when there is one, is the overall budget.
@@ -79,11 +81,13 @@ export function BudgetsView({ month }: { month: Date }) {
     [budgets, expenses, month, categories, planTotal],
   )
   if (!budgets || !expenses || !allCategories || !progress) return null
+  if (detail) return <BudgetSpendDetail target={detail} month={month} onBack={() => setDetail(null)} />
   // A budget on a top-level category covers everything under it (Eating Out covers Coffee and Snacks).
   const topLevel = buildTree(categories).map((n) => n.category)
 
   const hasPlan = (planItems ?? []).length > 0
   const limitFor = (id: string) => budgets.find((b) => b.id === id)?.monthlyLimit
+  const categoryLimit = (categoryId: string) => budgets.find((b) => b.categoryId === categoryId)?.monthlyLimit
   const lineFor = (id: string) => progress.categories.find((l) => l.categoryId === id)
 
   return (
@@ -139,11 +143,11 @@ export function BudgetsView({ month }: { month: Date }) {
                   const pct = spent !== null && item.amount > 0 ? Math.min(100, (spent / item.amount) * 100) : 0
                   const over = spent !== null && spent > item.amount
                   return (
+                    <div key={item.id} className="border-b border-border/60 last:border-0">
                     <button
-                      key={item.id}
                       type="button"
                       onClick={() => setItemSheet({ open: true, item })}
-                      className="w-full text-left py-2.5 border-b border-border/60 last:border-0"
+                      className="w-full text-left py-2.5 pb-1.5"
                     >
                       <span className="flex items-center justify-between gap-3">
                         <span className="text-white text-[15px] truncate">{item.name}</span>
@@ -164,6 +168,16 @@ export function BudgetsView({ month }: { month: Date }) {
                         </span>
                       )}
                     </button>
+                    {linked.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => setDetail({ title: item.name, categoryIds: linked, limit: item.amount })}
+                        className="h-9 mb-1.5 text-accent-ink text-[13px] font-semibold flex items-center gap-0.5"
+                      >
+                        See what was spent <ChevronRight size={15} />
+                      </button>
+                    )}
+                    </div>
                   )
                 })}
               </div>
@@ -202,16 +216,24 @@ export function BudgetsView({ month }: { month: Date }) {
                     <span className="w-9 h-9 rounded-full bg-surface border border-border flex items-center justify-center text-secondary shrink-0">
                       <CategoryIcon category={c} size={17} />
                     </span>
-                    <span className="min-w-0">
-                      <span className="block text-white font-medium text-[15px] truncate">{c.name}</span>
+                    <button
+                      type="button"
+                      onClick={() => setDetail({ title: c.name, categoryIds: [c.id], limit: categoryLimit(c.id) })}
+                      className="min-w-0 text-left"
+                      aria-label={`See what was spent on ${c.name}`}
+                    >
+                      <span className="flex items-center gap-0.5 text-white font-medium text-[15px]">
+                        <span className="truncate">{c.name}</span>
+                        <ChevronRight size={15} className="text-tertiary shrink-0" />
+                      </span>
                       {!line && (
                         <span className="block text-tertiary text-[12px] tabular-nums">
                           ₹{Math.round(progress.spentByCategory(c.id)).toLocaleString('en-IN')} spent this month
                         </span>
                       )}
-                    </span>
+                    </button>
                   </span>
-                  <LimitInput value={limitFor(c.id)} onCommit={(n) => budgetRepo.set(c.id, n)} />
+                  <LimitInput value={categoryLimit(c.id)} onCommit={(n) => budgetRepo.set(c.id, n)} />
                 </div>
                 {line && (
                   <div className="mt-2.5">

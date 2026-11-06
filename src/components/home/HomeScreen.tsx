@@ -4,7 +4,7 @@ import {
   useExpenses,
   useAllCategories,
   useAllPaymentAccounts,
-  useBudgets,
+  useEffectiveBudgets,
   useIncomes,
   useSettings,
 } from '../../hooks/useLiveData'
@@ -48,7 +48,7 @@ export function HomeScreen({
   const expenses = useExpenses()
   const categories = useAllCategories()
   const accounts = useAllPaymentAccounts()
-  const budgets = useBudgets()
+  const budgets = useEffectiveBudgets()
   const incomes = useIncomes()
   const settings = useSettings()
   const [selected, setSelected] = useState<Expense | null>(null)
