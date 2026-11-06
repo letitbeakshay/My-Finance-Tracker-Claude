@@ -3,6 +3,7 @@ import clsx from 'clsx'
 import { Card } from '../ui/Card'
 import { formatCurrency } from '../../lib/currency'
 import { loanStats } from '../../lib/loanMath'
+import { DebtFreeCard } from './DebtFreeCard'
 import type { Loan } from '../../types'
 
 interface LoansPanelProps {
@@ -95,6 +96,7 @@ export function LoansPanel({ loans, onAdd, onSelect }: LoansPanelProps) {
           })}
         </div>
       )}
+      <DebtFreeCard open={open} />
     </Card>
   )
 }
