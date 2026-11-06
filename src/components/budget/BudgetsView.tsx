@@ -1,10 +1,9 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { endOfMonth, getDate, isSameMonth } from 'date-fns'
 import { ChevronRight, Pencil, Plus } from 'lucide-react'
 import { useAllCategories, useBudgetItems, useEffectiveBudgets, useExpenses } from '../../hooks/useLiveData'
 import { buildTree, parentMap } from '../../lib/categoryTree'
 import { reimbursableIds } from '../../lib/reimbursement'
-import { budgetRepo } from '../../db/repository'
 import { BUDGET_STATUS_COLOR, budgetProgress, type BudgetLine } from '../../lib/budgets'
 import { VERSES } from '../../lib/scripture'
 import { formatCurrency } from '../../lib/currency'
@@ -14,6 +13,7 @@ import { BottomSheet } from '../ui/BottomSheet'
 import { CategoryIcon } from '../ui/CategoryIcon'
 import { NewCategorySheet } from '../settings/NewCategorySheet'
 import { BudgetItemSheet } from './BudgetItemSheet'
+import { CategoryLimitForm } from './CategoryLimitForm'
 import { BudgetSpendDetail, type BudgetDetailTarget } from './BudgetSpendDetail'
 import type { BudgetItem, Category } from '../../types'
 
@@ -52,63 +52,17 @@ function LimitSheet({
   onClose: () => void
   onSeeSpending: () => void
 }) {
-  const [text, setText] = useState('')
-  const [busy, setBusy] = useState(false)
-  const [error, setError] = useState('')
-  useEffect(() => {
-    setText(current ? String(current) : '')
-    setError('')
-  }, [category, current])
-
-  async function save(value: number) {
-    if (!category) return
-    setBusy(true)
-    setError('')
-    try {
-      await budgetRepo.set(category.id, value)
-      onClose()
-    } catch {
-      setError('Could not save. The database needs an update: use “Copy the SQL” in the box at the top of the app.')
-    } finally {
-      setBusy(false)
-    }
-  }
-
   return (
     <BottomSheet open={!!category} onClose={onClose}>
       {category && (
         <>
           <p className="text-tertiary text-[12px] font-semibold uppercase tracking-wide">Monthly limit</p>
           <h2 className="text-white text-[22px] font-bold mt-0.5">{category.name}</h2>
-          <p className="text-secondary text-[14px] mt-1 tabular-nums">{formatCurrency(spent)} spent this month</p>
-          <input
-            autoFocus
-            value={text}
-            onChange={(e) => setText(e.target.value.replace(/[^0-9.]/g, ''))}
-            inputMode="decimal"
-            placeholder="Limit for each month, e.g. 3000"
-            className="w-full h-14 mt-4 bg-card border border-border rounded-2xl px-4 text-white text-[16px] placeholder:text-tertiary"
-          />
-          <p className="text-tertiary text-[12px] mt-2 leading-relaxed">
-            Covers everything under {category.name}.
-            {fromPlan && ' Right now this comes from your monthly plan; a number here replaces it.'}
-          </p>
-          {error && <p className="text-danger text-[13px] mt-2">{error}</p>}
-          <div className="flex flex-col gap-3 mt-5">
-            <Button onClick={() => save(parseFloat(text) || 0)} disabled={busy || !(parseFloat(text) > 0)}>
-              Save limit
-            </Button>
-            <div className="flex gap-3">
-              <Button variant="secondary" onClick={onSeeSpending}>
-                See spending
-              </Button>
-              {current !== undefined && !fromPlan && (
-                <Button variant="secondary" className="!text-danger" disabled={busy} onClick={() => save(0)}>
-                  Remove limit
-                </Button>
-              )}
-            </div>
-          </div>
+          <p className="text-secondary text-[14px] mt-1 mb-4 tabular-nums">{formatCurrency(spent)} spent this month</p>
+          <CategoryLimitForm category={category} current={current} fromPlan={fromPlan} onSaved={onClose} />
+          <Button variant="secondary" className="mt-3" onClick={onSeeSpending}>
+            See spending
+          </Button>
         </>
       )}
     </BottomSheet>
@@ -141,7 +95,7 @@ export function BudgetsView({ month }: { month: Date }) {
     [budgets, expenses, month, categories, planTotal],
   )
   if (!budgets || !expenses || !allCategories || !progress) return null
-  if (detail) return <BudgetSpendDetail target={detail} month={month} onBack={() => setDetail(null)} />
+  if (detail) return <BudgetSpendDetail target={detail} month={month} onBack={() => setDetail(null)} onChange={setDetail} />
 
   const topLevel = buildTree(categories).map((n) => n.category)
   const items = planItems ?? []
@@ -241,7 +195,7 @@ export function BudgetsView({ month }: { month: Date }) {
                   <button
                     type="button"
                     disabled={spent === null}
-                    onClick={() => setDetail({ title: item.name, categoryIds: linked, limit: item.amount })}
+                    onClick={() => setDetail({ title: item.name, categoryIds: linked, limit: item.amount, item })}
                     className="flex-1 min-w-0 text-left pl-5 py-4 disabled:cursor-default"
                     aria-label={spent === null ? item.name : `See what was spent on ${item.name}`}
                   >
@@ -297,7 +251,7 @@ export function BudgetsView({ month }: { month: Date }) {
                   <div key={c.id} className="flex items-stretch">
                     <button
                       type="button"
-                      onClick={() => setDetail({ title: c.name, categoryIds: [c.id], limit: line.limit })}
+                      onClick={() => setDetail({ title: c.name, categoryIds: [c.id], limit: line.limit, category: c, limitFromPlan: !!budgetFor(c.id)?.fromPlan })}
                       className="flex-1 min-w-0 text-left pl-5 py-4"
                       aria-label={`See what was spent on ${c.name}`}
                     >
@@ -342,7 +296,7 @@ export function BudgetsView({ month }: { month: Date }) {
               <div className="divide-y divide-border/60 pb-2">
                 {noLimit.map((c) => (
                   <div key={c.id} className="flex items-center gap-3 px-5 py-3">
-                    <button type="button" onClick={() => setDetail({ title: c.name, categoryIds: [c.id] })} className="flex items-center gap-3 flex-1 min-w-0 text-left" aria-label={`See what was spent on ${c.name}`}>
+                    <button type="button" onClick={() => setDetail({ title: c.name, categoryIds: [c.id], category: c })} className="flex items-center gap-3 flex-1 min-w-0 text-left" aria-label={`See what was spent on ${c.name}`}>
                       <span className="w-9 h-9 rounded-full bg-surface border border-border flex items-center justify-center text-secondary shrink-0">
                         <CategoryIcon category={c} size={16} />
                       </span>
@@ -369,7 +323,7 @@ export function BudgetsView({ month }: { month: Date }) {
         spent={limitFor ? progress.spentByCategory(limitFor.id) : 0}
         onClose={() => setLimitFor(null)}
         onSeeSpending={() => {
-          if (limitFor) setDetail({ title: limitFor.name, categoryIds: [limitFor.id], limit: budgetFor(limitFor.id)?.monthlyLimit })
+          if (limitFor) setDetail({ title: limitFor.name, categoryIds: [limitFor.id], limit: budgetFor(limitFor.id)?.monthlyLimit, category: limitFor, limitFromPlan: !!budgetFor(limitFor.id)?.fromPlan })
           setLimitFor(null)
         }}
       />

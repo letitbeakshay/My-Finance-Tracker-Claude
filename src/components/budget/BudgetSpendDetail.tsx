@@ -8,16 +8,35 @@ import { formatCurrency } from '../../lib/currency'
 import { formatMonthLabel } from '../../lib/analytics'
 import { isSameMonth, parseISO as parse } from 'date-fns'
 import { BUDGET_STATUS_COLOR } from '../../lib/budgets'
+import { BudgetItemForm } from './BudgetItemForm'
+import { CategoryLimitForm } from './CategoryLimitForm'
+import type { BudgetItem, Category } from '../../types'
 
 export interface BudgetDetailTarget {
   title: string
   categoryIds: string[]
   /** The limit for this budget, when it has one. */
   limit?: number
+  /** Set when this is a monthly plan item: it can be edited from the page. */
+  item?: BudgetItem
+  /** Set when this is a category limit: the limit can be changed from the page. */
+  category?: Category
+  limitFromPlan?: boolean
 }
 
 /** A full page listing everything spent against one budget this month, with a way back. */
-export function BudgetSpendDetail({ target, month, onBack }: { target: BudgetDetailTarget; month: Date; onBack: () => void }) {
+export function BudgetSpendDetail({
+  target,
+  month,
+  onBack,
+  onChange,
+}: {
+  target: BudgetDetailTarget
+  month: Date
+  onBack: () => void
+  /** Called when the budget is edited from this page, so the page shows the new values. */
+  onChange: (target: BudgetDetailTarget) => void
+}) {
   const expenses = useExpenses()
   const categories = useAllCategories()
   const byId = useMemo(() => new Map((categories ?? []).map((c) => [c.id, c])), [categories])
@@ -37,7 +56,7 @@ export function BudgetSpendDetail({ target, month, onBack }: { target: BudgetDet
   const color = over ? BUDGET_STATUS_COLOR.over : pct >= 80 ? BUDGET_STATUS_COLOR.warning : BUDGET_STATUS_COLOR.ok
 
   return (
-    <div className="max-w-[760px]">
+    <div>
       <button
         type="button"
         onClick={onBack}
@@ -46,6 +65,8 @@ export function BudgetSpendDetail({ target, month, onBack }: { target: BudgetDet
         <ChevronLeft size={20} /> Back to budgets
       </button>
 
+      <div className="grid gap-5 lg:gap-6 xl:grid-cols-[minmax(0,1fr)_400px] items-start">
+      <div className="min-w-0">
       <Card>
         <p className="text-tertiary text-[12px] font-semibold uppercase tracking-wide">{formatMonthLabel(month)}</p>
         <h2 className="text-white text-[22px] font-bold mt-0.5">{target.title}</h2>
@@ -97,6 +118,42 @@ export function BudgetSpendDetail({ target, month, onBack }: { target: BudgetDet
           </div>
         )}
       </Card>
+      </div>
+
+      {(target.item || target.category) && (
+        <Card className="xl:sticky xl:top-6">
+          <p className="text-tertiary text-[12px] font-semibold uppercase tracking-wide">
+            {target.item ? 'This budget' : 'Monthly limit'}
+          </p>
+          <h3 className="text-white text-[18px] font-bold mt-0.5 mb-4">{target.item ? 'Edit and save' : `Limit for ${target.category!.name}`}</h3>
+          {target.item ? (
+            <BudgetItemForm
+              item={target.item}
+              autoFocus={false}
+              onSaved={(v) => {
+                const ids = v.categoryIds.filter((id) => !v.categoryIds.includes(byId.get(id)?.parentId ?? ''))
+                onChange({
+                  ...target,
+                  title: v.name,
+                  limit: v.amount,
+                  categoryIds: ids,
+                  item: { ...target.item!, name: v.name, amount: v.amount, categoryIds: v.categoryIds, categoryId: v.categoryIds[0] },
+                })
+              }}
+              onDeleted={onBack}
+            />
+          ) : (
+            <CategoryLimitForm
+              category={target.category!}
+              current={target.limit}
+              fromPlan={!!target.limitFromPlan}
+              autoFocus={false}
+              onSaved={(limit) => onChange({ ...target, limit, limitFromPlan: false })}
+            />
+          )}
+        </Card>
+      )}
+      </div>
     </div>
   )
 }
