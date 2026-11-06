@@ -104,6 +104,17 @@ export interface Income {
 export type LoanKind = 'borrowed' | 'lent'
 
 /** Money borrowed from (`borrowed`) or lent to (`lent`) someone. */
+/** One instalment of a repayment schedule. */
+export interface Installment {
+  /** Sr. no. in the lender's schedule (1, 2, 3…). */
+  n: number
+  date?: string // ISO date (yyyy-MM-dd)
+  emi: number
+  interest: number
+  principal: number
+  paid: boolean
+}
+
 export interface Loan {
   id: string
   name: string
@@ -118,6 +129,8 @@ export interface Loan {
   tenureMonths?: number
   /** How many EMIs have been paid so far. */
   emisPaid: number
+  /** The saved repayment schedule (uploaded from the lender, or ticked by hand). Worked out from the numbers above when empty. */
+  schedule?: Installment[]
   nextDueDate?: string // ISO date (yyyy-MM-dd)
   notes?: string
   closed: boolean

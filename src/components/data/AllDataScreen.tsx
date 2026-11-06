@@ -38,7 +38,8 @@ import { SectionNav, type Section } from './SectionNav'
 import { AddIncomeSheet } from './AddIncomeSheet'
 import { StatementImportSheet } from './StatementImportSheet'
 import { AddLoanSheet } from './AddLoanSheet'
-import { IncomeSheet, LoanSheet } from './ManageSheets'
+import { IncomeSheet } from './ManageSheets'
+import { LoanDetailPage } from './LoanDetailPage'
 
 const INCOME_COLOR = 'var(--color-positive)'
 
@@ -66,7 +67,9 @@ export function AllDataScreen() {
   const [search, setSearch] = useState('')
   const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null)
   const [selectedIncome, setSelectedIncome] = useState<Income | null>(null)
-  const [selectedLoan, setSelectedLoan] = useState<Loan | null>(null)
+  const [selectedLoanId, setSelectedLoanId] = useState<string | null>(null)
+  const selectedLoan = (loans ?? []).find((l) => l.id === selectedLoanId) ?? null
+  const setSelectedLoan = (loan: Loan | null) => setSelectedLoanId(loan?.id ?? null)
   const [addingIncome, setAddingIncome] = useState(false)
   const [addingLoan, setAddingLoan] = useState(false)
   const [importing, setImporting] = useState(false)
@@ -205,7 +208,8 @@ export function AllDataScreen() {
         />
 
         <div className="min-w-0 flex-1">
-          {section === 'overview' && (
+          {selectedLoan && <LoanDetailPage loan={selectedLoan} onBack={() => setSelectedLoan(null)} />}
+          {!selectedLoan && section === 'overview' && (
             <>
               {plan && settings && budgets && (
                 <div className="grid gap-5 lg:gap-6 md:grid-cols-2 items-start mb-6">
@@ -251,17 +255,17 @@ export function AllDataScreen() {
             </>
           )}
 
-          {section === 'budgets' && <BudgetsView month={month} />}
+          {!selectedLoan && section === 'budgets' && <BudgetsView month={month} />}
 
-          {section === 'reimbursements' && (
+          {!selectedLoan && section === 'reimbursements' && (
             <div className="max-w-[720px]">
               <ReimbursementCard expenses={expenses} categories={categories ?? []} />
             </div>
           )}
 
-          {section === 'stewardship' && <StewardshipView month={month} />}
+          {!selectedLoan && section === 'stewardship' && <StewardshipView month={month} />}
 
-          {(section === 'transactions' || section === 'income' || section === 'expenses') && (
+          {!selectedLoan && (section === 'transactions' || section === 'income' || section === 'expenses') && (
             <TransactionsPanel
               title={section === 'income' ? 'Income' : section === 'expenses' ? 'Expenses' : 'Transactions'}
               rows={rows}
@@ -275,11 +279,11 @@ export function AllDataScreen() {
             />
           )}
 
-          {section === 'loans' && (
+          {!selectedLoan && section === 'loans' && (
             <LoansPanel loans={loans} onAdd={() => setAddingLoan(true)} onSelect={setSelectedLoan} />
           )}
 
-          {section === 'accounts' && (
+          {!selectedLoan && section === 'accounts' && (
             <AccountsPanel
               summaries={accountSummaries}
               unassignedSpend={unassignedSpend}
@@ -296,7 +300,6 @@ export function AllDataScreen() {
         onClose={() => setSelectedExpense(null)}
       />
       <IncomeSheet income={selectedIncome} onClose={() => setSelectedIncome(null)} />
-      <LoanSheet loan={selectedLoan} onClose={() => setSelectedLoan(null)} />
       <AddIncomeSheet
         open={addingIncome}
         onClose={() => setAddingIncome(false)}

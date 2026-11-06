@@ -1,13 +1,13 @@
 import { supabase } from '../lib/supabaseClient'
-import { addMonths, format, parseISO } from 'date-fns'
 import { planCategories, type PlanParent } from '../lib/categoryPlan'
-import { loanStats } from '../lib/loanMath'
+import { buildSchedule } from '../lib/loanMath'
 import {
   OVERALL_BUDGET_ID,
   type AppSettings,
   type Category,
   type Expense,
   type Income,
+  type Installment,
   type Loan,
   type PaymentAccount,
   type Reflection,
@@ -299,7 +299,7 @@ export const incomeRepo = {
   },
 }
 
-const NEW_LOAN_COLUMNS = ['interest_rate', 'tenure_months', 'emis_paid'] as const
+const NEW_LOAN_COLUMNS = ['interest_rate', 'tenure_months', 'emis_paid', 'schedule'] as const
 
 function withoutLoanColumns(row: Record<string, unknown>) {
   const copy = { ...row }
@@ -307,11 +307,11 @@ function withoutLoanColumns(row: Record<string, unknown>) {
   return copy
 }
 
-export type LoanInput = Pick<Loan, 'name' | 'kind' | 'principal' | 'paid' | 'emi' | 'interestRate' | 'tenureMonths' | 'emisPaid' | 'nextDueDate'>
+export type LoanInput = Pick<Loan, 'name' | 'kind' | 'principal' | 'paid' | 'emi' | 'interestRate' | 'tenureMonths' | 'emisPaid' | 'nextDueDate'> & { schedule?: Installment[] | null }
 
 export const loanRepo = {
   async add(input: LoanInput) {
-    const row = loanToRow({ ...input, id: generateId(), closed: false })
+    const row = loanToRow({ ...input, schedule: input.schedule ?? undefined, id: generateId(), closed: false })
     let { data, error } = await supabase.from('loans').insert(row).select().single<LoanRow>()
     if (isMissingColumn(error)) ({ data, error } = await supabase.from('loans').insert(withoutLoanColumns(row)).select().single<LoanRow>())
     if (error || !data) throw error
@@ -320,7 +320,7 @@ export const loanRepo = {
 
   /** Saves new details for a loan (amount, rate, EMIs paid…). */
   async update(loan: Loan, changes: Partial<LoanInput>) {
-    const next = { ...loan, ...changes }
+    const next = { ...loan, ...changes, schedule: 'schedule' in changes ? changes.schedule ?? undefined : loan.schedule }
     const row = loanToRow(next)
     delete row.id
     let { error } = await supabase.from('loans').update(row).eq('id', loan.id)
@@ -328,18 +328,43 @@ export const loanRepo = {
     if (error) throw error
   },
 
-  /** Records one paid EMI: moves the due date on a month and keeps "paid so far" in step. */
-  async recordEmi(loan: Loan) {
-    const emisPaid = loan.emisPaid + 1
-    const stats = loanStats({ ...loan, emisPaid })
-    const paid = stats.principalPaid
-    const closed = stats.outstanding <= 0.005
+  /**
+   * Saves a repayment schedule and keeps everything that follows from it in step: how many EMIs are paid,
+   * the principal repaid so far, the next due date, and whether the loan is closed.
+   */
+  async saveSchedule(loan: Loan, rows: Installment[], extra: Partial<LoanInput> = {}) {
+    const principal = extra.principal ?? loan.principal
+    const paidRows = rows.filter((r) => r.paid)
+    const nextUnpaid = rows.find((r) => !r.paid)
+    const principalPaid = Math.min(principal, paidRows.reduce((sum, r) => sum + r.principal, 0))
     await this.update(loan, {
-      emisPaid,
-      paid,
-      nextDueDate: loan.nextDueDate ? format(addMonths(parseISO(loan.nextDueDate), 1), 'yyyy-MM-dd') : undefined,
+      ...extra,
+      schedule: rows,
+      emisPaid: paidRows.length,
+      paid: Math.round(principalPaid * 100) / 100,
+      nextDueDate: nextUnpaid?.date ?? loan.nextDueDate,
     })
-    if (closed) await supabase.from('loans').update({ closed: true }).eq('id', loan.id)
+    const closed = rows.length > 0 && !nextUnpaid
+    if (closed !== loan.closed) await supabase.from('loans').update({ closed }).eq('id', loan.id)
+  },
+
+  /** Ticks (or un-ticks) one instalment. */
+  async setInstallmentPaid(loan: Loan, n: number, paid: boolean) {
+    const rows = buildSchedule(loan).map((r) => (r.n === n ? { ...r, paid } : r))
+    await this.saveSchedule(loan, rows)
+  },
+
+  /** Records the next unpaid instalment as paid. */
+  async recordEmi(loan: Loan) {
+    const rows = buildSchedule(loan)
+    const next = rows.find((r) => !r.paid)
+    if (next) await this.setInstallmentPaid(loan, next.n, true)
+  },
+
+  /** Goes back to a schedule worked out from the loan's numbers (rate, EMI, EMIs paid). */
+  async recalculateSchedule(loan: Loan) {
+    const paidCount = buildSchedule(loan).filter((r) => r.paid).length
+    await this.update(loan, { schedule: null, emisPaid: paidCount })
   },
 
   /** Records a repayment; closes the loan once the principal is fully paid. */

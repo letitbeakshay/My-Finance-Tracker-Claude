@@ -117,6 +117,7 @@ create table if not exists loans (
 alter table loans add column if not exists interest_rate numeric;
 alter table loans add column if not exists tenure_months integer;
 alter table loans add column if not exists emis_paid integer not null default 0;
+alter table loans add column if not exists schedule jsonb;
 
 -- Stewardship plan (giving / saving targets, large-purchase pause).
 alter table app_settings add column if not exists giving_percent numeric not null default 10;

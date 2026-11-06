@@ -100,6 +100,7 @@ export function AddLoanSheet({ open, onClose, loan }: AddLoanSheetProps) {
         tenureMonths: draft.tenureMonths,
         emisPaid: K,
         nextDueDate: draft.nextDueDate,
+        schedule: null,
       }
       if (loan) await loanRepo.update(loan, input)
       else await loanRepo.add(input)
@@ -145,6 +146,12 @@ export function AddLoanSheet({ open, onClose, loan }: AddLoanSheetProps) {
           <input type="date" value={nextDueDate} onChange={(e) => setNextDueDate(e.target.value)} className={FIELD} />
         </Labelled>
       </div>
+
+      {loan?.schedule && (
+        <p className="text-warning text-[13px] mb-4 leading-relaxed">
+          This loan uses your lender’s uploaded schedule. Saving here replaces it with one calculated from these numbers.
+        </p>
+      )}
 
       {P > 0 && (
         <div className="rounded-2xl bg-card border border-border p-4 mb-5">

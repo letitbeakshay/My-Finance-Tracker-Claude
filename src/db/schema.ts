@@ -2,6 +2,7 @@ import type {
   Category,
   Budget,
   BudgetItem,
+  Installment,
   Expense,
   ExpenseType,
   Income,
@@ -231,6 +232,7 @@ export interface LoanRow {
   interest_rate?: number | null
   tenure_months?: number | null
   emis_paid?: number | null
+  schedule?: Installment[] | null
   next_due_date: string | null
   notes: string | null
   closed: boolean
@@ -273,6 +275,7 @@ export function rowToLoan(row: LoanRow): Loan {
     interestRate: row.interest_rate == null ? undefined : Number(row.interest_rate),
     tenureMonths: row.tenure_months == null ? undefined : Number(row.tenure_months),
     emisPaid: Number(row.emis_paid ?? 0),
+    schedule: row.schedule?.length ? row.schedule : undefined,
     nextDueDate: row.next_due_date ?? undefined,
     notes: row.notes ?? undefined,
     closed: row.closed,
@@ -291,6 +294,7 @@ export function loanToRow(loan: Omit<Loan, 'createdAt'>): Partial<LoanRow> {
     interest_rate: loan.interestRate ?? null,
     tenure_months: loan.tenureMonths ?? null,
     emis_paid: loan.emisPaid,
+    schedule: loan.schedule ?? null,
     next_due_date: loan.nextDueDate ?? null,
     notes: loan.notes ?? null,
     closed: loan.closed,
