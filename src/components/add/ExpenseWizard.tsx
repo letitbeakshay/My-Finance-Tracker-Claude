@@ -9,7 +9,7 @@ import { PaymentMethodPicker } from './PaymentMethodPicker'
 import { PaymentAccountPicker } from './PaymentAccountPicker'
 import { SavingsPlanPicker } from '../savings/SavingsPlanPicker'
 import { lastAccountFor, rememberAccount } from '../../lib/lastAccount'
-import { SuccessAnimation } from './SuccessAnimation'
+import { SuccessAnimation, type Reflection } from './SuccessAnimation'
 import { CountTheCostSheet } from './CountTheCostSheet'
 import { PleasesGodPicker } from './PleasesGodPicker'
 import type { AddExpensePreset } from './AddExpenseScreen'
@@ -79,6 +79,7 @@ export function ExpenseWizard({ onDone, onCancel, preset }: ExpenseWizardProps) 
   const [savingsPlanId, setSavingsPlanId] = useState<string | null>(() => lastAccountFor('savings_plan'))
   const [saving, setSaving] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
+  const [reflection, setReflection] = useState<Reflection | undefined>()
   const [pausing, setPausing] = useState(false)
 
   const numericAmount = parseFloat(amount) || 0
@@ -148,6 +149,24 @@ export function ExpenseWizard({ onDone, onCancel, preset }: ExpenseWizardProps) 
     })
     rememberAccount(paymentMethod, accountId)
     if (type === 'savings') rememberAccount('savings_plan', savingsPlanId)
+    // What to say now: encouragement when it pleased God, a gentle nudge when it did not.
+    if (pleasesGod !== null && type) {
+      const plan = type === 'savings' ? savingsPlans?.find((p) => p.id === savingsPlanId) : undefined
+      const before = plan ? plan.opening + (expenses ?? []).filter((e) => e.savingsPlanId === plan.id).reduce((s, e) => s + e.amount, 0) : 0
+      const target = (savingsPlans ?? []).filter((p) => !p.closed && p.target).sort((a, b) => (b.monthly ?? 0) - (a.monthly ?? 0))[0]
+      const targetSaved = target ? target.opening + (expenses ?? []).filter((e) => e.savingsPlanId === target.id).reduce((s, e) => s + e.amount, 0) : 0
+      setReflection({
+        pleasesGod,
+        type,
+        plan: plan ? { name: plan.name, saved: before + numericAmount, target: plan.target } : undefined,
+        couldHaveSaved:
+          !pleasesGod && target
+            ? { name: target.name, pctAfter: target.target ? Math.min(100, Math.round(((targetSaved + numericAmount) / target.target) * 100)) : undefined }
+            : undefined,
+      })
+      setShowSuccess(true)
+      return
+    }
     setShowSuccess(true)
     setTimeout(onDone, 900)
   }
@@ -399,7 +418,7 @@ export function ExpenseWizard({ onDone, onCancel, preset }: ExpenseWizardProps) 
         />
       )}
 
-      <AnimatePresence>{showSuccess && <SuccessAnimation amount={numericAmount} />}</AnimatePresence>
+      <AnimatePresence>{showSuccess && <SuccessAnimation amount={numericAmount} reflection={reflection} onContinue={onDone} />}</AnimatePresence>
     </div>
   )
 }
