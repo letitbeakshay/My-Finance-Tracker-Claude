@@ -47,7 +47,7 @@ export const DEMO_TABLES: Record<string, unknown[]> = {
   expenses: EXPENSES.map(([id, amount, category_id, type, payment_method, account_id, notes, ago, pleases_god]) => ({
     id, amount, category_id, type, payment_method, account_id, notes, date: d(ago),
     created_at: now, updated_at: now, recurring_id: null, wallet_id: null, source: 'manual', attachment_id: null,
-    pleases_god, reimbursed: id === 'e10',
+    pleases_god, reimbursed: id === 'e10', savings_plan_id: id === 'e11' ? 'sp1' : null,
   })),
   incomes: [
     { id: 'i1', amount: 85000, source: 'Salary', account_id: 'acc2', notes: 'Monthly salary', date: d(3), created_at: now },
@@ -65,6 +65,10 @@ export const DEMO_TABLES: Record<string, unknown[]> = {
     { id: 'shopping', category_id: 'shopping', monthly_limit: 5500, created_at: now },
     { id: 'fuel', category_id: 'fuel', monthly_limit: 3000, created_at: now },
     { id: 'family-support', category_id: 'family-support', monthly_limit: 30000, created_at: now },
+  ],
+  savings_plans: [
+    { id: 'sp1', name: 'Emergency fund', kind: 'emergency', institution: null, account_id: 'acc2', target: 300000, monthly: 10000, opening: 60000, interest_rate: 3, start_date: null, maturity_date: null, notes: null, closed: false, sort_order: 0, created_at: now },
+    { id: 'sp2', name: 'Home RD', kind: 'rd', institution: 'Post Office', account_id: null, target: 120000, monthly: 5000, opening: 20000, interest_rate: 6.7, start_date: d(200), maturity_date: d(-160), notes: null, closed: false, sort_order: 1, created_at: now },
   ],
   budget_items: [
     { id: 'bi1', name: 'PNB EMI', amount: 12000, category_id: null, sort_order: 0, created_at: now },

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import { effectiveBudgets } from '../lib/budgets'
-import type { AppSettings, Budget, BudgetItem, Category, Expense, Income, Loan, PaymentAccount, Reflection } from '../types'
+import type { AppSettings, Budget, BudgetItem, SavingsPlan, Category, Expense, Income, Loan, PaymentAccount, Reflection } from '../types'
 import {
   rowToBudget,
   rowToBudgetItem,
@@ -9,6 +9,8 @@ import {
   rowToExpense,
   rowToIncome,
   rowToLoan,
+  rowToSavingsPlan,
+  type SavingsPlanRow,
   rowToReflection,
   rowToPaymentAccount,
   type AppSettingsRow,
@@ -159,4 +161,10 @@ export function useSettings() {
     pauseThreshold: Number(row.pause_threshold ?? 2000),
   }), (q) => q.select('*').eq('id', 'app'))
   return rows?.[0]
+}
+
+export function useSavingsPlans() {
+  return useSupabaseTable<SavingsPlanRow, SavingsPlan>('savings_plans', rowToSavingsPlan, (q) =>
+    q.select('*').order('sort_order', { ascending: true }),
+  )
 }

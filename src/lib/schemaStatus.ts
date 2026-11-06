@@ -29,6 +29,10 @@ const PROBES: Probe[] = [
     run: () => supabase.from('budget_items').select('id').limit(1),
   },
   {
+    label: 'Savings plans',
+    run: () => supabase.from('savings_plans').select('id').limit(1),
+  },
+  {
     label: 'Sub-categories and the "pleases God" answer',
     run: async () => {
       const a = await supabase.from('categories').select('parent_id, reimbursable, default_type').limit(1)

@@ -17,6 +17,7 @@ import {
   LayoutDashboard,
   Lightbulb,
   Package,
+  PiggyBank,
   Pill,
   Plane,
   ShoppingBag,
@@ -78,6 +79,7 @@ export const SECTION_ICONS = {
   transactions: ArrowLeftRight,
   income: ArrowDownLeft,
   expenses: ArrowUpRight,
+  savings: PiggyBank,
   loans: Landmark,
   accounts: CreditCard,
 } as const

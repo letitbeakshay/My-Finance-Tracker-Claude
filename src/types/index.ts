@@ -72,6 +72,8 @@ export interface Expense {
   pleasesGod?: boolean
   /** For reimbursable categories: has the money been paid back yet? */
   reimbursed?: boolean
+  /** For savings: which savings plan this money went into. */
+  savingsPlanId?: string
   /** The bank's own reference number when imported from a statement; used to spot duplicates. */
   bankRef?: string
   date: string // ISO date (yyyy-MM-dd), the "spent on" date
@@ -87,6 +89,31 @@ export interface Expense {
   source?: 'manual' | 'sms' | 'ocr' | 'bank_sync'
   /** Arbitrary receipt/attachment reference for future OCR support. */
   attachmentId?: string
+}
+
+export type SavingsKind = 'fd' | 'rd' | 'sip' | 'ppf' | 'gold' | 'chit' | 'emergency' | 'account' | 'other'
+
+/** A place your savings go: an FD, an RD, a mutual fund SIP, an emergency fund… with a target to reach. */
+export interface SavingsPlan {
+  id: string
+  name: string
+  kind: SavingsKind
+  /** Where it is kept: a bank, a post office, a fund house, a chit group… */
+  institution?: string
+  /** The bank account it is linked to, when it is one of your tracked accounts. */
+  accountId?: string
+  /** The amount you want to reach. */
+  target?: number
+  /** What you plan to put in every month. */
+  monthly?: number
+  /** What was already saved here before you started tracking. */
+  opening: number
+  interestRate?: number
+  startDate?: string // ISO date
+  maturityDate?: string // ISO date
+  notes?: string
+  closed: boolean
+  createdAt: number
 }
 
 export interface Income {

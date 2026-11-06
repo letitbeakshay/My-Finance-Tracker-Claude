@@ -3,6 +3,8 @@ import type {
   Budget,
   BudgetItem,
   Installment,
+  SavingsKind,
+  SavingsPlan,
   Expense,
   ExpenseType,
   Income,
@@ -34,6 +36,7 @@ export interface ExpenseRow {
   pleases_god?: boolean | null
   bank_ref?: string | null
   reimbursed?: boolean | null
+  savings_plan_id?: string | null
 }
 
 export interface CategoryRow {
@@ -113,6 +116,7 @@ export function rowToExpense(row: ExpenseRow): Expense {
     source: (row.source as Expense['source']) ?? 'manual',
     attachmentId: row.attachment_id ?? undefined,
     pleasesGod: row.pleases_god ?? undefined,
+    savingsPlanId: row.savings_plan_id ?? undefined,
     bankRef: row.bank_ref ?? undefined,
     reimbursed: row.reimbursed ?? false,
   }
@@ -137,6 +141,7 @@ export function expenseToRow(
     // Only sent when set, so older databases (without these columns) keep working.
     ...(expense.pleasesGod !== undefined ? { pleases_god: expense.pleasesGod } : {}),
     ...(expense.bankRef ? { bank_ref: expense.bankRef } : {}),
+    ...('savingsPlanId' in expense ? { savings_plan_id: expense.savingsPlanId ?? null } : {}),
     ...(expense.reimbursed !== undefined ? { reimbursed: expense.reimbursed } : {}),
   }
 }
@@ -336,5 +341,60 @@ export function rowToBudgetItem(row: BudgetItemRow): BudgetItem {
     categoryIds: row.category_ids?.length ? row.category_ids : row.category_id ? [row.category_id] : [],
     sortOrder: row.sort_order,
     createdAt: new Date(row.created_at).getTime(),
+  }
+}
+
+export interface SavingsPlanRow {
+  id: string
+  name: string
+  kind: SavingsKind
+  institution: string | null
+  account_id: string | null
+  target: number | null
+  monthly: number | null
+  opening: number
+  interest_rate: number | null
+  start_date: string | null
+  maturity_date: string | null
+  notes: string | null
+  closed: boolean
+  sort_order: number
+  created_at: string
+}
+
+export function rowToSavingsPlan(row: SavingsPlanRow): SavingsPlan {
+  return {
+    id: row.id,
+    name: row.name,
+    kind: row.kind,
+    institution: row.institution ?? undefined,
+    accountId: row.account_id ?? undefined,
+    target: row.target == null ? undefined : Number(row.target),
+    monthly: row.monthly == null ? undefined : Number(row.monthly),
+    opening: Number(row.opening ?? 0),
+    interestRate: row.interest_rate == null ? undefined : Number(row.interest_rate),
+    startDate: row.start_date ?? undefined,
+    maturityDate: row.maturity_date ?? undefined,
+    notes: row.notes ?? undefined,
+    closed: row.closed,
+    createdAt: new Date(row.created_at).getTime(),
+  }
+}
+
+export function savingsPlanToRow(plan: Omit<SavingsPlan, 'createdAt'>): Partial<SavingsPlanRow> {
+  return {
+    id: plan.id,
+    name: plan.name,
+    kind: plan.kind,
+    institution: plan.institution ?? null,
+    account_id: plan.accountId ?? null,
+    target: plan.target ?? null,
+    monthly: plan.monthly ?? null,
+    opening: plan.opening,
+    interest_rate: plan.interestRate ?? null,
+    start_date: plan.startDate ?? null,
+    maturity_date: plan.maturityDate ?? null,
+    notes: plan.notes ?? null,
+    closed: plan.closed,
   }
 }

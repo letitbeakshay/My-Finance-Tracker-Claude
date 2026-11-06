@@ -228,6 +228,50 @@ begin
   end if;
 end $$;
 
+-- Savings plans: FD, RD, SIP, emergency fund… with a target, and where each is kept.
+create table if not exists savings_plans (
+  id text primary key,
+  name text not null,
+  kind text not null default 'other',
+  institution text,
+  account_id text references payment_accounts(id) on delete set null,
+  target numeric,
+  monthly numeric,
+  opening numeric not null default 0,
+  interest_rate numeric,
+  start_date date,
+  maturity_date date,
+  notes text,
+  closed boolean not null default false,
+  sort_order integer not null default 0,
+  created_at timestamptz not null default now()
+);
+
+alter table savings_plans enable row level security;
+drop policy if exists "savings_plans_allow_all" on savings_plans;
+create policy "savings_plans_allow_all" on savings_plans for all using (true) with check (true);
+
+alter table expenses add column if not exists savings_plan_id text references savings_plans(id) on delete set null;
+
+do $$
+begin
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'savings_plans'
+  ) then
+    alter publication supabase_realtime add table savings_plans;
+  end if;
+end $$;
+
+do $$
+begin
+  if to_regproc('archive_row') is not null then
+    drop trigger if exists archive_savings_plans on savings_plans;
+    create trigger archive_savings_plans before update or delete on savings_plans
+      for each row execute function archive_row();
+  end if;
+end $$;
+
 alter table incomes enable row level security;
 alter table loans enable row level security;
 alter table reflections enable row level security;

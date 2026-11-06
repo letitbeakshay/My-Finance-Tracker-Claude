@@ -36,6 +36,7 @@ import { LoansPanel } from './LoansPanel'
 import { AccountsPanel, type AccountSummary } from './AccountsPanel'
 import { SectionNav, type Section } from './SectionNav'
 import { AddIncomeSheet } from './AddIncomeSheet'
+import { SavingsView } from '../savings/SavingsView'
 import { StatementImportSheet } from './StatementImportSheet'
 import { AddLoanSheet } from './AddLoanSheet'
 import { IncomeSheet } from './ManageSheets'
@@ -255,6 +256,7 @@ export function AllDataScreen() {
             </>
           )}
 
+          {!selectedLoan && section === 'savings' && <SavingsView month={month} />}
           {!selectedLoan && section === 'budgets' && <BudgetsView month={month} />}
 
           {!selectedLoan && section === 'reimbursements' && (

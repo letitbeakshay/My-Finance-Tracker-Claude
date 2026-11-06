@@ -12,6 +12,7 @@ import {
   type Loan,
   type PaymentAccount,
   type Reflection,
+  type SavingsPlan,
 } from '../types'
 import {
   categoryToRow,
@@ -22,6 +23,9 @@ import {
   rowToCategory,
   rowToExpense,
   rowToIncome,
+  rowToSavingsPlan,
+  savingsPlanToRow,
+  type SavingsPlanRow,
   rowToLoan,
   rowToPaymentAccount,
   type CategoryRow,
@@ -40,7 +44,7 @@ function isMissingColumn(error: { code?: string } | null) {
   return error?.code === 'PGRST204' || error?.code === '42703'
 }
 
-const NEW_EXPENSE_COLUMNS = ['pleases_god', 'reimbursed', 'bank_ref'] as const
+const NEW_EXPENSE_COLUMNS = ['pleases_god', 'reimbursed', 'bank_ref', 'savings_plan_id'] as const
 
 function withoutNewColumns<T extends Record<string, unknown>>(row: T) {
   const copy: Record<string, unknown> = { ...row }
@@ -504,6 +508,29 @@ export const budgetItemRepo = {
   },
 }
 
+export const savingsPlanRepo = {
+  async add(input: Omit<SavingsPlan, 'id' | 'createdAt' | 'closed'>) {
+    const { data: last } = await supabase.from('savings_plans').select('sort_order').order('sort_order', { ascending: false }).limit(1).maybeSingle<{ sort_order: number }>()
+    const row = { ...savingsPlanToRow({ ...input, id: generateId(), closed: false }), sort_order: (last?.sort_order ?? -1) + 1 }
+    const { data, error } = await supabase.from('savings_plans').insert(row).select().single<SavingsPlanRow>()
+    if (error || !data) throw error
+    return rowToSavingsPlan(data)
+  },
+
+  async update(plan: SavingsPlan, changes: Partial<Omit<SavingsPlan, 'id' | 'createdAt'>>) {
+    const row = savingsPlanToRow({ ...plan, ...changes })
+    delete row.id
+    const { error } = await supabase.from('savings_plans').update(row).eq('id', plan.id)
+    if (error) throw error
+  },
+
+  /** Deleting a plan keeps every expense; they just stop pointing at it. */
+  async remove(id: string) {
+    const { error } = await supabase.from('savings_plans').delete().eq('id', id)
+    if (error) throw error
+  },
+}
+
 export const dataRepo = {
   /** A full backup of everything entered, including incomes, loans, budgets and reflections. */
   async exportJSON() {
@@ -516,6 +543,7 @@ export const dataRepo = {
       'loans',
       'budgets',
       'budget_items',
+      'savings_plans',
       'reflections',
     ] as const
     const results = await Promise.all(tables.map((t) => supabase.from(t).select('*')))

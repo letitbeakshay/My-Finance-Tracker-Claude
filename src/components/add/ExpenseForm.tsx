@@ -4,6 +4,7 @@ import { AmountInput } from './AmountInput'
 import { CategoryPicker } from './CategoryPicker'
 import { PaymentMethodPicker } from './PaymentMethodPicker'
 import { PaymentAccountPicker } from './PaymentAccountPicker'
+import { SavingsPlanPicker } from '../savings/SavingsPlanPicker'
 import { SegmentedControl } from '../ui/SegmentedControl'
 import { Button } from '../ui/Button'
 import { PleasesGodPicker } from './PleasesGodPicker'
@@ -37,6 +38,7 @@ export function ExpenseForm({ onDone, onCancel, editExpense }: ExpenseFormProps)
     editExpense.paymentMethod,
   )
   const [accountId, setAccountId] = useState<string | null>(editExpense.accountId ?? null)
+  const [savingsPlanId, setSavingsPlanId] = useState<string | null>(editExpense.savingsPlanId ?? null)
   const [notes, setNotes] = useState(editExpense.notes ?? '')
   const [pleasesGod, setPleasesGod] = useState<boolean | null>(editExpense.pleasesGod ?? null)
   const [date, setDate] = useState(editExpense.date)
@@ -70,6 +72,7 @@ export function ExpenseForm({ onDone, onCancel, editExpense }: ExpenseFormProps)
       type,
       paymentMethod,
       accountId: accountId ?? undefined,
+      savingsPlanId: type === 'savings' ? savingsPlanId ?? undefined : undefined,
       notes: notes.trim() || undefined,
       date,
       ...(pleasesGod !== null ? { pleasesGod } : {}),
@@ -117,6 +120,13 @@ export function ExpenseForm({ onDone, onCancel, editExpense }: ExpenseFormProps)
           </p>
           <SegmentedControl options={TYPE_OPTIONS} value={type} onChange={setType} />
         </div>
+
+        {type === 'savings' && (
+          <div className="mb-7">
+            <p className="text-secondary text-[13px] font-medium mb-2.5 uppercase tracking-wide">Savings plan</p>
+            <SavingsPlanPicker value={savingsPlanId} onChange={setSavingsPlanId} />
+          </div>
+        )}
 
         <div className="mb-7">
           <p className="text-secondary text-[13px] font-medium mb-2.5 uppercase tracking-wide">

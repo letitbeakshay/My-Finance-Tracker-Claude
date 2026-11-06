@@ -7,6 +7,7 @@ import { AmountInput } from './AmountInput'
 import { CategoryPicker } from './CategoryPicker'
 import { PaymentMethodPicker } from './PaymentMethodPicker'
 import { PaymentAccountPicker } from './PaymentAccountPicker'
+import { SavingsPlanPicker } from '../savings/SavingsPlanPicker'
 import { lastAccountFor, rememberAccount } from '../../lib/lastAccount'
 import { SuccessAnimation } from './SuccessAnimation'
 import { CountTheCostSheet } from './CountTheCostSheet'
@@ -18,6 +19,7 @@ import {
   useCategories,
   useExpenses,
   usePaymentAccounts,
+  useSavingsPlans,
   useSettings,
 } from '../../hooks/useLiveData'
 import { expenseRepo } from '../../db/repository'
@@ -55,6 +57,7 @@ interface ExpenseWizardProps {
 export function ExpenseWizard({ onDone, onCancel, preset }: ExpenseWizardProps) {
   const categories = useCategories()
   const accounts = usePaymentAccounts()
+  const savingsPlans = useSavingsPlans()
   const settings = useSettings()
   const budgets = useEffectiveBudgets()
   const expenses = useExpenses()
@@ -73,6 +76,7 @@ export function ExpenseWizard({ onDone, onCancel, preset }: ExpenseWizardProps) 
   const [pleasesGod, setPleasesGod] = useState<boolean | null>(preset?.type === 'giving' ? true : null)
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('upi')
   const [accountId, setAccountId] = useState<string | null>(null)
+  const [savingsPlanId, setSavingsPlanId] = useState<string | null>(() => lastAccountFor('savings_plan'))
   const [saving, setSaving] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
   const [pausing, setPausing] = useState(false)
@@ -140,8 +144,10 @@ export function ExpenseWizard({ onDone, onCancel, preset }: ExpenseWizardProps) 
       notes: notes.trim() || undefined,
       date,
       pleasesGod: pleasesGod ?? undefined,
+      savingsPlanId: type === 'savings' && savingsPlans?.some((p) => p.id === savingsPlanId) ? savingsPlanId ?? undefined : undefined,
     })
     rememberAccount(paymentMethod, accountId)
+    if (type === 'savings') rememberAccount('savings_plan', savingsPlanId)
     setShowSuccess(true)
     setTimeout(onDone, 900)
   }
@@ -334,6 +340,13 @@ export function ExpenseWizard({ onDone, onCancel, preset }: ExpenseWizardProps) 
                     </span>
                   )}
                 </div>
+
+                {type === 'savings' && (
+                  <div className="mb-6">
+                    <p className={LABEL}>Which savings plan?</p>
+                    <SavingsPlanPicker value={savingsPlanId} onChange={setSavingsPlanId} />
+                  </div>
+                )}
 
                 <p className={LABEL}>How did you pay?</p>
                 <div className="mb-6">
