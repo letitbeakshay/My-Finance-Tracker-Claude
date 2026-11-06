@@ -337,7 +337,7 @@ export function ExpenseWizard({ onDone, onCancel, preset }: ExpenseWizardProps) 
 
                 <p className={LABEL}>How did you pay?</p>
                 <div className="mb-6">
-                  <PaymentMethodPicker value={paymentMethod} onChange={setPaymentMethod} />
+                  <PaymentMethodPicker big value={paymentMethod} onChange={setPaymentMethod} />
                 </div>
 
                 {accountType && accounts && (
@@ -347,6 +347,7 @@ export function ExpenseWizard({ onDone, onCancel, preset }: ExpenseWizardProps) 
                     </p>
                     <PaymentAccountPicker
                       accounts={accounts}
+                      big
                       accountType={accountType}
                       value={accountId}
                       onChange={setAccountId}
