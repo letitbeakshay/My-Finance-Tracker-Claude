@@ -8,7 +8,7 @@ import { CategoryPicker } from './CategoryPicker'
 import { PaymentMethodPicker } from './PaymentMethodPicker'
 import { PaymentAccountPicker } from './PaymentAccountPicker'
 import { SavingsPlanPicker } from '../savings/SavingsPlanPicker'
-import { lastAccountFor, rememberAccount } from '../../lib/lastAccount'
+import { lastAccountFor, mostUsedAccountFor, rememberAccount } from '../../lib/lastAccount'
 import { SuccessAnimation, type Reflection } from './SuccessAnimation'
 import { CountTheCostSheet } from './CountTheCostSheet'
 import { PleasesGodPicker } from './PleasesGodPicker'
@@ -90,24 +90,34 @@ export function ExpenseWizard({ onDone, onCancel, preset }: ExpenseWizardProps) 
   const reimbursable = useMemo(() => reimbursableIds(categories ?? []), [categories])
   const suggested = suggestedType(category, categoryById)
 
+  // The account to start with for a payment method: the one used most often (your usual bank for UPI), else the last one used.
+  const defaultAccount = (method: PaymentMethod) => {
+    const type = PAYMENT_METHOD_ACCOUNT_TYPE[method]
+    const fitting = (accounts ?? []).filter((a) => !a.archived && (!type || a.type === type || (type === 'debit_card' && a.type === 'bank_account')))
+    const ids = new Set(fitting.map((a) => a.id))
+    const usual = mostUsedAccountFor(method, expenses ?? [], ids)
+    if (usual) return usual
+    const last = lastAccountFor(method)
+    return last && ids.has(last) ? last : null
+  }
+
   const isFirstRender = useRef(true)
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false
       return
     }
-    // A different payment method means any picked card/account may no longer apply; start from the one used last time.
-    const last = lastAccountFor(paymentMethod)
-    setAccountId(last && accounts?.some((a) => a.id === last) ? last : null)
+    // A different payment method means any picked card/account may no longer apply; start from the one you use most.
+    setAccountId(defaultAccount(paymentMethod))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [paymentMethod])
 
   // Once the accounts have loaded, start with the one used last for this payment method.
   useEffect(() => {
-    const last = lastAccountFor(paymentMethod)
-    if (last && accounts?.some((a) => a.id === last)) setAccountId((cur) => cur ?? last)
+    const usual = defaultAccount(paymentMethod)
+    if (usual) setAccountId((cur) => cur ?? usual)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [accounts])
+  }, [accounts, expenses])
 
   // Budget progress for the month of the expense being added.
   const budgetLines = useMemo(() => {
