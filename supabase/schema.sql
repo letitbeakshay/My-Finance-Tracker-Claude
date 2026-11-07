@@ -203,6 +203,12 @@ create table if not exists budget_items (
 
 alter table budget_items add column if not exists category_ids text[] not null default '{}';
 
+-- A plan line either repeats every month or belongs to one month only.
+alter table budget_items add column if not exists recurring boolean not null default true;
+alter table budget_items add column if not exists start_month text;
+alter table budget_items add column if not exists end_month text;
+update budget_items set start_month = to_char(created_at, 'YYYY-MM') where start_month is null;
+
 alter table budget_items enable row level security;
 drop policy if exists "budget_items_allow_all" on budget_items;
 create policy "budget_items_allow_all" on budget_items for all using (true) with check (true);

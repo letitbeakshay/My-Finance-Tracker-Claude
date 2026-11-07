@@ -55,12 +55,14 @@ export function AllDataScreen() {
   const incomes = useIncomes()
   const loans = useLoans()
   const settings = useSettings()
-  const budgets = useEffectiveBudgets()
 
   const [month, setMonth] = useState(() => new Date())
+  const budgets = useEffectiveBudgets(month)
   // Reopening (or a phone reloading the app) puts you back on the same Dashboard section.
   const [section, setSectionState] = useState<Section>(() => (readSession()?.section as Section | undefined) ?? 'overview')
   const setSection = (next: Section) => {
+    // Future months are only for planning budgets; everywhere else go back to this month.
+    if (next !== 'budgets') setMonth((m) => (m > new Date() ? new Date() : m))
     setSectionState(next)
     writeSession({ section: next })
   }
@@ -174,7 +176,7 @@ export function AllDataScreen() {
     <div className="px-4 sm:px-6 lg:px-8 2xl:px-12 pt-3 pb-32 md:pb-16">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
         <div className="flex items-center justify-between gap-3">
-          <MonthNav month={month} onChange={setMonth} />
+          <MonthNav allowFuture={section === 'budgets'} month={month} onChange={setMonth} />
           <ThemeToggle className="md:hidden" />
         </div>
 

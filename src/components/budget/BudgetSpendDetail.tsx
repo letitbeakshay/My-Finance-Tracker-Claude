@@ -9,6 +9,7 @@ import { formatMonthLabel } from '../../lib/analytics'
 import { isSameMonth, parseISO as parse } from 'date-fns'
 import { BUDGET_STATUS_COLOR } from '../../lib/budgets'
 import { BudgetItemForm } from './BudgetItemForm'
+import { monthKey } from '../../lib/planMonth'
 import { CategoryLimitForm } from './CategoryLimitForm'
 import type { BudgetItem, Category } from '../../types'
 
@@ -129,6 +130,8 @@ export function BudgetSpendDetail({
           {target.item ? (
             <BudgetItemForm
               item={target.item}
+              month={monthKey(month)}
+              monthLabel={formatMonthLabel(month)}
               autoFocus={false}
               onSaved={(v) => {
                 const ids = v.categoryIds.filter((id) => !v.categoryIds.includes(byId.get(id)?.parentId ?? ''))
@@ -137,7 +140,7 @@ export function BudgetSpendDetail({
                   title: v.name,
                   limit: v.amount,
                   categoryIds: ids,
-                  item: { ...target.item!, name: v.name, amount: v.amount, categoryIds: v.categoryIds, categoryId: v.categoryIds[0] },
+                  item: { ...target.item!, name: v.name, amount: v.amount, categoryIds: v.categoryIds, categoryId: v.categoryIds[0], recurring: v.recurring },
                 })
               }}
               onDeleted={onBack}

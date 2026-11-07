@@ -59,7 +59,6 @@ export function ExpenseWizard({ onDone, onCancel, preset }: ExpenseWizardProps) 
   const accounts = usePaymentAccounts()
   const savingsPlans = useSavingsPlans()
   const settings = useSettings()
-  const budgets = useEffectiveBudgets()
   const expenses = useExpenses()
 
   const amountRef = useRef<HTMLInputElement>(null)
@@ -68,6 +67,8 @@ export function ExpenseWizard({ onDone, onCancel, preset }: ExpenseWizardProps) 
   const [amount, setAmount] = useState(preset?.amount ?? '')
   const [notes, setNotes] = useState('')
   const [date, setDate] = useState(format(new Date(), 'yyyy-MM-dd'))
+  // The limits that apply in the month of the expense being added.
+  const budgets = useEffectiveBudgets(parseISO(date))
   const [categoryId, setCategoryId] = useState<string | null>(preset?.categoryId ?? null)
   const [type, setType] = useState<ExpenseType | null>(preset?.type ?? null)
   // Once you choose a type yourself, picking another category no longer changes it.

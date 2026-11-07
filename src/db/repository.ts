@@ -2,9 +2,11 @@ import { supabase } from '../lib/supabaseClient'
 import { planCategories, type PlanParent } from '../lib/categoryPlan'
 import { buildSchedule } from '../lib/loanMath'
 import { REIMBURSEMENT_PREFIX } from '../lib/reimbursement'
+import { prevMonthKey } from '../lib/planMonth'
 import {
   OVERALL_BUDGET_ID,
   type AppSettings,
+  type BudgetItem,
   type Category,
   type Expense,
   type Income,
@@ -467,8 +469,18 @@ export const budgetRepo = {
   },
 }
 
+const NEW_ITEM_COLUMNS = ['recurring', 'start_month', 'end_month'] as const
+
+export interface PlanItemValues {
+  name: string
+  amount: number
+  categoryIds: string[]
+  recurring: boolean
+}
+
 export const budgetItemRepo = {
-  async add(input: { name: string; amount: number; categoryIds: string[] }) {
+  /** Adds a plan line that starts in `month` (yyyy-MM): every month from then on, or that month only. */
+  async add(input: PlanItemValues & { month: string }) {
     const { data: last } = await supabase
       .from('budget_items')
       .select('sort_order')
@@ -482,28 +494,56 @@ export const budgetItemRepo = {
       category_id: input.categoryIds[0] ?? null,
       sort_order: (last?.sort_order ?? -1) + 1,
     }
-    let { error } = await supabase.from('budget_items').insert({ ...base, category_ids: input.categoryIds })
-    // Database not updated yet for several categories: save with the first one only.
-    if (error && input.categoryIds.length <= 1) ({ error } = await supabase.from('budget_items').insert(base))
+    const full = { ...base, category_ids: input.categoryIds, recurring: input.recurring, start_month: input.month }
+    let { error } = await supabase.from('budget_items').insert(full)
+    if (error) {
+      // Database not updated yet: save the line anyway, without the month fields.
+      const { category_ids: _c, recurring: _r, start_month: _s, ...plain } = full
+      void _c; void _r; void _s
+      ;({ error } = await supabase.from('budget_items').insert(plain))
+    }
     if (error) throw error
   },
 
-  async update(id: string, changes: { name?: string; amount?: number; categoryIds?: string[] }) {
+  async updateRow(id: string, changes: Partial<PlanItemValues> & { endMonth?: string | null; startMonth?: string | null }) {
     const base = {
       ...(changes.name !== undefined ? { name: changes.name } : {}),
       ...(changes.amount !== undefined ? { amount: changes.amount } : {}),
-      ...(changes.categoryIds ? { category_id: changes.categoryIds[0] ?? null } : {}),
+      ...(changes.categoryIds ? { category_id: changes.categoryIds[0] ?? null, category_ids: changes.categoryIds } : {}),
+      ...(changes.recurring !== undefined ? { recurring: changes.recurring } : {}),
+      ...(changes.endMonth !== undefined ? { end_month: changes.endMonth } : {}),
+      ...(changes.startMonth !== undefined ? { start_month: changes.startMonth } : {}),
     }
-    let { error } = await supabase
-      .from('budget_items')
-      .update({ ...base, ...(changes.categoryIds ? { category_ids: changes.categoryIds } : {}) })
-      .eq('id', id)
-    if (error && (changes.categoryIds?.length ?? 0) <= 1) ({ error } = await supabase.from('budget_items').update(base).eq('id', id))
+    let { error } = await supabase.from('budget_items').update(base).eq('id', id)
+    if (error) {
+      const plain: Record<string, unknown> = { ...base }
+      for (const k of NEW_ITEM_COLUMNS) delete plain[k]
+      ;({ error } = await supabase.from('budget_items').update(plain).eq('id', id))
+    }
     if (error) throw error
   },
 
-  async remove(id: string) {
-    const { error } = await supabase.from('budget_items').delete().eq('id', id)
+  /**
+   * Saves a change made while looking at `month`. A repeating line that started in an earlier month keeps its past
+   * as it was: the old one stops the month before, and a new one carries the change from `month` on.
+   */
+  async saveForMonth(item: BudgetItem, values: PlanItemValues, month: string) {
+    const startedEarlier = item.recurring && (!item.startMonth || item.startMonth < month)
+    if (!startedEarlier) {
+      await this.updateRow(item.id, { ...values, startMonth: values.recurring ? item.startMonth ?? month : month })
+      return
+    }
+    await this.updateRow(item.id, { endMonth: prevMonthKey(month) })
+    await this.add({ ...values, recurring: true, month })
+  },
+
+  /** Removes a line from `month`. A repeating line only stops from this month on, so earlier months keep it. */
+  async removeForMonth(item: BudgetItem, month: string) {
+    if (item.recurring && (!item.startMonth || item.startMonth < month)) {
+      await this.updateRow(item.id, { endMonth: prevMonthKey(month) })
+      return
+    }
+    const { error } = await supabase.from('budget_items').delete().eq('id', item.id)
     if (error) throw error
   },
 }

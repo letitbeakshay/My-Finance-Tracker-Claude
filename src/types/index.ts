@@ -184,6 +184,12 @@ export interface BudgetItem {
   categoryId?: string
   /** Every category linked to this line (spending from all of them is added up). */
   categoryIds: string[]
+  /** Repeats every month (true) or belongs to one month only (false). */
+  recurring: boolean
+  /** The first month it applies, as yyyy-MM. For a one-month item, the month itself. Empty = from the beginning. */
+  startMonth?: string
+  /** The last month a recurring item applies, as yyyy-MM. Empty = still running. */
+  endMonth?: string
   sortOrder: number
   createdAt: number
 }

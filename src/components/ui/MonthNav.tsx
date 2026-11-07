@@ -5,10 +5,14 @@ interface MonthNavProps {
   month: Date
   onChange: (month: Date) => void
   className?: string
+  /** Lets you move into future months (planning ahead on the Budgets page). */
+  allowFuture?: boolean
 }
 
-export function MonthNav({ month, onChange, className }: MonthNavProps) {
-  const isCurrentMonth = isSameMonth(month, new Date())
+export function MonthNav({ month, onChange, className, allowFuture }: MonthNavProps) {
+  const isCurrentMonth = !allowFuture && isSameMonth(month, new Date())
+  // Planning ahead stops a year out.
+  const tooFar = !!allowFuture && month > addMonths(new Date(), 12)
 
   return (
     <div className="flex items-center gap-1">
@@ -28,7 +32,7 @@ export function MonthNav({ month, onChange, className }: MonthNavProps) {
       <button
         type="button"
         onClick={() => onChange(addMonths(month, 1))}
-        disabled={isCurrentMonth}
+        disabled={isCurrentMonth || tooFar}
         className="w-10 h-10 flex items-center justify-center text-tertiary hover:text-white disabled:opacity-30"
         aria-label="Next month"
       >

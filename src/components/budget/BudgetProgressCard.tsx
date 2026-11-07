@@ -3,6 +3,7 @@ import { ChevronRight, Target } from 'lucide-react'
 import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
 import { useBudgetItems } from '../../hooks/useLiveData'
+import { itemsForMonth } from '../../lib/planMonth'
 import { BudgetBar } from './BudgetBar'
 import { budgetProgress } from '../../lib/budgets'
 import { CategoryIcon } from '../ui/CategoryIcon'
@@ -32,8 +33,8 @@ export function BudgetProgressCard({
   onOpenBudgets,
   limit = 4,
 }: BudgetProgressCardProps) {
-  const planItems = useBudgetItems()
-  const planTotal = (planItems ?? []).reduce((sum, i) => sum + i.amount, 0)
+  const planItems = itemsForMonth(useBudgetItems(), month)
+  const planTotal = planItems.reduce((sum, i) => sum + i.amount, 0)
   const progress = useMemo(
     () => budgetProgress(budgets, expenses, month, { parents, reimbursable, overallLimit: planTotal }),
     [budgets, expenses, month, parents, reimbursable, planTotal],

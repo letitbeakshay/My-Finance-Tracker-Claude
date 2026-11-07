@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 import { effectiveBudgets } from '../lib/budgets'
+import { appliesInMonth, monthKey } from '../lib/planMonth'
 import type { AppSettings, Budget, BudgetItem, SavingsPlan, Category, Expense, Income, Loan, PaymentAccount, Reflection } from '../types'
 import {
   rowToBudget,
@@ -111,10 +112,15 @@ export function useBudgets() {
 }
 
 /** Category limits including those that come from the monthly plan. Undefined until loaded. */
-export function useEffectiveBudgets() {
+export function useEffectiveBudgets(month: Date = new Date()) {
   const budgets = useBudgets()
   const items = useBudgetItems()
-  return useMemo(() => (budgets ? effectiveBudgets(budgets, items ?? []) : undefined), [budgets, items])
+  const key = monthKey(month)
+  // Only the plan lines that apply in that month give category limits.
+  return useMemo(
+    () => (budgets ? effectiveBudgets(budgets, (items ?? []).filter((i) => appliesInMonth(i, key))) : undefined),
+    [budgets, items, key],
+  )
 }
 
 export function useBudgetItems() {

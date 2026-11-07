@@ -1,12 +1,14 @@
 import { useMemo, useState } from 'react'
 import { endOfMonth, getDate, isSameMonth } from 'date-fns'
-import { ChevronRight, Pencil, Plus } from 'lucide-react'
+import { ChevronRight, Pencil, Plus, Repeat } from 'lucide-react'
 import { useAllCategories, useBudgetItems, useEffectiveBudgets, useExpenses } from '../../hooks/useLiveData'
 import { buildTree, parentMap } from '../../lib/categoryTree'
 import { reimbursableIds } from '../../lib/reimbursement'
 import { BUDGET_STATUS_COLOR, budgetProgress, type BudgetLine } from '../../lib/budgets'
 import { VERSES } from '../../lib/scripture'
 import { formatCurrency } from '../../lib/currency'
+import { itemsForMonth } from '../../lib/planMonth'
+import { formatMonthLabel } from '../../lib/analytics'
 import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
 import { BottomSheet } from '../ui/BottomSheet'
@@ -71,11 +73,13 @@ function LimitSheet({
 
 /** Budgets: how the month is going overall, the monthly plan, and a limit for any category. */
 export function BudgetsView({ month }: { month: Date }) {
-  const budgets = useEffectiveBudgets()
+  const budgets = useEffectiveBudgets(month)
   const expenses = useExpenses()
   const allCategories = useAllCategories()
   const categories = useMemo(() => (allCategories ?? []).filter((c) => !c.archived), [allCategories])
-  const planItems = useBudgetItems()
+  const allPlanItems = useBudgetItems()
+  // Only the lines that apply in this month: the ones that repeat, plus any made for this month alone.
+  const planItems = useMemo(() => itemsForMonth(allPlanItems, month), [allPlanItems, month])
   const [adding, setAdding] = useState(false)
   const [detail, setDetail] = useState<BudgetDetailTarget | null>(null)
   const [limitFor, setLimitFor] = useState<Category | null>(null)
@@ -105,6 +109,50 @@ export function BudgetsView({ month }: { month: Date }) {
   const budgetFor = (id: string) => budgets.find((b) => b.categoryId === id)
   const withLimit = topLevel.filter((c) => lineFor(c.id))
   const noLimit = topLevel.filter((c) => !lineFor(c.id))
+
+  const renderItem = (item: BudgetItem) => {
+    const linked = item.categoryIds.filter((id) => !item.categoryIds.includes(allCategories.find((c) => c.id === id)?.parentId ?? ''))
+    const spent = linked.length ? linked.reduce((sum, id) => sum + progress.spentByCategory(id), 0) : null
+    const pct = spent !== null && item.amount > 0 ? (spent / item.amount) * 100 : 0
+    const over = spent !== null && spent > item.amount
+    const near = spent !== null && !over && pct >= 80
+    const color = over ? BUDGET_STATUS_COLOR.over : near ? BUDGET_STATUS_COLOR.warning : BUDGET_STATUS_COLOR.ok
+    return (
+      <div key={item.id} className="flex items-stretch">
+        <button
+          type="button"
+          disabled={spent === null}
+          onClick={() => setDetail({ title: item.name, categoryIds: linked, limit: item.amount, item })}
+          className="flex-1 min-w-0 text-left pl-5 py-4 disabled:cursor-default"
+          aria-label={spent === null ? item.name : `See what was spent on ${item.name}`}
+        >
+          <span className="flex items-baseline justify-between gap-3">
+            <span className="flex items-center gap-1 min-w-0 text-white text-[16px] font-medium">
+              <span className="truncate">{item.name}</span>
+              {spent !== null && <ChevronRight size={15} className="text-tertiary shrink-0" />}
+            </span>
+            <span className="text-white text-[16px] font-semibold tabular-nums shrink-0">{formatCurrency(item.amount)}</span>
+          </span>
+          {spent !== null ? (
+            <span className="block mt-2.5">
+              <Meter pct={pct} color={color} />
+              <span className="flex justify-between text-[12px] mt-1.5 tabular-nums">
+                <span className="text-tertiary">{formatCurrency(spent)} spent</span>
+                <span style={{ color: over || near ? color : 'var(--color-tertiary)' }}>
+                  {over ? `${formatCurrency(spent - item.amount)} over` : `${formatCurrency(item.amount - spent)} left`}
+                </span>
+              </span>
+            </span>
+          ) : (
+            <span className="block text-tertiary text-[12px] mt-1">Fixed amount, not linked to a category</span>
+          )}
+        </button>
+        <button type="button" onClick={() => setItemSheet({ open: true, item })} aria-label={`Edit ${item.name}`} className="w-14 shrink-0 flex items-center justify-center text-tertiary">
+          <Pencil size={16} />
+        </button>
+      </div>
+    )
+  }
 
   // Pace: how much of the month has gone, against how much of the budget is used.
   const now = new Date()
@@ -170,64 +218,42 @@ export function BudgetsView({ month }: { month: Date }) {
       </Card>
 
       <div className="grid gap-5 lg:gap-6 xl:grid-cols-2 items-start">
-        {/* Monthly plan */}
+        {/* This month's plan */}
         <Card padded={false}>
           <div className="flex items-center justify-between gap-3 p-5 pb-3">
             <div>
-              <h2 className="text-white text-[18px] font-bold">Monthly plan</h2>
-              <p className="text-tertiary text-[12px]">{hasPlan ? `${items.length} items · ${formatCurrency(planTotal)} a month` : 'What you plan to spend every month'}</p>
+              <h2 className="text-white text-[18px] font-bold">{formatMonthLabel(month)} plan</h2>
+              <p className="text-tertiary text-[12px]">
+                {hasPlan ? `${items.length} ${items.length === 1 ? 'item' : 'items'} · ${formatCurrency(planTotal)} planned` : 'Plan everything you will spend this month'}
+              </p>
             </div>
             <button type="button" onClick={() => setItemSheet({ open: true, item: null })} className="h-10 pl-3 pr-4 rounded-xl bg-primary text-on-primary text-[14px] font-semibold flex items-center gap-1.5 shrink-0">
               <Plus size={16} strokeWidth={2.6} /> Add item
             </button>
           </div>
 
-          <div className="divide-y divide-border/60">
-            {items.map((item) => {
-              const linked = item.categoryIds.filter((id) => !item.categoryIds.includes(allCategories.find((c) => c.id === id)?.parentId ?? ''))
-              const spent = linked.length ? linked.reduce((sum, id) => sum + progress.spentByCategory(id), 0) : null
-              const pct = spent !== null && item.amount > 0 ? (spent / item.amount) * 100 : 0
-              const over = spent !== null && spent > item.amount
-              const near = spent !== null && !over && pct >= 80
-              const color = over ? BUDGET_STATUS_COLOR.over : near ? BUDGET_STATUS_COLOR.warning : BUDGET_STATUS_COLOR.ok
-              return (
-                <div key={item.id} className="flex items-stretch">
-                  <button
-                    type="button"
-                    disabled={spent === null}
-                    onClick={() => setDetail({ title: item.name, categoryIds: linked, limit: item.amount, item })}
-                    className="flex-1 min-w-0 text-left pl-5 py-4 disabled:cursor-default"
-                    aria-label={spent === null ? item.name : `See what was spent on ${item.name}`}
-                  >
-                    <span className="flex items-baseline justify-between gap-3">
-                      <span className="flex items-center gap-1 min-w-0 text-white text-[16px] font-medium">
-                        <span className="truncate">{item.name}</span>
-                        {spent !== null && <ChevronRight size={15} className="text-tertiary shrink-0" />}
-                      </span>
-                      <span className="text-white text-[16px] font-semibold tabular-nums shrink-0">{formatCurrency(item.amount)}</span>
-                    </span>
-                    {spent !== null ? (
-                      <span className="block mt-2.5">
-                        <Meter pct={pct} color={color} />
-                        <span className="flex justify-between text-[12px] mt-1.5 tabular-nums">
-                          <span className="text-tertiary">{formatCurrency(spent)} spent</span>
-                          <span style={{ color: over || near ? color : 'var(--color-tertiary)' }}>
-                            {over ? `${formatCurrency(spent - item.amount)} over` : `${formatCurrency(item.amount - spent)} left`}
-                          </span>
-                        </span>
-                      </span>
-                    ) : (
-                      <span className="block text-tertiary text-[12px] mt-1">Fixed amount, not linked to a category</span>
-                    )}
-                  </button>
-                  <button type="button" onClick={() => setItemSheet({ open: true, item })} aria-label={`Edit ${item.name}`} className="w-14 shrink-0 flex items-center justify-center text-tertiary">
-                    <Pencil size={16} />
-                  </button>
+          {[
+            { key: 'repeat', title: 'Every month', note: 'Comes back each month', list: items.filter((i) => i.recurring) },
+            { key: 'once', title: `Only ${formatMonthLabel(month)}`, note: 'Does not carry over', list: items.filter((i) => !i.recurring) },
+          ].map((group) =>
+            group.list.length === 0 ? null : (
+              <div key={group.key}>
+                <div className="flex items-center justify-between gap-3 px-5 py-2 bg-surface/60 border-y border-border/60">
+                  <p className="text-secondary text-[12px] font-semibold uppercase tracking-wide flex items-center gap-1.5">
+                    {group.key === 'repeat' && <Repeat size={13} />} {group.title}
+                    <span className="normal-case font-normal text-tertiary tracking-normal">· {group.note}</span>
+                  </p>
+                  <p className="text-secondary text-[12px] font-semibold tabular-nums">{formatCurrency(group.list.reduce((s, i) => s + i.amount, 0))}</p>
                 </div>
-              )
-            })}
-            {!hasPlan && <p className="text-tertiary text-[13px] px-5 py-6 leading-relaxed">Nothing planned yet. Add EMIs, what you give at home, fuel and the like.</p>}
-          </div>
+                <div className="divide-y divide-border/60">{group.list.map(renderItem)}</div>
+              </div>
+            ),
+          )}
+          {!hasPlan && (
+            <p className="text-tertiary text-[13px] px-5 pb-6 leading-relaxed">
+              Add what you plan to spend this month. Mark a line “Every month” (EMIs, what you give at home) and it comes back next month with the same name and amount. Anything else counts for this month only.
+            </p>
+          )}
         </Card>
 
         {/* Category limits */}
@@ -327,7 +353,7 @@ export function BudgetsView({ month }: { month: Date }) {
           setLimitFor(null)
         }}
       />
-      <BudgetItemSheet open={itemSheet.open} item={itemSheet.item} onClose={() => setItemSheet({ open: false, item: null })} />
+      <BudgetItemSheet open={itemSheet.open} month={month} item={itemSheet.item} onClose={() => setItemSheet({ open: false, item: null })} />
       <NewCategorySheet open={adding} onClose={() => setAdding(false)} onCreated={() => setAdding(false)} />
     </div>
   )

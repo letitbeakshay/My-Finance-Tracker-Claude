@@ -328,6 +328,9 @@ export interface BudgetItemRow {
   amount: number
   category_id: string | null
   category_ids?: string[] | null
+  recurring?: boolean | null
+  start_month?: string | null
+  end_month?: string | null
   sort_order: number
   created_at: string
 }
@@ -339,6 +342,9 @@ export function rowToBudgetItem(row: BudgetItemRow): BudgetItem {
     amount: Number(row.amount),
     categoryId: row.category_id ?? undefined,
     categoryIds: row.category_ids?.length ? row.category_ids : row.category_id ? [row.category_id] : [],
+    recurring: row.recurring ?? true,
+    startMonth: row.start_month ?? undefined,
+    endMonth: row.end_month ?? undefined,
     sortOrder: row.sort_order,
     createdAt: new Date(row.created_at).getTime(),
   }
