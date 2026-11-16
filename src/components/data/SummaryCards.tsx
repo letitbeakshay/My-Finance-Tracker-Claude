@@ -1,5 +1,7 @@
 import clsx from 'clsx'
 import { Card } from '../ui/Card'
+import { Hero, HeroPill } from '../ui/Hero'
+import { Sparkline } from '../ui/Sparkline'
 import { formatCurrency } from '../../lib/currency'
 
 interface StatProps {
@@ -34,26 +36,39 @@ interface SummaryCardsProps {
   cardSpend: number
   youOwe: number
   owedToYou: number
+  /** Spending for each day of the month, for the line on the green panel. */
+  daily?: number[]
+  dailyLabels?: string[]
 }
 
-export function SummaryCards({ income, expenses, cardSpend, youOwe, owedToYou }: SummaryCardsProps) {
+export function SummaryCards({ income, expenses, cardSpend, youOwe, owedToYou, daily, dailyLabels }: SummaryCardsProps) {
   const net = income - expenses
+  const kept = income > 0 ? Math.round((net / income) * 100) : null
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 lg:gap-4 mb-6">
-      <Stat label="Income" value={formatCurrency(income)} tone="positive" />
-      <Stat label="Expenses" value={formatCurrency(expenses)} />
-      <Stat
-        label="Net"
-        value={`${net < 0 ? '−' : ''}${formatCurrency(Math.abs(net))}`}
-        tone={net < 0 ? 'negative' : 'positive'}
-        sub={income > 0 ? `${Math.round((net / income) * 100)}% of income kept` : undefined}
-      />
+    <div className="grid grid-cols-2 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-3 lg:gap-4 mb-6 items-stretch">
+      <Hero
+        label="Kept this month"
+        value={net}
+        pills={kept !== null && <HeroPill>{kept}% of income</HeroPill>}
+        className="col-span-2 lg:col-span-1 lg:row-span-2"
+      >
+        <div className="grid grid-cols-2 gap-4 mt-6">
+          <div>
+            <p className="text-[12px] font-medium opacity-80">Income</p>
+            <p className="text-[20px] font-bold tabular-nums mt-0.5">{formatCurrency(income)}</p>
+          </div>
+          <div>
+            <p className="text-[12px] font-medium opacity-80">Spent</p>
+            <p className="text-[20px] font-bold tabular-nums mt-0.5">{formatCurrency(expenses)}</p>
+          </div>
+        </div>
+        <Sparkline values={daily ?? []} labels={dailyLabels} />
+      </Hero>
       <Stat label="Credit card spend" value={formatCurrency(cardSpend)} />
       <Stat
-        label="Loans — you owe"
+        label="Loans: you owe"
         value={formatCurrency(youOwe)}
         sub={owedToYou > 0 ? `${formatCurrency(owedToYou)} owed to you` : undefined}
-        className="col-span-2 lg:col-span-1"
       />
     </div>
   )

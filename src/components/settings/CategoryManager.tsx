@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { EmojiIcon } from '../ui/EmojiIcon'
 import { motion } from 'framer-motion'
 import { useAllCategories } from '../../hooks/useLiveData'
 import { categoryRepo } from '../../db/repository'
@@ -38,7 +39,7 @@ export function CategoryManager() {
             layout
             className={`flex items-center gap-3 bg-surface border border-border rounded-2xl px-4 h-14 ${depth ? 'ml-6' : ''}`}
           >
-            <span className="text-xl">{c.icon}</span>
+            <EmojiIcon emoji={c.icon} size={20} className="text-secondary" />
             <span className="text-white text-[15px] flex-1 truncate">{c.name}</span>
             <button
               type="button"

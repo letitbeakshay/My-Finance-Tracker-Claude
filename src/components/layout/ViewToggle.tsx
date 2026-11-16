@@ -22,7 +22,7 @@ export function ViewToggle({ value, onChange }: ViewToggleProps) {
     >
       <div className="grid grid-cols-[1fr_380px_1fr] items-center">
       <div />
-      <div className="relative flex bg-surface border border-border rounded-2xl p-1">
+      <div className="relative flex bg-surface border border-border rounded-full p-1">
         {OPTIONS.map((opt) => {
           const active = opt.value === value
           return (
@@ -30,14 +30,14 @@ export function ViewToggle({ value, onChange }: ViewToggleProps) {
               key={opt.value}
               type="button"
               onClick={() => onChange(opt.value)}
-              className="relative flex-1 h-10 rounded-xl text-[14px] font-semibold z-10 transition-colors"
+              className="relative flex-1 h-10 rounded-full text-[14px] font-semibold z-10 transition-colors"
               style={{ color: active ? 'var(--color-on-primary)' : 'var(--color-secondary)' }}
             >
               {active && (
                 <motion.div
                   layoutId="view-toggle-bg"
                   transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-                  className="absolute inset-0 rounded-xl -z-10 bg-primary"
+                  className="absolute inset-0 rounded-full -z-10 bg-primary"
                 />
               )}
               <span className="relative">{opt.label}</span>

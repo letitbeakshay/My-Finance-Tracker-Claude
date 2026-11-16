@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { EmojiIcon } from '../ui/EmojiIcon'
 import { Reorder } from 'framer-motion'
 import clsx from 'clsx'
 import { ChevronDown, GripVertical, Search, X } from 'lucide-react'
@@ -107,7 +108,7 @@ export function CategoryPicker({
               className="rounded-xl px-4 h-12 flex items-center gap-3 text-[15px] font-medium border bg-surface border-border text-white cursor-grab active:cursor-grabbing"
               whileDrag={{ scale: 1.02, zIndex: 10 }}
             >
-              <span>{c.icon}</span>
+              <EmojiIcon emoji={c.icon} size={16} />
               <span className="flex-1 truncate">{c.name}</span>
               <GripVertical size={18} className="text-tertiary shrink-0" />
             </Reorder.Item>
@@ -127,7 +128,7 @@ export function CategoryPicker({
         <div className="flex flex-wrap gap-2">
           {flat.map((c) => (
             <Chip key={c.id} selected={value === c.id} onClick={() => onChange(c.id)} className="h-10 px-3.5 text-[14px]">
-              <span>{c.icon}</span>
+              <EmojiIcon emoji={c.icon} size={16} />
               <span>{categoryPath(c, byId)}</span>
             </Chip>
           ))}
@@ -209,7 +210,7 @@ export function CategoryPicker({
               >
                 <div className="flex items-center gap-3">
                   <span className="w-9 h-9 rounded-full bg-surface border border-border flex items-center justify-center text-[18px] shrink-0">
-                    {category.icon}
+                    <EmojiIcon emoji={category.icon} size={18} />
                   </span>
                   <span className="flex-1 min-w-0">
                     <span className={clsx('block font-medium text-[15px] truncate', selected ? 'text-accent-ink' : 'text-white')}>
@@ -243,7 +244,7 @@ export function CategoryPicker({
                         }}
                         className="h-10 px-3.5 text-[14px]"
                       >
-                        <span>{c.icon}</span>
+                        <EmojiIcon emoji={c.icon} size={16} />
                         <span>{c.name}</span>
                         {budgetLines?.get(c.id) && (
                           <span className="text-[11px] font-semibold" style={{ color: BUDGET_STATUS_COLOR[budgetLines.get(c.id)!.status] }}>

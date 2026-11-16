@@ -4,12 +4,13 @@ import { ChevronRight, Pencil, Plus, Repeat } from 'lucide-react'
 import { useAllCategories, useBudgetItems, useEffectiveBudgets, useExpenses } from '../../hooks/useLiveData'
 import { buildTree, parentMap } from '../../lib/categoryTree'
 import { reimbursableIds } from '../../lib/reimbursement'
-import { BUDGET_STATUS_COLOR, budgetProgress, type BudgetLine } from '../../lib/budgets'
+import { BUDGET_STATUS_COLOR, budgetProgress } from '../../lib/budgets'
 import { VERSES } from '../../lib/scripture'
 import { formatCurrency } from '../../lib/currency'
 import { itemsForMonth } from '../../lib/planMonth'
 import { formatMonthLabel } from '../../lib/analytics'
 import { Card } from '../ui/Card'
+import { Hero, HeroPill } from '../ui/Hero'
 import { Button } from '../ui/Button'
 import { BottomSheet } from '../ui/BottomSheet'
 import { CategoryIcon } from '../ui/CategoryIcon'
@@ -19,22 +20,11 @@ import { CategoryLimitForm } from './CategoryLimitForm'
 import { BudgetSpendDetail, type BudgetDetailTarget } from './BudgetSpendDetail'
 import type { BudgetItem, Category } from '../../types'
 
-const STATUS_LABEL = { ok: 'On track', warning: 'Close to limit', over: 'Over budget' } as const
-
 function Meter({ pct, color, height = 'h-2' }: { pct: number; color: string; height?: string }) {
   return (
     <div className={`${height} rounded-full bg-white/5 overflow-hidden`}>
       <div className="h-full rounded-full transition-all duration-700" style={{ width: `${Math.min(100, Math.max(0, pct))}%`, background: color }} />
     </div>
-  )
-}
-
-function Pill({ status }: { status: BudgetLine['status'] }) {
-  const color = BUDGET_STATUS_COLOR[status]
-  return (
-    <span className="rounded-full px-2.5 py-1 text-[12px] font-semibold shrink-0" style={{ color, background: `color-mix(in srgb, ${color} 14%, transparent)` }}>
-      {STATUS_LABEL[status]}
-    </span>
   )
 }
 
@@ -161,61 +151,61 @@ export function BudgetsView({ month }: { month: Date }) {
   const daysLeft = current ? daysInMonth - getDate(now) + 1 : 0
   const perDay = overall && overall.remaining > 0 && daysLeft > 0 ? overall.remaining / daysLeft : 0
   const monthPct = current ? (getDate(now) / daysInMonth) * 100 : null
-  const heroColor = overall ? BUDGET_STATUS_COLOR[overall.status] : 'var(--color-accent)'
 
   return (
     <div className="flex flex-col gap-5 lg:gap-6">
       {/* Overall */}
-      <Card className="!p-6">
-        {overall ? (
-          <>
-            <div className="flex items-start justify-between gap-3">
-              <p className="text-tertiary text-[12px] font-semibold uppercase tracking-wide">Overall budget</p>
-              <Pill status={overall.status} />
+      {overall ? (
+        <Hero
+          label="Overall budget"
+          value={overall.spent}
+          of={`of ${formatCurrency(overall.limit)}`}
+          pills={<HeroPill>{overall.status === 'ok' ? 'On track' : overall.status === 'warning' ? 'Close to limit' : 'Over budget'}</HeroPill>}
+        >
+          <div className="relative mt-5">
+            <div className="h-3 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.3)" }}>
+              <div
+                className="h-full rounded-full transition-all duration-700"
+                style={{ width: `${Math.min(100, overall.pct)}%`, background: overall.status === 'over' ? '#ffd9d2' : '#ffffff' }}
+              />
             </div>
-            <p className="text-white text-[34px] font-bold tabular-nums leading-none mt-3">
-              {formatCurrency(overall.spent)}
-              <span className="text-tertiary text-[16px] font-medium"> of {formatCurrency(overall.limit)}</span>
-            </p>
-            <div className="relative mt-4">
-              <Meter pct={overall.pct} color={heroColor} height="h-3" />
-              {monthPct !== null && (
-                <span className="absolute -top-1 bottom-[-4px] w-0.5 bg-white/60 rounded" style={{ left: `${monthPct}%` }} title="Where the month is" />
-              )}
+            {monthPct !== null && (
+              <span className="absolute -top-1 bottom-[-4px] w-0.5 bg-black/60 rounded" style={{ left: `${monthPct}%` }} title="Where the month is" />
+            )}
+          </div>
+          {monthPct !== null && <p className="opacity-80 text-[11px] mt-1.5">The dark line marks how far through the month you are.</p>}
+          <div className="grid grid-cols-3 gap-3 mt-5">
+            <div>
+              <p className="opacity-80 text-[12px]">{overall.remaining >= 0 ? 'Left' : 'Over by'}</p>
+              <p className="text-[18px] font-bold tabular-nums mt-0.5">{formatCurrency(Math.abs(overall.remaining))}</p>
             </div>
-            {monthPct !== null && <p className="text-tertiary text-[11px] mt-1.5">The line marks how far through the month you are.</p>}
-            <div className="grid grid-cols-3 gap-3 mt-5">
-              <div>
-                <p className="text-tertiary text-[12px]">{overall.remaining >= 0 ? 'Left' : 'Over by'}</p>
-                <p className="text-[18px] font-bold tabular-nums mt-0.5" style={{ color: overall.remaining >= 0 ? 'var(--color-white)' : heroColor }}>
-                  {formatCurrency(Math.abs(overall.remaining))}
-                </p>
-              </div>
-              <div>
-                <p className="text-tertiary text-[12px]">{current ? 'Per day' : 'Used'}</p>
-                <p className="text-white text-[18px] font-bold tabular-nums mt-0.5">{current ? (perDay ? formatCurrency(Math.round(perDay)) : '—') : `${overall.pct}%`}</p>
-              </div>
-              <div>
-                <p className="text-tertiary text-[12px]">{current ? 'Days left' : 'Monthly plan'}</p>
-                <p className="text-white text-[18px] font-bold tabular-nums mt-0.5">{current ? daysLeft : formatCurrency(planTotal)}</p>
-              </div>
+            <div>
+              <p className="opacity-80 text-[12px]">{current ? 'Per day' : 'Used'}</p>
+              <p className="text-[18px] font-bold tabular-nums mt-0.5">{current ? (perDay ? formatCurrency(Math.round(perDay)) : '—') : `${overall.pct}%`}</p>
             </div>
-          </>
-        ) : (
-          <>
-            <p className="text-white text-[18px] font-bold">Plan your month</p>
-            <p className="text-secondary text-[14px] mt-1 leading-relaxed">
-              List what you plan to spend each month (EMIs, what you give at home, fuel…). The total becomes your overall budget.
-            </p>
-            <Button className="!w-auto px-6 mt-4" onClick={() => setItemSheet({ open: true, item: null })}>
-              Add your first plan item
-            </Button>
-          </>
-        )}
-        <p className="text-tertiary text-[12px] italic mt-5 leading-relaxed">
-          “{VERSES.diligent.text}” — {VERSES.diligent.ref}
-        </p>
-      </Card>
+            <div>
+              <p className="opacity-80 text-[12px]">{current ? 'Days left' : 'Monthly plan'}</p>
+              <p className="text-[18px] font-bold tabular-nums mt-0.5">{current ? daysLeft : formatCurrency(planTotal)}</p>
+            </div>
+          </div>
+          <p className="opacity-80 text-[12px] italic mt-5 leading-relaxed">
+            “{VERSES.diligent.text}” — {VERSES.diligent.ref}
+          </p>
+        </Hero>
+      ) : (
+        <Card className="!p-6">
+          <p className="text-white text-[18px] font-bold">Plan your month</p>
+          <p className="text-secondary text-[14px] mt-1 leading-relaxed">
+            List what you plan to spend each month (EMIs, what you give at home, fuel…). The total becomes your overall budget.
+          </p>
+          <Button className="!w-auto px-6 mt-4" onClick={() => setItemSheet({ open: true, item: null })}>
+            Add your first plan item
+          </Button>
+          <p className="text-tertiary text-[12px] italic mt-5 leading-relaxed">
+            “{VERSES.diligent.text}” — {VERSES.diligent.ref}
+          </p>
+        </Card>
+      )}
 
       <div className="grid gap-5 lg:gap-6 xl:grid-cols-2 items-start">
         {/* This month's plan */}

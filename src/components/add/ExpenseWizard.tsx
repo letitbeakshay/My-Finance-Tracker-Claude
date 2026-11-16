@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { EmojiIcon } from '../ui/EmojiIcon'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import clsx from 'clsx'
@@ -398,7 +399,7 @@ export function ExpenseWizard({ onDone, onCancel, preset, modeSwitch }: ExpenseW
               <>
                 <div className="bg-card border border-border rounded-2xl p-4 mb-6 flex items-center gap-3">
                   <span className="w-11 h-11 rounded-full bg-surface border border-border flex items-center justify-center text-[20px] shrink-0">
-                    {category?.icon}
+                    <EmojiIcon emoji={category?.icon} size={20} />
                   </span>
                   <div className="flex-1 min-w-0">
                     <p className="text-white font-semibold text-[15px] truncate">

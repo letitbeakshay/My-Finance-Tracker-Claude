@@ -219,7 +219,7 @@ export function AuthScreen() {
     <Shell>
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
         {mode !== 'forgot' && (
-          <div className="flex bg-surface border border-border rounded-2xl p-1.5 mb-5" role="tablist">
+          <div className="flex bg-surface border border-border rounded-full p-1.5 mb-5" role="tablist">
             {(
               [
                 ['signin', 'Sign in'],
@@ -232,7 +232,7 @@ export function AuthScreen() {
                 role="tab"
                 aria-selected={mode === m}
                 onClick={() => switchTo(m)}
-                className={`flex-1 h-11 rounded-xl text-[15px] font-semibold transition-colors ${
+                className={`flex-1 h-11 rounded-full text-[15px] font-semibold transition-colors ${
                   mode === m ? 'bg-primary text-on-primary' : 'text-secondary'
                 }`}
               >

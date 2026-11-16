@@ -5,7 +5,7 @@ export type Theme = 'light' | 'dark'
 const KEY = 'finance_tracker_theme'
 const EVENT = 'finance-tracker-theme'
 /** The browser / phone toolbar colour that goes with each theme. */
-const TOOLBAR: Record<Theme, string> = { light: '#fcfbf9', dark: '#1b1a19' }
+const TOOLBAR: Record<Theme, string> = { light: '#f3f6f1', dark: '#0f1410' }
 
 export function readTheme(): Theme {
   try {

@@ -10,7 +10,7 @@ export function Card({ children, className, padded = true, ...rest }: CardProps)
   return (
     <div
       className={clsx(
-        'bg-card border border-border rounded-card',
+        'bg-card border border-border/70 rounded-card shadow-card',
         padded && 'p-5',
         className,
       )}

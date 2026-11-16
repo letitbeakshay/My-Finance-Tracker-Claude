@@ -1,4 +1,5 @@
 import { builtInCategoryIcon } from '../../lib/dataIcons'
+import { EmojiIcon } from './EmojiIcon'
 import type { Category } from '../../types'
 
 /** Line icon for built-in categories; the user's chosen emoji for ones they created. */
@@ -13,9 +14,5 @@ export function CategoryIcon({
 }) {
   const Icon = builtInCategoryIcon(category.id)
   if (Icon) return <Icon size={size} className={className} />
-  return (
-    <span className={className} style={{ fontSize: size, lineHeight: 1 }}>
-      {category.icon}
-    </span>
-  )
+  return <EmojiIcon emoji={category.icon} size={size} className={className} />
 }

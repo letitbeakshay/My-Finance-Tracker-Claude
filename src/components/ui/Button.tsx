@@ -18,7 +18,7 @@ export function Button({ children, className, variant = 'primary', ...rest }: Bu
       whileTap={{ scale: 0.96 }}
       transition={{ type: 'spring', stiffness: 500, damping: 30 }}
       className={clsx(
-        'w-full h-14 rounded-2xl font-semibold text-[17px] flex items-center justify-center gap-2 transition-colors',
+        'w-full h-14 rounded-full font-semibold text-[17px] flex items-center justify-center gap-2 transition-colors',
         variant === 'primary' && 'bg-primary text-on-primary active:bg-primary-dim',
         variant === 'secondary' && 'bg-surface text-white border border-border',
         variant === 'ghost' && 'bg-transparent text-secondary',

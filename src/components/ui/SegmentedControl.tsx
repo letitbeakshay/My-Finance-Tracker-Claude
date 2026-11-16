@@ -18,7 +18,7 @@ export function SegmentedControl<T extends string>({
   onChange,
 }: SegmentedControlProps<T>) {
   return (
-    <div className="relative flex bg-surface border border-border rounded-2xl p-1.5">
+    <div className="relative flex bg-surface border border-border rounded-full p-1.5">
       {options.map((opt) => {
         const active = opt.value === value
         return (
@@ -26,14 +26,14 @@ export function SegmentedControl<T extends string>({
             key={opt.value}
             type="button"
             onClick={() => onChange(opt.value)}
-            className="relative flex-1 h-11 rounded-xl text-[15px] font-semibold z-10"
+            className="relative flex-1 h-11 rounded-full text-[15px] font-semibold z-10"
             style={{ color: active ? (opt.color ? 'var(--color-on-type)' : 'var(--color-on-primary)') : 'var(--color-secondary)' }}
           >
             {active && (
               <motion.div
                 layoutId="segmented-bg"
                 transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-                className="absolute inset-0 rounded-xl -z-10"
+                className="absolute inset-0 rounded-full -z-10"
                 style={{ background: opt.color ?? 'var(--color-primary)' }}
               />
             )}

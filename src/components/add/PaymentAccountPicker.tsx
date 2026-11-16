@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { EmojiIcon } from '../ui/EmojiIcon'
 import type { PaymentAccount, PaymentAccountType } from '../../types'
 import { Chip } from '../ui/Chip'
 import { NewPaymentAccountSheet } from '../settings/NewPaymentAccountSheet'
@@ -40,7 +41,7 @@ export function PaymentAccountPicker({
                 aria-pressed={selected}
                 className={`h-[60px] rounded-2xl border flex items-center gap-3 px-4 text-left transition-colors active:scale-[0.98] ${selected ? 'bg-accent-soft border-accent text-accent-ink' : 'bg-surface border-border text-white'}`}
               >
-                <span className="text-[24px]">{a.icon}</span>
+                <EmojiIcon emoji={a.icon} size={24} />
                 <span className="min-w-0 flex-1">
                   <span className="block text-[16px] font-semibold truncate">{a.label}</span>
                   {(a.bankName || a.last4) && (
@@ -58,7 +59,7 @@ export function PaymentAccountPicker({
       <div className="flex flex-wrap gap-2">
         {filtered.map((a) => (
           <Chip key={a.id} selected={value === a.id} onClick={() => onChange(a.id)} className="h-10 px-3.5 text-[14px]">
-            <span>{a.icon}</span>
+            <EmojiIcon emoji={a.icon} size={16} />
             <span>{a.label}</span>
           </Chip>
         ))}

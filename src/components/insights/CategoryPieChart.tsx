@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { EmojiIcon } from '../ui/EmojiIcon'
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts'
 import { Card } from '../ui/Card'
 import type { Category } from '../../types'
@@ -73,7 +74,7 @@ export function CategoryPieChart({ breakdown, categoryMap }: CategoryPieChartPro
             <div key={s.key} className="flex items-center gap-2 min-w-0">
               <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: s.color }} />
               <span className="text-white text-[13px] truncate flex-1">
-                {s.icon} {s.name}
+                <EmojiIcon emoji={s.icon} size={14} className="inline -mt-0.5" /> {s.name}
               </span>
               <span className="text-secondary text-[12px] shrink-0 tabular-nums">
                 {Math.round((s.value / total) * 100)}%

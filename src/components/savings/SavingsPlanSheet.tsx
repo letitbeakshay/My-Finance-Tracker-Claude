@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { EmojiIcon } from '../ui/EmojiIcon'
 import clsx from 'clsx'
 import { BottomSheet } from '../ui/BottomSheet'
 import { Button } from '../ui/Button'
@@ -125,7 +126,7 @@ export function SavingsPlanSheet({ open, onClose, plan, onSaved }: Props) {
           {SAVINGS_KINDS.map((k) => (
             <button key={k.value} type="button" onClick={() => setKind(k.value)} aria-pressed={kind === k.value}
               className={clsx('h-10 px-3.5 rounded-chip border text-[14px] font-medium flex items-center gap-1.5', kind === k.value ? 'bg-accent-soft border-accent text-accent-ink' : 'bg-surface border-border text-white')}>
-              <span>{k.icon}</span>{k.label}
+              <EmojiIcon emoji={k.icon} size={16} />{k.label}
             </button>
           ))}
         </div>

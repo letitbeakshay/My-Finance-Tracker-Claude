@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { EmojiIcon } from '../ui/EmojiIcon'
 import { motion } from 'framer-motion'
 import { useAllPaymentAccounts } from '../../hooks/useLiveData'
 import { paymentAccountRepo } from '../../db/repository'
@@ -37,7 +38,7 @@ export function PaymentAccountManager() {
               layout
               className="flex items-center gap-3 bg-surface border border-border rounded-2xl px-4 h-14"
             >
-              <span className="text-xl">{a.icon}</span>
+              <EmojiIcon emoji={a.icon} size={20} className="text-secondary" />
               <div className="flex-1 min-w-0">
                 <p className="text-white text-[15px] truncate">{a.label}</p>
                 {(a.bankName || a.last4) && (

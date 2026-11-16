@@ -1,4 +1,5 @@
 import { BottomSheet } from '../ui/BottomSheet'
+import { EmojiIcon } from '../ui/EmojiIcon'
 import { Button } from '../ui/Button'
 import { Chip } from '../ui/Chip'
 import type { Category, ExpenseType, PaymentMethod } from '../../types'
@@ -56,7 +57,7 @@ export function FilterSheet({ open, onClose, categories, filters, onChange }: Fi
       <div className="flex gap-2 flex-wrap mb-8">
         {categories.map((c) => (
           <Chip key={c.id} selected={filters.categoryId === c.id} onClick={() => toggle('categoryId', c.id)}>
-            {c.icon} {c.name}
+            <EmojiIcon emoji={c.icon} size={15} /> {c.name}
           </Chip>
         ))}
       </div>

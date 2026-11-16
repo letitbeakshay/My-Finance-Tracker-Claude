@@ -158,6 +158,17 @@ export function AllDataScreen() {
 
   if (!expenses || !incomes || !loans) return null
 
+  // Spending for each day of the shown month, for the line on the green panel.
+  const dailySpend = (() => {
+    const isCurrent = month.getFullYear() === new Date().getFullYear() && month.getMonth() === new Date().getMonth()
+    const days = isCurrent ? new Date().getDate() : new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate()
+    const values = Array.from({ length: days }, () => 0)
+    for (const e of personalOnly(monthExpenses, reimbursable)) {
+      const d = parseInt(e.date.slice(8, 10), 10)
+      if (d >= 1 && d <= days) values[d - 1] += e.amount
+    }
+    return { values, labels: [1, Math.ceil(days / 2), days].filter((d, i, a) => a.indexOf(d) === i).map(String) }
+  })()
   const totalIncome = earnedOnly(monthIncomes).reduce((s, i) => s + i.amount, 0)
   // Reimbursable spending is paid back, so the totals show your own spending.
   const totalExpenses = personalOnly(monthExpenses, reimbursable).reduce((s, e) => s + e.amount, 0)
@@ -241,6 +252,8 @@ export function AllDataScreen() {
                 </div>
               )}
               <SummaryCards
+                daily={dailySpend.values}
+                dailyLabels={dailySpend.labels}
                 income={totalIncome}
                 expenses={totalExpenses}
                 cardSpend={cardSpend}

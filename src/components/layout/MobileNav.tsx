@@ -29,13 +29,18 @@ function Item({
       type="button"
       onClick={onClick}
       aria-current={active ? 'page' : undefined}
-      className={clsx(
-        'flex-1 flex flex-col items-center gap-1 py-1 transition-colors',
-        active ? 'text-accent-ink' : 'text-tertiary',
-      )}
+      aria-label={label}
+      className="flex-1 flex flex-col items-center justify-center gap-0.5 h-full transition-colors"
     >
-      <Icon size={22} strokeWidth={active ? 2.4 : 2} />
-      <span className="text-[11px] font-medium">{label}</span>
+      <span
+        className={clsx(
+          'w-11 h-11 rounded-full flex items-center justify-center transition-colors',
+          active ? 'bg-primary text-on-primary' : 'text-tertiary',
+        )}
+      >
+        <Icon size={21} strokeWidth={active ? 2.3 : 1.9} />
+      </span>
+      <span className={clsx('text-[10px] font-semibold leading-none', active ? 'text-white' : 'text-tertiary')}>{label}</span>
     </button>
   )
 }
@@ -47,8 +52,8 @@ export function MobileNav({ active, onExpense, onInsights, onAdd, onDashboard, o
       style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 12px)' }}
     >
       <div
-        className="pointer-events-auto flex items-center bg-card/95 backdrop-blur-xl border border-border rounded-3xl px-2 h-[68px]"
-        style={{ boxShadow: '0 8px 24px rgba(60,58,59,0.12)' }}
+        className="pointer-events-auto flex items-center bg-card/90 backdrop-blur-xl border border-border/70 rounded-full px-2.5 h-[74px]"
+        style={{ boxShadow: '0 14px 34px -10px rgba(25,40,28,0.28)' }}
       >
         <Item label="Expense" icon={Receipt} active={active === 'expense'} onClick={onExpense} />
         <Item label="Insights" icon={ChartColumn} active={active === 'insights'} onClick={onInsights} />
@@ -59,8 +64,8 @@ export function MobileNav({ active, onExpense, onInsights, onAdd, onDashboard, o
             whileTap={{ scale: 0.9 }}
             onClick={onAdd}
             aria-label="Add expense"
-            className="w-14 h-14 rounded-full bg-primary text-on-primary flex items-center justify-center -mt-7"
-            style={{ boxShadow: '0 6px 16px rgba(60,58,59,0.25)' }}
+            className="w-14 h-14 rounded-full bg-accent text-onfill flex items-center justify-center -mt-8"
+            style={{ boxShadow: '0 10px 22px -6px rgba(63,110,70,0.55)' }}
           >
             <Plus size={28} strokeWidth={2.75} />
           </motion.button>

@@ -2,6 +2,8 @@ import { useMemo, useState } from 'react'
 import { format, parseISO } from 'date-fns'
 import { ChevronLeft, ChevronRight, Pencil, Plus } from 'lucide-react'
 import { Card } from '../ui/Card'
+import { EmojiIcon } from '../ui/EmojiIcon'
+import { Hero, HeroPill } from '../ui/Hero'
 import { SavingsPlanSheet } from './SavingsPlanSheet'
 import { useExpenses, usePaymentAccounts, useSavingsPlans } from '../../hooks/useLiveData'
 import { formatCurrency } from '../../lib/currency'
@@ -51,7 +53,7 @@ export function SavingsView({ month }: { month: Date }) {
           <ChevronLeft size={20} /> Back to savings
         </button>
         <Card>
-          <p className="text-tertiary text-[12px] font-semibold uppercase tracking-wide">{kindMeta(plan.kind).icon} {kindMeta(plan.kind).label}</p>
+          <p className="text-tertiary text-[12px] font-semibold uppercase tracking-wide"><EmojiIcon emoji={kindMeta(plan.kind).icon} size={13} className="inline -mt-0.5" /> {kindMeta(plan.kind).label}</p>
           <div className="flex items-start justify-between gap-3">
             <h2 className="text-white text-[22px] font-bold mt-0.5">{plan.name}</h2>
             <button type="button" onClick={() => setEditing(plan)} className="h-10 px-3.5 rounded-xl border border-border bg-surface text-white text-[14px] font-semibold flex items-center gap-1.5 shrink-0">
@@ -109,25 +111,29 @@ export function SavingsView({ month }: { month: Date }) {
 
   return (
     <div className="flex flex-col gap-5 lg:gap-6">
-      <Card className="!p-6">
-        <p className="text-tertiary text-[12px] font-semibold uppercase tracking-wide">Total saved</p>
-        <p className="text-white text-[34px] font-bold tabular-nums leading-none mt-3">
-          {formatCurrency(total)}
-          {targetTotal > 0 && <span className="text-tertiary text-[16px] font-medium"> of {formatCurrency(targetTotal)}</span>}
-        </p>
-        {targetTotal > 0 && <div className="mt-4"><Meter pct={(total / targetTotal) * 100} /></div>}
+      <Hero
+        label="Total saved"
+        value={total}
+        of={targetTotal > 0 ? `of ${formatCurrency(targetTotal)}` : undefined}
+        pills={targetTotal > 0 ? <HeroPill>{Math.round((total / targetTotal) * 100)}% there</HeroPill> : undefined}
+      >
+        {targetTotal > 0 && (
+          <div className="mt-5 h-3 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.3)" }}>
+            <div className="h-full rounded-full transition-all duration-700" style={{ background: "#fff", width: `${Math.min(100, (total / targetTotal) * 100)}%` }} />
+          </div>
+        )}
         <div className="grid grid-cols-2 gap-3 mt-5">
           <div>
-            <p className="text-tertiary text-[12px]">Saved this month</p>
-            <p className="text-white text-[18px] font-bold tabular-nums mt-0.5">{formatCurrency(monthTotal)}</p>
+            <p className="opacity-80 text-[12px]">Saved this month</p>
+            <p className="text-[18px] font-bold tabular-nums mt-0.5">{formatCurrency(monthTotal)}</p>
           </div>
           <div>
-            <p className="text-tertiary text-[12px]">Planned a month</p>
-            <p className="text-white text-[18px] font-bold tabular-nums mt-0.5">{plannedMonthly ? formatCurrency(plannedMonthly) : '—'}</p>
+            <p className="opacity-80 text-[12px]">Planned a month</p>
+            <p className="text-[18px] font-bold tabular-nums mt-0.5">{plannedMonthly ? formatCurrency(plannedMonthly) : '—'}</p>
           </div>
         </div>
-        <p className="text-tertiary text-[12px] italic mt-5 leading-relaxed">“{VERSES.wiseSaves.text}” — {VERSES.wiseSaves.ref}</p>
-      </Card>
+        <p className="opacity-80 text-[12px] italic mt-5 leading-relaxed">“{VERSES.wiseSaves.text}” — {VERSES.wiseSaves.ref}</p>
+      </Hero>
 
       <Card padded={false}>
         <div className="flex items-center justify-between gap-3 p-5 pb-3">
@@ -147,7 +153,7 @@ export function SavingsView({ month }: { month: Date }) {
           <div className="divide-y divide-border/60">
             {rows.map(({ plan, p }) => (
               <button key={plan.id} type="button" onClick={() => setOpenId(plan.id)} className="w-full text-left px-5 py-4 flex items-center gap-3.5">
-                <span className="w-11 h-11 rounded-full bg-surface border border-border flex items-center justify-center text-[20px] shrink-0">{kindMeta(plan.kind).icon}</span>
+                <span className="w-11 h-11 rounded-full bg-surface border border-border flex items-center justify-center text-secondary shrink-0"><EmojiIcon emoji={kindMeta(plan.kind).icon} size={20} /></span>
                 <span className="min-w-0 flex-1">
                   <span className="flex items-baseline justify-between gap-3">
                     <span className="flex items-center gap-1 text-white text-[16px] font-medium min-w-0">

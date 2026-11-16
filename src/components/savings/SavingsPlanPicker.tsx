@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { EmojiIcon } from '../ui/EmojiIcon'
 import clsx from 'clsx'
 import { SavingsPlanSheet } from './SavingsPlanSheet'
 import { useExpenses, useSavingsPlans } from '../../hooks/useLiveData'
@@ -20,7 +21,7 @@ export function SavingsPlanPicker({ value, onChange, showProgress }: { value: st
           return (
             <button key={p.id} type="button" onClick={() => onChange(p.id)} aria-pressed={selected}
               className={clsx('h-[58px] rounded-2xl border flex items-center gap-3 px-4 text-left transition-colors active:scale-[0.98]', selected ? 'bg-accent-soft border-accent text-accent-ink' : 'bg-surface border-border text-white')}>
-              <span className="text-[22px]">{kindMeta(p.kind).icon}</span>
+              <EmojiIcon emoji={kindMeta(p.kind).icon} size={22} />
               <span className="min-w-0 flex-1">
                 <span className="block text-[16px] font-semibold truncate">{p.name}</span>
                 <span className="block text-[12px] opacity-70 truncate">

@@ -8,14 +8,15 @@ import {
   useIncomes,
   useSettings,
 } from '../../hooks/useLiveData'
+import { formatCurrency } from '../../lib/currency'
 import {
+  formatMonthLabel,
   filterByMonth,
   thisWeekSpending,
   todaySpending,
   typeBreakdown,
   sum,
 } from '../../lib/analytics'
-import { AnimatedNumber } from '../ui/AnimatedNumber'
 import { TypeBreakdownCard } from './TypeBreakdownCard'
 import { TransactionItem } from './TransactionItem'
 import { EmptyState } from '../ui/EmptyState'
@@ -25,6 +26,8 @@ import { FirstFruitsCard } from '../stewardship/FirstFruitsCard'
 import { BudgetProgressCard } from '../budget/BudgetProgressCard'
 import { monthPlan } from '../../lib/stewardship'
 import { ReimbursementCard } from '../stewardship/ReimbursementCard'
+import { Hero, HeroPill } from '../ui/Hero'
+import { Sparkline } from '../ui/Sparkline'
 import { QuickRepeat } from '../add/QuickRepeat'
 import { parentMap } from '../../lib/categoryTree'
 import { personalOnly, reimbursableIds } from '../../lib/reimbursement'
@@ -77,6 +80,17 @@ export function HomeScreen({
   const breakdown = useMemo(() => typeBreakdown(monthExpenses), [monthExpenses])
   const todayTotal = useMemo(() => todaySpending(personal, today), [personal, today])
   const monthTotal = useMemo(() => sum(monthExpenses), [monthExpenses])
+  // Spending for each day of the month so far, for the line on the green panel.
+  const { dailyTotals, dailyLabels } = useMemo(() => {
+    const days = today.getDate()
+    const totals = Array.from({ length: days }, () => 0)
+    for (const e of monthExpenses) {
+      const d = parseInt(e.date.slice(8, 10), 10)
+      if (d >= 1 && d <= days) totals[d - 1] += e.amount
+    }
+    const labels = [1, Math.ceil(days / 2), days].filter((d, i, a) => a.indexOf(d) === i).map(String)
+    return { dailyTotals: totals, dailyLabels: labels }
+  }, [monthExpenses, today])
   const recent = useMemo(() => (expenses ?? []).slice(0, 8), [expenses])
 
   const plan = useMemo(
@@ -122,15 +136,13 @@ export function HomeScreen({
 
       <QuickRepeat className="mb-7" />
 
-      <div className="mb-7">
-        <p className="text-secondary text-[15px] mb-1">Today's Spending</p>
-        <AnimatedNumber value={todayTotal} className="text-white text-[44px] font-bold leading-none tracking-tight tabular-nums" />
-      </div>
-
-      <div className="mb-8">
-        <p className="text-secondary text-[15px] mb-1">This Month</p>
-        <AnimatedNumber value={monthTotal} className="text-white text-[30px] font-bold leading-none tracking-tight tabular-nums" />
-      </div>
+      <Hero label="Spent today" value={todayTotal} pills={<HeroPill>{formatMonthLabel(today)}</HeroPill>} className="mb-7">
+        <div className="mt-5">
+          <p className="opacity-80 text-[12px]">So far this month</p>
+          <p className="text-[22px] font-bold tabular-nums mt-0.5">{formatCurrency(monthTotal)}</p>
+        </div>
+        <Sparkline values={dailyTotals} labels={dailyLabels} />
+      </Hero>
 
       <div className="flex flex-col gap-4 mb-8">
         {plan && settings && (
