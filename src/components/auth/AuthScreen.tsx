@@ -125,14 +125,35 @@ function Submit({ busy, children }: { busy: boolean; children: ReactNode }) {
   )
 }
 
+/**
+ * An email link that is old or was already used brings the person back with an error in the address.
+ * Say so in plain words, and start them on getting a new link.
+ */
+function linkProblemFromUrl() {
+  const hash = location.hash.replace(/^#/, '')
+  if (!hash.includes('error')) return null
+  const params = new URLSearchParams(hash)
+  const code = params.get('error_code') ?? ''
+  try {
+    history.replaceState(null, '', location.pathname + location.search)
+  } catch {
+    // Not important if the address cannot be tidied.
+  }
+  if (code === 'otp_expired' || /expired|invalid/i.test(params.get('error_description') ?? '')) {
+    return 'That link has expired or was already used. Enter your email to get a new one.'
+  }
+  return 'That link did not work. Enter your email to get a new one.'
+}
+
 /** Sign in, create an account, or ask for a password-reset link. */
 export function AuthScreen() {
-  const [mode, setMode] = useState<Mode>('signin')
+  const [linkProblem] = useState(linkProblemFromUrl)
+  const [mode, setMode] = useState<Mode>(linkProblem ? 'forgot' : 'signin')
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [busy, setBusy] = useState(false)
-  const [error, setError] = useState('')
+  const [error, setError] = useState(linkProblem ?? '')
   const [info, setInfo] = useState('')
   const [needsConfirm, setNeedsConfirm] = useState(false)
 
