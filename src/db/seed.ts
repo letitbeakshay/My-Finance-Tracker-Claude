@@ -1,6 +1,7 @@
 import { supabase } from '../lib/supabaseClient'
 import { DEFAULT_PLAN } from '../lib/categoryPlan'
 import { categoryPlanRepo } from './repository'
+import { guessCurrency, setCurrency } from '../lib/currency'
 
 let seedPromise: Promise<void> | null = null
 
@@ -24,19 +25,24 @@ export function resetSeeding() {
 }
 
 async function seedOnce() {
-  const { data: settings, error } = await supabase.from('app_settings').select('onboarded_at').eq('id', 'app').maybeSingle()
+  const { data: settings, error } = await supabase.from('app_settings').select('onboarded_at, currency').eq('id', 'app').maybeSingle()
   if (error) throw error
 
   if (!settings) {
     // The settings row is the lock: only the tab that manages to create it sets up the categories.
-    const { error: insertError } = await supabase.from('app_settings').insert({ id: 'app', currency: '₹', giving_seeded: true })
+    const code = guessCurrency()
+    const { error: insertError } = await supabase.from('app_settings').insert({ id: 'app', currency: code, giving_seeded: true })
     if (insertError) {
       if (insertError.code === '23505') return
       throw insertError
     }
+    setCurrency(code)
     await seedCategories()
     return
   }
+
+  // Money is shown in the currency this person chose.
+  setCurrency(settings.currency)
 
   // Setup was cut short before the person finished the welcome steps: finish it.
   if (!settings.onboarded_at) await seedCategories()

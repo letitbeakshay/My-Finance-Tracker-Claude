@@ -236,3 +236,21 @@ body {
   --chart-8: #5db4b5;
   --chart-other: #4a4743;
 }
+
+/* The month report is only visible when printing or saving as a PDF. */
+#report-print {
+  display: none;
+}
+@media print {
+  #root {
+    display: none !important;
+  }
+  #report-print {
+    display: flex !important;
+    justify-content: center;
+    padding: 24px;
+  }
+  body {
+    background: #fff !important;
+  }
+}

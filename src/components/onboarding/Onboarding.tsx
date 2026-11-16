@@ -3,6 +3,8 @@ import clsx from 'clsx'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Check, Landmark, CreditCard, PiggyBank, HandHeart, Zap } from 'lucide-react'
 import { Button } from '../ui/Button'
+import { CurrencySelect } from '../ui/CurrencySelect'
+import { getCurrency, setCurrency } from '../../lib/currency'
 import { paymentAccountRepo, settingsRepo } from '../../db/repository'
 import { useSettings } from '../../hooks/useLiveData'
 import { VERSES } from '../../lib/scripture'
@@ -45,6 +47,8 @@ function Pct({ options, value, onChange, label }: { options: number[]; value: nu
 export function Onboarding({ name, onDone }: { name?: string; onDone: () => void }) {
   const settings = useSettings()
   const [step, setStep] = useState(0)
+  const startCurrency = useState(() => getCurrency().code)[0]
+  const [currency, setCurrencyState] = useState(startCurrency)
   const [giving, setGiving] = useState(10)
   const [saving, setSaving] = useState(10)
   const [accountType, setAccountType] = useState<PaymentAccountType>('bank_account')
@@ -58,6 +62,10 @@ export function Onboarding({ name, onDone }: { name?: string; onDone: () => void
     setError('')
     try {
       await settingsRepo.updatePlan({ givingPercent: giving, savingPercent: saving, pauseThreshold: settings?.pauseThreshold ?? 2000 })
+      if (currency !== startCurrency) {
+        await settingsRepo.setCurrency(currency)
+        setCurrency(currency)
+      }
       setStep(2)
     } catch {
       setError('Could not save. Please check your connection and try again.')
@@ -90,7 +98,9 @@ export function Onboarding({ name, onDone }: { name?: string; onDone: () => void
     setError('')
     try {
       await settingsRepo.markOnboarded()
-      onDone()
+      // A different currency changes every amount shown, so start fresh in it.
+      if (currency !== startCurrency) window.location.reload()
+      else onDone()
     } catch {
       setError('Could not finish. Please check your connection and try again.')
       setBusy(false)
@@ -153,10 +163,13 @@ export function Onboarding({ name, onDone }: { name?: string; onDone: () => void
 
               {step === 1 && (
                 <>
-                  <h1 className="text-white text-[26px] font-bold leading-tight">Give first, then save</h1>
+                  <h1 className="text-white text-[26px] font-bold leading-tight">Currency, giving and saving</h1>
                   <p className="text-secondary text-[15px] mt-2 leading-relaxed">
                     When you record income, we work out how much to set aside. You can change these any time in Settings.
                   </p>
+                  <p className="text-white text-[15px] font-semibold mt-6 mb-1">Your currency</p>
+                  <p className="text-tertiary text-[13px] mb-2.5">Every amount is shown in it. You can change it in Settings.</p>
+                  <CurrencySelect value={currency} onChange={setCurrencyState} />
                   <p className="text-white text-[15px] font-semibold mt-6 mb-1">Give (tithe, first fruits)</p>
                   <p className="text-tertiary text-[13px] mb-2.5">Share of each income to give before you spend.</p>
                   <Pct options={GIVING} value={giving} onChange={setGiving} label="Giving percent" />

@@ -12,7 +12,8 @@ import {
 import { INCOME_ICON } from '../../lib/dataIcons'
 import { CategoryIcon } from '../ui/CategoryIcon'
 import { formatMonthLabel } from '../../lib/analytics'
-import { monthPlan } from '../../lib/stewardship'
+import { debtSummary, monthPlan } from '../../lib/stewardship'
+import { Share2 } from 'lucide-react'
 import { readSession, writeSession } from '../../lib/session'
 import { EXPENSE_TYPE_COLORS as TYPE_COLOR, EXPENSE_TYPE_LABELS, PAYMENT_METHOD_LABELS } from '../../types'
 import type { Expense, Income, Loan } from '../../types'
@@ -37,6 +38,7 @@ import { AccountsPanel, type AccountSummary } from './AccountsPanel'
 import { SectionNav, type Section } from './SectionNav'
 import { AddIncomeSheet } from './AddIncomeSheet'
 import { SavingsView } from '../savings/SavingsView'
+import { MonthReportSheet } from '../report/MonthReportSheet'
 import { StatementImportSheet } from './StatementImportSheet'
 import { AddLoanSheet } from './AddLoanSheet'
 import { IncomeSheet } from './ManageSheets'
@@ -76,6 +78,7 @@ export function AllDataScreen() {
   const [addingIncome, setAddingIncome] = useState(false)
   const [addingLoan, setAddingLoan] = useState(false)
   const [importing, setImporting] = useState(false)
+  const [reporting, setReporting] = useState(false)
 
   const categoryMap = useMemo(() => new Map((categories ?? []).map((c) => [c.id, c])), [categories])
   const reimbursable = useMemo(() => reimbursableIds(categories ?? []), [categories])
@@ -187,6 +190,14 @@ export function AllDataScreen() {
             className="flex-1 sm:flex-none h-11 px-5 rounded-2xl bg-primary text-on-primary text-[15px] font-semibold"
           >
             + Income
+          </button>
+          <button
+            type="button"
+            onClick={() => setReporting(true)}
+            aria-label="Share this month"
+            className="h-11 w-11 shrink-0 rounded-2xl bg-surface border border-border text-white flex items-center justify-center"
+          >
+            <Share2 size={18} />
           </button>
           <button
             type="button"
@@ -311,6 +322,15 @@ export function AllDataScreen() {
         givingPercent={settings?.givingPercent ?? 10}
       />
       <AddLoanSheet open={addingLoan} onClose={() => setAddingLoan(false)} />
+      <MonthReportSheet
+        open={reporting}
+        onClose={() => setReporting(false)}
+        month={month}
+        plan={plan}
+        expenses={personalOnly(monthExpenses, reimbursable)}
+        categories={categories ?? []}
+        owed={debtSummary(loans).owed}
+      />
       {importing && <StatementImportSheet open onClose={() => setImporting(false)} />}
     </div>
   )

@@ -504,5 +504,37 @@ begin
   end loop;
 end $$;
 
+
+-- Feedback from people using the app. They can send it, never read it back; you read it in the SQL editor:
+--   select f.created_at, u.email, f.kind, f.message from feedback f left join auth.users u on u.id = f.user_id order by f.id desc;
+create table if not exists feedback (
+  id bigint generated always as identity primary key,
+  user_id uuid default auth.uid() references auth.users(id) on delete cascade,
+  kind text not null default 'idea',
+  message text not null check (char_length(message) between 1 and 4000),
+  app_version text,
+  created_at timestamptz not null default now()
+);
+
+alter table feedback enable row level security;
+drop policy if exists feedback_insert on feedback;
+create policy feedback_insert on feedback for insert to authenticated with check (user_id = (select auth.uid()));
+revoke all on feedback from anon, authenticated;
+grant insert on feedback to authenticated;
+
+-- A few per hour is plenty; this stops anyone flooding the table.
+create or replace function limit_feedback() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  if (select count(*) from feedback where user_id = new.user_id and created_at > now() - interval '1 hour') >= 10 then
+    raise exception 'Too much feedback in a short time. Please try again later.';
+  end if;
+  return new;
+end $$;
+
+revoke all on function limit_feedback() from public, anon, authenticated;
+drop trigger if exists limit_feedback on feedback;
+create trigger limit_feedback before insert on feedback for each row execute function limit_feedback();
+
 -- Make the API pick up any new tables and columns straight away.
 notify pgrst, 'reload schema';

@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import clsx from 'clsx'
@@ -10,6 +11,9 @@ import { PaymentAccountPicker } from './PaymentAccountPicker'
 import { SavingsPlanPicker } from '../savings/SavingsPlanPicker'
 import { lastAccountFor, mostUsedAccountFor, rememberAccount } from '../../lib/lastAccount'
 import { SuccessAnimation, type Reflection } from './SuccessAnimation'
+import { showUndo } from '../../lib/toast'
+import { QuickRepeat } from './QuickRepeat'
+import { suggestFromNote } from '../../lib/suggest'
 import { CountTheCostSheet } from './CountTheCostSheet'
 import { PleasesGodPicker } from './PleasesGodPicker'
 import type { AddExpensePreset } from './AddExpenseScreen'
@@ -51,10 +55,12 @@ interface ExpenseWizardProps {
   onDone: () => void
   onCancel: () => void
   preset?: AddExpensePreset
+  /** The Expense / Income switch, shown at the top of the first step. */
+  modeSwitch?: ReactNode
 }
 
 /** Adds an expense one question at a time: amount, category, type, then payment. */
-export function ExpenseWizard({ onDone, onCancel, preset }: ExpenseWizardProps) {
+export function ExpenseWizard({ onDone, onCancel, preset, modeSwitch }: ExpenseWizardProps) {
   const categories = useCategories()
   const accounts = usePaymentAccounts()
   const savingsPlans = useSavingsPlans()
@@ -102,9 +108,14 @@ export function ExpenseWizard({ onDone, onCancel, preset }: ExpenseWizardProps) 
   }
 
   const isFirstRender = useRef(true)
+  const keepAccount = useRef(false)
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false
+      return
+    }
+    if (keepAccount.current) {
+      keepAccount.current = false
       return
     }
     // A different payment method means any picked card/account may no longer apply; start from the one you use most.
@@ -129,6 +140,26 @@ export function ExpenseWizard({ onDone, onCancel, preset }: ExpenseWizardProps) 
     return new Map(progress.categories.map((l) => [l.categoryId!, l]))
   }, [budgets, expenses, date, categories, reimbursable])
 
+  // A guess from your history while you type the note: category, type, how you paid and the bank.
+  const suggestion = useMemo(() => suggestFromNote(notes, expenses ?? []), [notes, expenses])
+  const suggestedCategory = suggestion ? categoryById.get(suggestion.categoryId) : undefined
+  const suggestedAccount = suggestion?.accountId ? (accounts ?? []).find((a) => a.id === suggestion.accountId) : undefined
+
+  function applySuggestion() {
+    if (!suggestion || !suggestedCategory) return
+    setCategoryId(suggestion.categoryId)
+    setType(suggestion.type)
+    setTypeTouched(true)
+    setPleasesGod(suggestion.pleasesGod ?? (suggestion.type === 'giving' ? true : null))
+    if (suggestion.savingsPlanId) setSavingsPlanId(suggestion.savingsPlanId)
+    if (suggestion.paymentMethod !== paymentMethod) keepAccount.current = true
+    setPaymentMethod(suggestion.paymentMethod)
+    setAccountId(suggestion.accountId ?? null)
+    // With an amount and an answer to "pleases God", everything is filled in: go straight to the last step.
+    if (numericAmount > 0 && (suggestion.pleasesGod !== undefined || suggestion.type === 'giving')) go(3)
+    else if (numericAmount > 0) go(1)
+  }
+
   const valid = [numericAmount > 0 && !!date, !!categoryId && pleasesGod !== null, !!type, true][step]
 
   function go(next: number) {
@@ -147,7 +178,7 @@ export function ExpenseWizard({ onDone, onCancel, preset }: ExpenseWizardProps) 
     }
     setPausing(false)
     setSaving(true)
-    await expenseRepo.add({
+    const saved = await expenseRepo.add({
       amount: numericAmount,
       categoryId,
       type,
@@ -158,6 +189,7 @@ export function ExpenseWizard({ onDone, onCancel, preset }: ExpenseWizardProps) 
       pleasesGod: pleasesGod ?? undefined,
       savingsPlanId: type === 'savings' && savingsPlans?.some((p) => p.id === savingsPlanId) ? savingsPlanId ?? undefined : undefined,
     })
+    showUndo(`Saved ${formatCurrency(numericAmount)}${notes.trim() ? ` · ${notes.trim()}` : category ? ` · ${category.name}` : ''}`, () => expenseRepo.remove(saved.id))
     rememberAccount(paymentMethod, accountId)
     if (type === 'savings') rememberAccount('savings_plan', savingsPlanId)
     // What to say now: encouragement when it pleased God, a gentle nudge when it did not.
@@ -214,6 +246,7 @@ export function ExpenseWizard({ onDone, onCancel, preset }: ExpenseWizardProps) 
           </div>
           <div className="w-10" />
         </div>
+        {step === 0 && modeSwitch && <div className="mt-3">{modeSwitch}</div>}
         <div className="flex gap-1.5 mt-3" aria-hidden>
           {STEPS.map((s, i) => (
             <div
@@ -242,6 +275,7 @@ export function ExpenseWizard({ onDone, onCancel, preset }: ExpenseWizardProps) 
             {step === 0 && (
               <>
                 <AmountInput value={amount} onChange={setAmount} inputRef={amountRef} />
+                <QuickRepeat className="mb-6 -mt-3" onSaved={onDone} />
                 <div className="mb-5">
                   <p className={LABEL}>Note</p>
                   <input
@@ -252,6 +286,25 @@ export function ExpenseWizard({ onDone, onCancel, preset }: ExpenseWizardProps) 
                     enterKeyHint="next"
                     className="w-full h-14 bg-surface border border-border rounded-2xl px-4 text-white text-[16px] placeholder:text-tertiary"
                   />
+                  {suggestion && suggestedCategory && (
+                    <button
+                      type="button"
+                      onClick={applySuggestion}
+                      className="mt-2.5 w-full min-h-12 rounded-2xl border border-accent bg-accent-soft px-3.5 py-2 flex items-center gap-2.5 text-left"
+                    >
+                      <Sparkles size={17} className="text-accent-ink shrink-0" />
+                      <span className="flex-1 min-w-0">
+                        <span className="block text-accent-ink text-[14px] font-semibold truncate">
+                          {suggestedCategory.name} · {PAYMENT_METHOD_LABELS[suggestion.paymentMethod]}
+                          {suggestedAccount ? ` · ${suggestedAccount.label}` : ''}
+                        </span>
+                        <span className="block text-secondary text-[12px]">
+                          From {suggestion.count} earlier {suggestion.count === 1 ? 'expense' : 'expenses'}. Tap to fill it in.
+                        </span>
+                      </span>
+                      <span className="text-accent-ink text-[13px] font-bold shrink-0">Use</span>
+                    </button>
+                  )}
                 </div>
                 <div>
                   <p className={LABEL}>Date</p>

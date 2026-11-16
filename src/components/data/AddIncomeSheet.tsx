@@ -9,6 +9,7 @@ import { useAllCategories, useExpenses } from '../../hooks/useLiveData'
 import { pendingReimbursements, reimbursableIds } from '../../lib/reimbursement'
 import { formatCurrency } from '../../lib/currency'
 import { VERSES } from '../../lib/scripture'
+import { showUndo } from '../../lib/toast'
 import type { PaymentAccount } from '../../types'
 
 const FIELD =
@@ -23,7 +24,17 @@ interface AddIncomeSheetProps {
   onGive?: (amount: number) => void
 }
 
-export function AddIncomeSheet({ open, onClose, bankAccounts, givingPercent, onGive }: AddIncomeSheetProps) {
+/** The bottom sheet used on the Dashboard. */
+export function AddIncomeSheet(props: AddIncomeSheetProps) {
+  return (
+    <BottomSheet open={props.open} onClose={props.onClose}>
+      <IncomeForm {...props} />
+    </BottomSheet>
+  )
+}
+
+/** The income form on its own: used in the sheet and in the Income tab of the entry screen. */
+export function IncomeForm({ open, onClose, bankAccounts, givingPercent, onGive }: AddIncomeSheetProps) {
   const [source, setSource] = useState('')
   const [amount, setAmount] = useState('')
   const [date, setDate] = useState(format(new Date(), 'yyyy-MM-dd'))
@@ -71,7 +82,7 @@ export function AddIncomeSheet({ open, onClose, bankAccounts, givingPercent, onG
         setPaidBack(numericAmount)
         return
       }
-      await incomeRepo.add({
+      const savedIncome = await incomeRepo.add({
         source: source.trim(),
         amount: numericAmount,
         date,
@@ -79,6 +90,7 @@ export function AddIncomeSheet({ open, onClose, bankAccounts, givingPercent, onG
         notes: notes.trim() || undefined,
       })
       setSavedAmount(numericAmount)
+      showUndo(`Added ${formatCurrency(numericAmount)} income · ${source.trim()}`, () => incomeRepo.remove(savedIncome.id))
     } catch {
       setError('Could not save. Please check your connection and try again.')
     } finally {
@@ -87,7 +99,7 @@ export function AddIncomeSheet({ open, onClose, bankAccounts, givingPercent, onG
   }
 
   return (
-    <BottomSheet open={open} onClose={onClose}>
+    <>
       {paidBack !== null ? (
         <>
           <h2 className="text-white text-[20px] font-bold mb-1">Paid back</h2>
@@ -201,7 +213,7 @@ export function AddIncomeSheet({ open, onClose, bankAccounts, givingPercent, onG
       </Button>
         </>
       )}
-    </BottomSheet>
+    </>
   )
 }
 

@@ -1,3 +1,4 @@
+import { getCurrency } from '../../lib/currency'
 import { useRef, useEffect, useState, type RefObject } from 'react'
 
 interface AmountInputProps {
@@ -39,7 +40,7 @@ export function AmountInput({ value, onChange, inputRef }: AmountInputProps) {
       </p>
       <div className="flex items-baseline justify-center gap-1.5 max-w-full">
         <span className="text-tertiary font-semibold leading-none" style={{ fontSize: size * 0.55 }}>
-          ₹
+          {getCurrency().symbol.trim()}
         </span>
         <input
           ref={ref}

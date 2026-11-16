@@ -25,6 +25,7 @@ import { FirstFruitsCard } from '../stewardship/FirstFruitsCard'
 import { BudgetProgressCard } from '../budget/BudgetProgressCard'
 import { monthPlan } from '../../lib/stewardship'
 import { ReimbursementCard } from '../stewardship/ReimbursementCard'
+import { QuickRepeat } from '../add/QuickRepeat'
 import { parentMap } from '../../lib/categoryTree'
 import { personalOnly, reimbursableIds } from '../../lib/reimbursement'
 import { TransactionSheet } from '../insights/TransactionSheet'
@@ -118,6 +119,8 @@ export function HomeScreen({
           </button>
         </div>
       </div>
+
+      <QuickRepeat className="mb-7" />
 
       <div className="mb-7">
         <p className="text-secondary text-[15px] mb-1">Today's Spending</p>

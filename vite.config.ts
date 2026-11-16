@@ -19,6 +19,11 @@ export default defineConfig({
         background_color: '#fcfbf9',
         display: 'standalone',
         orientation: 'portrait',
+        shortcuts: [
+          { name: 'Add expense', short_name: 'Expense', description: 'Log an expense', url: './?action=add', icons: [{ src: 'icon-192.png', sizes: '192x192' }] },
+          { name: 'Add income', short_name: 'Income', description: 'Record income', url: './?action=income', icons: [{ src: 'icon-192.png', sizes: '192x192' }] },
+          { name: 'Dashboard', short_name: 'Dashboard', description: 'See your money', url: './?view=data', icons: [{ src: 'icon-192.png', sizes: '192x192' }] },
+        ],
         icons: [
           { src: 'icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
           { src: 'icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },

@@ -4,11 +4,12 @@ import { formatCurrency } from '../../lib/currency'
 
 interface AnimatedNumberProps {
   value: number
+  /** Overrides the currency symbol; normally the chosen currency is used. */
   currency?: string
   className?: string
 }
 
-export function AnimatedNumber({ value, currency = '₹', className }: AnimatedNumberProps) {
+export function AnimatedNumber({ value, currency, className }: AnimatedNumberProps) {
   const [display, setDisplay] = useState(0)
   const prevValue = useRef(0)
 

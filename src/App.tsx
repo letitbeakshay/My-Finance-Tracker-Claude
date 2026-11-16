@@ -9,6 +9,8 @@ import { SettingsScreen } from './components/settings/SettingsScreen'
 import { AuthScreen, RecoveryScreen } from './components/auth/AuthScreen'
 import { LegalPage, legalPageFromUrl } from './components/auth/LegalPage'
 import { Onboarding } from './components/onboarding/Onboarding'
+import { UndoBar } from './components/ui/UndoBar'
+import { Tour } from './components/tour/Tour'
 import { StewardshipScreen } from './components/stewardship/StewardshipScreen'
 import { BudgetsScreen } from './components/budget/BudgetsScreen'
 import type { AddExpensePreset } from './components/add/AddExpenseScreen'
@@ -38,9 +40,19 @@ const AWAY_MS = 20_000
 /** Signed-in app: the screens below. Everything here can assume a person is signed in. */
 function SignedInApp() {
   const [route, setRoute] = useState<Route>('add')
+  const [entryMode] = useState<'expense' | 'income'>(() => (new URLSearchParams(location.search).get('action') === 'income' ? 'income' : 'expense'))
   const [launchKey, setLaunchKey] = useState(0)
   const [view, setView] = useState<View>(initialView)
   const [addPreset, setAddPreset] = useState<AddExpensePreset | null>(null)
+
+  useEffect(() => {
+    // The home-screen shortcuts open the app with ?action=...; tidy the address once it has been read.
+    if (new URLSearchParams(location.search).has('action')) {
+      const url = new URL(location.href)
+      url.searchParams.delete('action')
+      history.replaceState(null, '', url.pathname + url.search)
+    }
+  }, [])
 
   useEffect(() => {
     // Drives the wider desktop layout for the Dashboard (see index.css).
@@ -140,6 +152,8 @@ function SignedInApp() {
             <AddExpenseScreen
               key={launchKey}
               preset={addPreset ?? undefined}
+              initialMode={entryMode}
+              onGive={handleGive}
               onDone={() => {
                 setAddPreset(null)
                 setRoute('home')
@@ -260,6 +274,7 @@ function Authed({ userId, name }: { userId: string; name?: string }) {
     <>
       <SignedInApp key={userId} />
       <Welcome name={name} />
+      <UndoBar />
       {failed && (
         <p role="alert" className="fixed bottom-24 inset-x-4 z-[95] max-w-[520px] mx-auto rounded-2xl bg-card border border-border px-4 py-3 text-danger text-[14px] text-center">
           We could not finish setting up your account. Please check your connection and reload.
@@ -273,8 +288,11 @@ function Authed({ userId, name }: { userId: string; name?: string }) {
 function Welcome({ name }: { name?: string }) {
   const settings = useSettings()
   const [done, setDone] = useState(false)
+  const [tour, setTour] = useState(false)
+  if (tour) return <Tour onClose={() => setTour(false)} />
   if (DEMO || !settings || settings.onboardedAt || done) return null
-  return <Onboarding name={name} onDone={() => setDone(true)} />
+  // A brand-new person gets the short tour right after the welcome steps.
+  return <Onboarding name={name} onDone={() => { setDone(true); setTour(true) }} />
 }
 
 /** Decides what to show: the policy pages, sign-in, a new password, or the app itself. */

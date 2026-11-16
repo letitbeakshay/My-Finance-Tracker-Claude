@@ -3,12 +3,16 @@ import { format } from 'date-fns'
 import { CategoryManager } from './CategoryManager'
 import { PaymentAccountManager } from './PaymentAccountManager'
 import { AccountCard } from './AccountCard'
+import { FeedbackCard } from './FeedbackCard'
+import { TourCard } from '../tour/TourCard'
 import { Card } from '../ui/Card'
 import { SegmentedControl } from '../ui/SegmentedControl'
 import { useTheme, type Theme } from '../../lib/theme'
 import { Button } from '../ui/Button'
+import { CurrencySelect } from '../ui/CurrencySelect'
+import { getCurrency, setCurrency } from '../../lib/currency'
 import { BottomSheet } from '../ui/BottomSheet'
-import { dataRepo } from '../../db/repository'
+import { dataRepo, settingsRepo } from '../../db/repository'
 import { ensureSeeded, resetSeeding } from '../../db/seed'
 import { downloadFile } from '../../lib/download'
 
@@ -76,7 +80,21 @@ export function SettingsScreen({ onBack, onSignedOut }: SettingsScreenProps) {
       <div className="mb-8">
         <h3 className="text-white text-[17px] font-bold mb-3">Data</h3>
         <Card className="flex flex-col gap-3">
-          <Row label="Currency" value="₹ INR" />
+          <div className="flex items-center justify-between gap-4">
+            <span className="text-secondary text-[14px]">Currency</span>
+            <div className="w-[230px]">
+              <CurrencySelect
+                value={getCurrency().code}
+                className="w-full h-11 bg-surface border border-border rounded-xl px-3 text-white text-[16px] md:text-[14px]"
+                onChange={async (code) => {
+                  await settingsRepo.setCurrency(code)
+                  setCurrency(code)
+                  // Every amount on every screen changes, so start the app fresh in the new currency.
+                  window.location.reload()
+                }}
+              />
+            </div>
+          </div>
           <div className="flex items-center justify-between gap-4">
             <span className="text-secondary text-[14px]">Theme</span>
             <div className="w-[190px]">
@@ -100,6 +118,10 @@ export function SettingsScreen({ onBack, onSignedOut }: SettingsScreenProps) {
           </div>
         </Card>
       </div>
+
+      <TourCard />
+
+      <FeedbackCard />
 
       <div className="mb-8">
         <Button variant="secondary" onClick={() => setConfirmDelete(true)} className="text-danger!">
@@ -146,15 +168,6 @@ export function SettingsScreen({ onBack, onSignedOut }: SettingsScreenProps) {
           </Button>
         </div>
       </BottomSheet>
-    </div>
-  )
-}
-
-function Row({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex items-center justify-between">
-      <span className="text-secondary text-[14px]">{label}</span>
-      <span className="text-white text-[14px] font-medium">{value}</span>
     </div>
   )
 }

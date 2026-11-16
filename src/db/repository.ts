@@ -431,6 +431,11 @@ export const loanRepo = {
 }
 
 export const settingsRepo = {
+  async setCurrency(code: string) {
+    const { error } = await supabase.from('app_settings').update({ currency: code }).eq('id', 'app')
+    if (error) throw error
+  },
+
   /** Marks the welcome steps as finished, so they are not shown again. */
   async markOnboarded() {
     const { error } = await supabase.from('app_settings').update({ onboarded_at: new Date().toISOString() }).eq('id', 'app')
@@ -577,6 +582,13 @@ export const savingsPlanRepo = {
   /** Deleting a plan keeps every expense; they just stop pointing at it. */
   async remove(id: string) {
     const { error } = await supabase.from('savings_plans').delete().eq('id', id)
+    if (error) throw error
+  },
+}
+
+export const feedbackRepo = {
+  async send(kind: 'idea' | 'problem' | 'other', message: string) {
+    const { error } = await supabase.from('feedback').insert({ kind, message: message.trim().slice(0, 4000), app_version: 'web-1' })
     if (error) throw error
   },
 }
