@@ -1,25 +1,28 @@
 # Finance Tracker
 
-A mobile-first personal expense tracker. Log a UPI/card/cash/bank expense in
-under 5 seconds; see needs/wants/savings splits, category and payment-method
-breakdowns, and monthly insights.
+A mobile-first money tracker built around stewardship: log an expense in seconds, say whether it pleased God,
+give first, plan monthly budgets, build savings plans and see a clear way out of debt.
 
-Not accounting software, not a budgeting app, no bank sync — just the fastest
-possible manual expense log.
+## What it does
+
+- Quick expense entry (amount, category, type, how you paid), with budget impact shown as you go
+- Dashboard: transactions, budgets, savings plans, loans with repayment schedules, cards and accounts
+- Bank statement (PDF) import, read on your device
+- Accounts for everyone: sign up with email and password; each person sees only their own data
 
 ## Stack
 
-- React + TypeScript + Vite
-- Tailwind CSS v4 (dark theme, design tokens in `src/index.css`)
-- Framer Motion (animations), Recharts (charts)
-- Dexie (IndexedDB) for local-first storage — see `src/db/`
-- `vite-plugin-pwa` for offline install
+- React + TypeScript + Vite, Tailwind CSS v4, Framer Motion, Recharts
+- Supabase: Postgres, Auth, Row Level Security and realtime (see `supabase/README.md`)
+- `vite-plugin-pwa` so it installs like an app
+- Hosted on GitHub Pages
 
 ## Develop
 
 ```bash
 npm install
-npm run dev
+cp .env.example .env   # add your Supabase URL and public (anon) key
+npm run dev            # add ?demo to the address to see sample data without signing in
 ```
 
 ## Build
@@ -28,9 +31,4 @@ npm run dev
 npm run build
 ```
 
-## Architecture notes
-
-The data layer (`src/db/db.ts`, `src/db/repository.ts`) and types
-(`src/types/index.ts`) already reserve fields/tables for features not yet
-built — budgets, recurring expenses, income, multiple wallets, cloud sync —
-so those can be added later without a schema rewrite.
+Deploys run from GitHub Actions on every push to `main`: the database setup is applied, then the site is built and published.

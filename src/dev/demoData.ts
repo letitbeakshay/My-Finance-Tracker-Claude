@@ -1,5 +1,5 @@
 import { addDays, format, subDays } from 'date-fns'
-import { CATEGORY_PLAN } from '../lib/categoryPlan'
+import { CATEGORY_PLAN } from './demoPlan'
 
 /**
  * Dev-only sample data for previewing the app (`?demo` on the dev server).

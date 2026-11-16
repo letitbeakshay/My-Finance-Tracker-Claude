@@ -1,20 +1,24 @@
 import { useEffect, useState } from 'react'
+import { Loader2 } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { BottomNav, type Tab } from './components/layout/BottomNav'
 import { HomeScreen } from './components/home/HomeScreen'
 import { InsightsScreen } from './components/insights/InsightsScreen'
 import { AddExpenseScreen } from './components/add/AddExpenseScreen'
 import { SettingsScreen } from './components/settings/SettingsScreen'
-import { PasscodeGate } from './components/auth/PasscodeGate'
+import { AuthScreen, RecoveryScreen } from './components/auth/AuthScreen'
+import { LegalPage, legalPageFromUrl } from './components/auth/LegalPage'
+import { Onboarding } from './components/onboarding/Onboarding'
 import { StewardshipScreen } from './components/stewardship/StewardshipScreen'
 import { BudgetsScreen } from './components/budget/BudgetsScreen'
 import type { AddExpensePreset } from './components/add/AddExpenseScreen'
 import { AllDataScreen } from './components/data/AllDataScreen'
 import { ViewToggle, type View } from './components/layout/ViewToggle'
 import { MobileNav, type MobileDestination } from './components/layout/MobileNav'
-import { DatabaseUpdateBanner } from './components/layout/DatabaseUpdateBanner'
-import { ensureSeeded } from './db/seed'
-import { isUnlocked, touchSession } from './lib/auth'
+import { ensureSeeded, resetSeeding } from './db/seed'
+import { categoryRepo } from './db/repository'
+import { DEMO, useAuth } from './lib/accounts'
+import { useSettings } from './hooks/useLiveData'
 import { keepSessionFresh, readSession, writeSession } from './lib/session'
 
 type Route = Tab | 'add' | 'settings' | 'stewardship' | 'budgets'
@@ -31,10 +35,10 @@ function initialView(): View {
 /** Coming back after this long, from the Expense screens, starts a fresh expense. The Dashboard is left alone. */
 const AWAY_MS = 20_000
 
-function App() {
+/** Signed-in app: the screens below. Everything here can assume a person is signed in. */
+function SignedInApp() {
   const [route, setRoute] = useState<Route>('add')
   const [launchKey, setLaunchKey] = useState(0)
-  const [unlocked, setUnlocked] = useState(isUnlocked)
   const [view, setView] = useState<View>(initialView)
   const [addPreset, setAddPreset] = useState<AddExpensePreset | null>(null)
 
@@ -45,12 +49,6 @@ function App() {
   }, [view])
 
   useEffect(() => {
-    touchSession()
-    // Seeding defaults must never hold the first screen back or break it if the network is slow.
-    ensureSeeded().catch((err) => console.error('Could not seed defaults', err))
-  }, [])
-
-  useEffect(() => {
     let hiddenAt = 0
     function onVisibility() {
       if (document.hidden) {
@@ -58,7 +56,6 @@ function App() {
         keepSessionFresh()
         return
       }
-      touchSession() // using the app keeps you signed in for another 30 days
       if (!hiddenAt || Date.now() - hiddenAt < AWAY_MS) return
       hiddenAt = 0
       // Only the Expense home and Insights jump back to a fresh amount screen. The Dashboard, Settings,
@@ -73,15 +70,12 @@ function App() {
     return () => document.removeEventListener('visibilitychange', onVisibility)
   }, [view, route])
 
-  if (!unlocked) {
-    return <PasscodeGate onUnlock={() => setUnlocked(true)} />
-  }
-
   /** Jump to the Add screen set up for giving, pre-filled with what is left to give. */
-  function handleGive(amount: number) {
+  async function handleGive(amount: number) {
+    const categoryId = await categoryRepo.findIdByName('Tithe').catch(() => undefined)
     setAddPreset({
       type: 'giving',
-      categoryId: 'tithe',
+      categoryId,
       amount: amount > 0 ? String(Math.round(amount)) : undefined,
     })
     setView('enter')
@@ -98,8 +92,6 @@ function App() {
       <ViewToggle value={view} onChange={setView} />
       {/* Phones have no top bar; keep content clear of the status bar. */}
       <div className="md:hidden shrink-0" style={{ height: 'var(--topbar-h)' }} />
-
-      <DatabaseUpdateBanner />
 
       {view === 'data' && <AllDataScreen />}
 
@@ -170,10 +162,7 @@ function App() {
           >
             <SettingsScreen
               onBack={() => setRoute('home')}
-              onLock={() => {
-                setRoute('home')
-                setUnlocked(false)
-              }}
+              onSignedOut={() => setRoute('home')}
             />
           </motion.div>
         )}
@@ -235,6 +224,77 @@ function App() {
       )}
     </div>
   )
+}
+
+/**
+ * After sign-in: make sure the account is set up (starting categories on a brand-new one), then show the app,
+ * with the welcome steps on top until a new person has finished them.
+ */
+function Authed({ userId, name }: { userId: string; name?: string }) {
+  const [ready, setReady] = useState(DEMO)
+  const [failed, setFailed] = useState(false)
+
+  useEffect(() => {
+    if (DEMO) return
+    let live = true
+    ensureSeeded()
+      .catch((err) => {
+        console.error('Could not set up the account', err)
+        if (live) setFailed(true)
+      })
+      .finally(() => live && setReady(true))
+    return () => {
+      live = false
+    }
+  }, [userId])
+
+  if (!ready) {
+    return (
+      <div className="fixed inset-0 bg-bg flex flex-col items-center justify-center gap-3 text-secondary text-[15px]" aria-busy="true">
+        <Loader2 size={26} className="animate-spin" />
+        Setting up your account…
+      </div>
+    )
+  }
+  return (
+    <>
+      <SignedInApp key={userId} />
+      <Welcome name={name} />
+      {failed && (
+        <p role="alert" className="fixed bottom-24 inset-x-4 z-[95] max-w-[520px] mx-auto rounded-2xl bg-card border border-border px-4 py-3 text-danger text-[14px] text-center">
+          We could not finish setting up your account. Please check your connection and reload.
+        </p>
+      )}
+    </>
+  )
+}
+
+/** The welcome steps, shown once to a new person (settings have no onboarded date yet). */
+function Welcome({ name }: { name?: string }) {
+  const settings = useSettings()
+  const [done, setDone] = useState(false)
+  if (DEMO || !settings || settings.onboardedAt || done) return null
+  return <Onboarding name={name} onDone={() => setDone(true)} />
+}
+
+/** Decides what to show: the policy pages, sign-in, a new password, or the app itself. */
+function App() {
+  const legal = legalPageFromUrl()
+  const { loading, user, recovering, clearRecovery } = useAuth()
+  const userId = user?.id
+
+  // Someone new on a shared device must be set up from scratch, not see the last person's cached setup.
+  useEffect(() => {
+    if (!userId) resetSeeding()
+  }, [userId])
+
+  if (legal) return <LegalPage kind={legal} />
+  if (loading) return <div className="fixed inset-0 bg-bg" aria-busy="true" />
+  if (!user) return <AuthScreen />
+  if (recovering) return <RecoveryScreen onDone={clearRecovery} />
+
+  const name = typeof user.user_metadata?.name === 'string' ? user.user_metadata.name : undefined
+  return <Authed key={user.id} userId={user.id} name={name} />
 }
 
 export default App

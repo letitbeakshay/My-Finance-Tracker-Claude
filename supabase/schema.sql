@@ -3,9 +3,9 @@
 -- both the fresh-install script and the migration script for an existing
 -- database (new tables/columns get added, existing ones are left alone).
 --
--- Single-user, no-auth setup: RLS is enabled with permissive "allow all"
--- policies scoped to the anon key, matching the app's passcode-gate-only
--- security model. Tighten these later if real Supabase Auth is added.
+-- Accounts: people sign up with Supabase Auth, and every row belongs to the person
+-- who created it (user_id). Row Level Security lets each signed-in person read and
+-- change only their own rows. See the "Accounts" section at the end of this file.
 
 create table if not exists categories (
   id text primary key,
@@ -210,9 +210,6 @@ alter table budget_items add column if not exists end_month text;
 update budget_items set start_month = to_char(created_at, 'YYYY-MM') where start_month is null;
 
 alter table budget_items enable row level security;
-drop policy if exists "budget_items_allow_all" on budget_items;
-create policy "budget_items_allow_all" on budget_items for all using (true) with check (true);
-
 -- Live updates in the app.
 do $$
 begin
@@ -254,9 +251,6 @@ create table if not exists savings_plans (
 );
 
 alter table savings_plans enable row level security;
-drop policy if exists "savings_plans_allow_all" on savings_plans;
-create policy "savings_plans_allow_all" on savings_plans for all using (true) with check (true);
-
 alter table expenses add column if not exists savings_plan_id text references savings_plans(id) on delete set null;
 
 do $$
@@ -282,30 +276,6 @@ alter table incomes enable row level security;
 alter table loans enable row level security;
 alter table reflections enable row level security;
 alter table budgets enable row level security;
-
-drop policy if exists "categories_allow_all" on categories;
-create policy "categories_allow_all" on categories for all using (true) with check (true);
-
-drop policy if exists "payment_accounts_allow_all" on payment_accounts;
-create policy "payment_accounts_allow_all" on payment_accounts for all using (true) with check (true);
-
-drop policy if exists "expenses_allow_all" on expenses;
-create policy "expenses_allow_all" on expenses for all using (true) with check (true);
-
-drop policy if exists "app_settings_allow_all" on app_settings;
-create policy "app_settings_allow_all" on app_settings for all using (true) with check (true);
-
-drop policy if exists "incomes_allow_all" on incomes;
-create policy "incomes_allow_all" on incomes for all using (true) with check (true);
-
-drop policy if exists "loans_allow_all" on loans;
-create policy "loans_allow_all" on loans for all using (true) with check (true);
-
-drop policy if exists "reflections_allow_all" on reflections;
-create policy "reflections_allow_all" on reflections for all using (true) with check (true);
-
-drop policy if exists "budgets_allow_all" on budgets;
-create policy "budgets_allow_all" on budgets for all using (true) with check (true);
 
 -- Enable realtime so the app reflects changes instantly without polling.
 -- Guarded because newer Supabase projects auto-add every public table to
@@ -411,6 +381,126 @@ begin
       'create trigger archive_%1$s before update or delete on %1$I for each row execute function archive_row()',
       t
     );
+  end loop;
+end $$;
+
+
+-- ---------------------------------------------------------------------------
+-- Accounts. Every row belongs to the person who signed in (user_id, filled in
+-- automatically from their login). Nobody can see or change anyone else's rows.
+-- ---------------------------------------------------------------------------
+do $$
+declare t text;
+begin
+  foreach t in array array[
+    'categories', 'payment_accounts', 'expenses', 'app_settings', 'incomes',
+    'loans', 'budgets', 'budget_items', 'savings_plans', 'reflections'
+  ] loop
+    execute format(
+      'alter table %I add column if not exists user_id uuid default auth.uid() references auth.users(id) on delete cascade', t);
+    execute format('create index if not exists %I on %I (user_id)', t || '_user_idx', t);
+  end loop;
+end $$;
+
+-- Rows that are saved by someone else's reference (a category, a bank account, a savings plan)
+-- must point at that person's own things, never at another person's.
+create or replace function check_owned_refs() returns trigger
+language plpgsql as $$
+declare j jsonb := to_jsonb(new);
+begin
+  if j->>'category_id' is not null and not exists (select 1 from categories where id = j->>'category_id') then
+    raise exception 'That category is not yours.';
+  end if;
+  if j->>'parent_id' is not null and not exists (select 1 from categories where id = j->>'parent_id') then
+    raise exception 'That category is not yours.';
+  end if;
+  if j->>'account_id' is not null and not exists (select 1 from payment_accounts where id = j->>'account_id') then
+    raise exception 'That account is not yours.';
+  end if;
+  if j->>'savings_plan_id' is not null and not exists (select 1 from savings_plans where id = j->>'savings_plan_id') then
+    raise exception 'That savings plan is not yours.';
+  end if;
+  if jsonb_typeof(j->'category_ids') = 'array' and exists (
+    select 1 from jsonb_array_elements_text(j->'category_ids') x where not exists (select 1 from categories c where c.id = x)
+  ) then
+    raise exception 'That category is not yours.';
+  end if;
+  return new;
+end $$;
+
+do $$
+begin
+  drop trigger if exists owned_refs on categories;
+  create trigger owned_refs before insert or update of parent_id on categories for each row execute function check_owned_refs();
+  drop trigger if exists owned_refs on expenses;
+  create trigger owned_refs before insert or update of category_id, account_id, savings_plan_id on expenses for each row execute function check_owned_refs();
+  drop trigger if exists owned_refs on budgets;
+  create trigger owned_refs before insert or update of category_id on budgets for each row execute function check_owned_refs();
+  drop trigger if exists owned_refs on budget_items;
+  create trigger owned_refs before insert or update of category_id, category_ids on budget_items for each row execute function check_owned_refs();
+  drop trigger if exists owned_refs on savings_plans;
+  create trigger owned_refs before insert or update of account_id on savings_plans for each row execute function check_owned_refs();
+  drop trigger if exists owned_refs on incomes;
+  create trigger owned_refs before insert or update of account_id on incomes for each row execute function check_owned_refs();
+end $$;
+
+-- Deletes the signed-in person and everything of theirs (every table above cascades from the login).
+-- The private recovery archive is cleaned too, so nothing of theirs is left behind.
+create or replace function delete_my_account() returns void
+language plpgsql security definer set search_path = public, auth as $$
+declare uid uuid := auth.uid();
+begin
+  if uid is null then
+    raise exception 'Not signed in.';
+  end if;
+  delete from auth.users where id = uid;
+  delete from public.deleted_rows where row_data->>'user_id' = uid::text;
+end $$;
+
+revoke all on function delete_my_account() from public, anon;
+grant execute on function delete_my_account() to authenticated;
+
+-- @@LOCKDOWN@@
+-- Everything below closes the database to the public key. Existing rows must be given to their owner
+-- first (scripts/claim-data.mjs); until then they stay hidden rather than exposed.
+do $$
+declare t text;
+begin
+  foreach t in array array[
+    'categories', 'payment_accounts', 'expenses', 'app_settings', 'incomes',
+    'loans', 'budgets', 'budget_items', 'savings_plans', 'reflections'
+  ] loop
+    execute format('alter table %I enable row level security', t);
+    execute format('drop policy if exists %I on %I', t || '_allow_all', t);
+    execute format('drop policy if exists %I on %I', t || '_own', t);
+    execute format(
+      'create policy %I on %I for all to authenticated using (user_id = (select auth.uid())) with check (user_id = (select auth.uid()))',
+      t || '_own', t);
+    execute format('revoke all on %I from anon', t);
+    execute format('grant select, insert, update, delete on %I to authenticated', t);
+    -- Once every row has an owner, a row can never be saved without one.
+    if not exists (select 1 from information_schema.columns where table_name = t and column_name = 'user_id' and is_nullable = 'NO') then
+      begin
+        execute format('alter table %I alter column user_id set not null', t);
+      exception when not_null_violation then
+        raise notice 'Table % still has rows without an owner; left as is.', t;
+      end;
+    end if;
+  end loop;
+end $$;
+
+-- These three tables had one row per id for the whole database; now it is one per person.
+do $$
+declare t text; pk text;
+begin
+  foreach t in array array['app_settings', 'budgets', 'reflections'] loop
+    select conname into pk from pg_constraint where conrelid = t::regclass and contype = 'p' and array_length(conkey, 1) = 1;
+    if pk is not null and exists (
+      select 1 from information_schema.columns where table_name = t and column_name = 'user_id' and is_nullable = 'NO'
+    ) then
+      execute format('alter table %I drop constraint %I', t, pk);
+      execute format('alter table %I add primary key (user_id, id)', t);
+    end if;
   end loop;
 end $$;
 

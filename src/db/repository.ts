@@ -125,6 +125,13 @@ export const expenseRepo = {
 }
 
 export const categoryRepo = {
+  /** The id of the category with this name (any case), if there is one. */
+  async findIdByName(name: string) {
+    const { data, error } = await supabase.from('categories').select('id').ilike('name', name).eq('archived', false).limit(1).maybeSingle<{ id: string }>()
+    if (error) throw error
+    return data?.id
+  },
+
   async add(input: Omit<Category, 'id' | 'createdAt'>) {
     const id = generateId()
     let sortOrder = input.sortOrder
@@ -194,19 +201,14 @@ export const categoryRepo = {
 }
 
 export const categoryPlanRepo = {
-  /** Whether the database has the columns the plan needs (the categories-v2 migration has been run). */
-  async isReady() {
-    if (import.meta.env.DEV && new URLSearchParams(location.search).has('demo')) return true
-    const { error } = await supabase.from('categories').select('parent_id, reimbursable, default_type').limit(1)
-    return !error
-  },
-
   /** Applies the category plan. Creates what is missing and moves/renames what exists; never deletes. */
   async apply(existing: Category[], plan?: PlanParent[]) {
     const { ops } = planCategories(existing, generateId, plan)
-    for (const op of ops) {
-      if (op.kind === 'create') {
-        const { error } = await supabase.from('categories').insert({
+    // New categories go in together in one request (parents first), so setting up a new account is quick.
+    const creates = ops.filter((op) => op.kind === 'create')
+    if (creates.length) {
+      const { error } = await supabase.from('categories').insert(
+        creates.map((op) => ({
           id: op.id,
           name: op.name,
           icon: op.icon,
@@ -214,23 +216,25 @@ export const categoryPlanRepo = {
           reimbursable: op.reimbursable,
           default_type: op.defaultType ?? null,
           sort_order: op.sortOrder,
+        })),
+      )
+      if (error) throw error
+    }
+    for (const op of ops) {
+      if (op.kind !== 'update') continue
+      const c = op.changes
+      const { error } = await supabase
+        .from('categories')
+        .update({
+          ...(c.name !== undefined ? { name: c.name } : {}),
+          ...(c.parentId !== undefined ? { parent_id: c.parentId } : {}),
+          ...(c.reimbursable !== undefined ? { reimbursable: c.reimbursable } : {}),
+          ...(c.defaultType !== undefined ? { default_type: c.defaultType } : {}),
+          ...(c.sortOrder !== undefined ? { sort_order: c.sortOrder } : {}),
+          ...(c.archived !== undefined ? { archived: c.archived } : {}),
         })
-        if (error) throw error
-      } else {
-        const c = op.changes
-        const { error } = await supabase
-          .from('categories')
-          .update({
-            ...(c.name !== undefined ? { name: c.name } : {}),
-            ...(c.parentId !== undefined ? { parent_id: c.parentId } : {}),
-            ...(c.reimbursable !== undefined ? { reimbursable: c.reimbursable } : {}),
-            ...(c.defaultType !== undefined ? { default_type: c.defaultType } : {}),
-            ...(c.sortOrder !== undefined ? { sort_order: c.sortOrder } : {}),
-            ...(c.archived !== undefined ? { archived: c.archived } : {}),
-          })
-          .eq('id', op.id)
-        if (error) throw error
-      }
+        .eq('id', op.id)
+      if (error) throw error
     }
     return ops.length
   },
@@ -427,6 +431,12 @@ export const loanRepo = {
 }
 
 export const settingsRepo = {
+  /** Marks the welcome steps as finished, so they are not shown again. */
+  async markOnboarded() {
+    const { error } = await supabase.from('app_settings').update({ onboarded_at: new Date().toISOString() }).eq('id', 'app')
+    if (error) throw error
+  },
+
   async updatePlan(changes: Pick<AppSettings, 'givingPercent' | 'savingPercent' | 'pauseThreshold'>) {
     const { error } = await supabase
       .from('app_settings')
@@ -629,6 +639,7 @@ export const dataRepo = {
       'loans',
       'reflections',
       'expenses',
+      'savings_plans',
       'categories',
       'payment_accounts',
       'app_settings',

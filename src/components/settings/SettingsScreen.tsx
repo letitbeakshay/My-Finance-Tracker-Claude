@@ -1,24 +1,23 @@
 import { useState } from 'react'
 import { format } from 'date-fns'
 import { CategoryManager } from './CategoryManager'
-import { CategoryPlanCard } from './CategoryPlanCard'
 import { PaymentAccountManager } from './PaymentAccountManager'
-import { EmbedCodeCard } from './EmbedCodeCard'
+import { AccountCard } from './AccountCard'
 import { Card } from '../ui/Card'
 import { SegmentedControl } from '../ui/SegmentedControl'
 import { useTheme, type Theme } from '../../lib/theme'
 import { Button } from '../ui/Button'
 import { BottomSheet } from '../ui/BottomSheet'
 import { dataRepo } from '../../db/repository'
+import { ensureSeeded, resetSeeding } from '../../db/seed'
 import { downloadFile } from '../../lib/download'
-import { lock } from '../../lib/auth'
 
 interface SettingsScreenProps {
   onBack: () => void
-  onLock: () => void
+  onSignedOut: () => void
 }
 
-export function SettingsScreen({ onBack, onLock }: SettingsScreenProps) {
+export function SettingsScreen({ onBack, onSignedOut }: SettingsScreenProps) {
   const { theme, set: setTheme } = useTheme()
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [typed, setTyped] = useState('')
@@ -41,17 +40,15 @@ export function SettingsScreen({ onBack, onLock }: SettingsScreenProps) {
       const json = await dataRepo.exportJSON()
       downloadFile(json, `backup-before-delete-${format(new Date(), 'yyyy-MM-dd-HHmm')}.json`, 'application/json')
       await dataRepo.deleteAll()
+      // Starting fresh: the starting categories come back, as for a brand-new account.
+      resetSeeding()
+      ensureSeeded().catch(() => undefined)
       setConfirmDelete(false)
       setTyped('')
       onBack()
     } catch {
       setDeleteError('Something went wrong, so nothing more was deleted. Your backup file was still saved.')
     }
-  }
-
-  function handleLock() {
-    lock()
-    onLock()
   }
 
   return (
@@ -70,7 +67,7 @@ export function SettingsScreen({ onBack, onLock }: SettingsScreenProps) {
         <h1 className="text-[22px] font-bold">Settings</h1>
       </div>
 
-      <CategoryPlanCard />
+      <AccountCard onSignedOut={onSignedOut} />
 
       <CategoryManager />
 
@@ -104,21 +101,13 @@ export function SettingsScreen({ onBack, onLock }: SettingsScreenProps) {
         </Card>
       </div>
 
-      <EmbedCodeCard />
-
-      <div className="mb-4">
-        <Button variant="secondary" onClick={handleLock}>
-          Lock App
-        </Button>
-      </div>
-
       <div className="mb-8">
         <Button variant="secondary" onClick={() => setConfirmDelete(true)} className="text-danger!">
           Delete All Data
         </Button>
       </div>
 
-      <p className="text-tertiary text-[12px] text-center">Finance Tracker · v1.0 · Synced with Supabase</p>
+      <p className="text-tertiary text-[12px] text-center">Finance Tracker · v1.0</p>
 
       <BottomSheet
         open={confirmDelete}

@@ -18,43 +18,102 @@ export interface PlanParent {
   children?: PlanChild[]
 }
 
-/** The spending plan, in the order it appears on the Category screen. */
-export const CATEGORY_PLAN: PlanParent[] = [
-  {
-    name: 'Family Support',
-    icon: '🏠',
-    defaultType: 'need',
-    children: [
-      { name: 'Amma', icon: '👩' },
-      { name: 'Accha', icon: '👨' },
-      { name: 'Grocery', icon: '🛒' },
-      { name: 'Family expenses', icon: '👪' },
-      { name: 'Family allowance', icon: '💝' },
-      { name: 'To Family', icon: '🏠', onlyIfExists: true },
-    ],
-  },
+/** What every new account starts with: common categories, grouped, with the usual type suggested for each. */
+export const DEFAULT_PLAN: PlanParent[] = [
+  { name: 'Groceries', icon: '🛒', defaultType: 'need' },
   {
     name: 'Eating Out',
     icon: '🍽️',
     defaultType: 'want',
     children: [
-      { name: 'Coffee', icon: '☕' },
-      { name: 'Outside Meal', icon: '🍛', matches: ['food'] },
-      { name: 'Breakfast', icon: '🥞' },
-      { name: 'Food delivery', icon: '🛵' },
+      { name: 'Restaurants', icon: '🍛' },
+      { name: 'Coffee & Tea', icon: '☕' },
       { name: 'Snacks', icon: '🥪' },
-      { name: 'Sweets & Bakery', icon: '🍰' },
-      { name: 'Treating friends', icon: '🧑‍🤝‍🧑' },
+      { name: 'Food delivery', icon: '🛵' },
     ],
   },
-  { name: 'Shopping', icon: '🛍', defaultType: 'want' },
-  { name: 'Record (Reimbursable)', icon: '🧾', defaultType: 'need', reimbursable: true },
   {
-    name: 'Helping Others',
-    icon: '🤝',
-    defaultType: 'giving',
-    children: [{ name: 'Serving', icon: '🙌', onlyIfExists: true }],
+    name: 'Home & Utilities',
+    icon: '🏠',
+    defaultType: 'need',
+    children: [
+      { name: 'Rent', icon: '🏠' },
+      { name: 'Electricity', icon: '💡' },
+      { name: 'Water & Gas', icon: '🚰' },
+      { name: 'Maintenance', icon: '🛠️' },
+    ],
   },
+  {
+    name: 'Mobile & Internet',
+    icon: '📱',
+    defaultType: 'need',
+    children: [
+      { name: 'Mobile recharge', icon: '📱' },
+      { name: 'Broadband', icon: '🌐' },
+    ],
+  },
+  {
+    name: 'Transport',
+    icon: '🚗',
+    defaultType: 'need',
+    children: [
+      { name: 'Fuel', icon: '⛽' },
+      { name: 'Bus, metro & train', icon: '🚆' },
+      { name: 'Cab & auto', icon: '🚕' },
+      { name: 'Parking & tolls', icon: '🅿️' },
+      { name: 'Vehicle service', icon: '🔧' },
+    ],
+  },
+  {
+    name: 'Health',
+    icon: '💊',
+    defaultType: 'need',
+    children: [
+      { name: 'Doctor', icon: '🩺' },
+      { name: 'Medicines', icon: '💊' },
+      { name: 'Health insurance', icon: '🛡️' },
+    ],
+  },
+  {
+    name: 'Family',
+    icon: '👪',
+    defaultType: 'need',
+    children: [
+      { name: 'Parents', icon: '👵' },
+      { name: 'Children', icon: '🧒' },
+      { name: 'Household help', icon: '🧹' },
+    ],
+  },
+  {
+    name: 'Education',
+    icon: '📚',
+    defaultType: 'need',
+    children: [
+      { name: 'Fees', icon: '🎓' },
+      { name: 'Books & courses', icon: '📖' },
+    ],
+  },
+  {
+    name: 'Shopping',
+    icon: '🛍',
+    defaultType: 'want',
+    children: [
+      { name: 'Clothing', icon: '👕' },
+      { name: 'Electronics', icon: '💻' },
+      { name: 'Gifts', icon: '🎁' },
+    ],
+  },
+  {
+    name: 'Entertainment',
+    icon: '🍿',
+    defaultType: 'want',
+    children: [
+      { name: 'Movies & events', icon: '🎬' },
+      { name: 'Subscriptions', icon: '📺' },
+      { name: 'Holidays', icon: '✈️' },
+    ],
+  },
+  { name: 'EMI', icon: '🏦', defaultType: 'need', matches: ['emi'] },
   {
     name: 'Giving',
     icon: '🤲',
@@ -62,35 +121,21 @@ export const CATEGORY_PLAN: PlanParent[] = [
     children: [
       { name: 'Tithe', icon: '🙏' },
       { name: 'Offering', icon: '🕊️' },
+      { name: 'Charity', icon: '🤝' },
       { name: 'Missions', icon: '🌍' },
     ],
   },
-  { name: 'EMI', icon: '🏦', defaultType: 'need', matches: ['emi'] },
-  { name: 'Fuel', icon: '🛵', defaultType: 'need' },
-  { name: 'Recharge', icon: '📱', defaultType: 'need' },
   {
     name: 'Savings',
     icon: '💰',
     defaultType: 'savings',
-    children: [{ name: 'Investment', icon: '💰' }],
-  },
-  {
-    name: 'Other Expenses',
-    icon: '📦',
-    defaultType: 'need',
-    matches: ['others'],
     children: [
-      { name: 'Medical', icon: '💊' },
-      { name: 'Travel', icon: '✈️' },
-      { name: 'Rent', icon: '🏠' },
-      { name: 'Bills', icon: '💡' },
-      { name: 'Education', icon: '📚' },
-      { name: 'Clothing', icon: '👕' },
-      { name: 'Gift', icon: '🎁' },
-      { name: 'Work', icon: '💼' },
-      { name: 'Entertainment', icon: '🍿' },
+      { name: 'Investment', icon: '📈' },
+      { name: 'Emergency fund', icon: '🛟' },
     ],
   },
+  { name: 'Reimbursable', icon: '🧾', defaultType: 'need', reimbursable: true },
+  { name: 'Other', icon: '📦', defaultType: 'need' },
 ]
 
 export interface CategoryChanges {
@@ -117,10 +162,10 @@ export interface PlannedNode {
 const norm = (s: string) => s.trim().toLowerCase()
 
 /**
- * Works out what to change so the existing categories match CATEGORY_PLAN. Nothing is ever deleted:
+ * Works out what to change so the existing categories match the plan. Nothing is ever deleted:
  * existing categories are reused (and moved or renamed), missing ones are created. Safe to re-run.
  */
-export function planCategories(existing: Category[], newId: () => string, plan: PlanParent[] = CATEGORY_PLAN) {
+export function planCategories(existing: Category[], newId: () => string, plan: PlanParent[] = DEFAULT_PLAN) {
   const used = new Set<string>()
   const pool = [...existing].sort((a, b) => Number(!!a.archived) - Number(!!b.archived) || (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
   const find = (names: string[]) => {

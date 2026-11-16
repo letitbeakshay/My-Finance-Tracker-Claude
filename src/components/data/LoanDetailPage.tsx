@@ -56,7 +56,7 @@ export function LoanDetailPage({ loan, onBack }: { loan: Loan; onBack: () => voi
     try {
       await loanRepo.setInstallmentPaid(loan, n, paid)
     } catch {
-      setError('Could not save the tick. The database needs an update: use “Copy the SQL” in the box at the top of the app.')
+      setError('Could not save the tick. Please check your connection and try again.')
     } finally {
       setBusyN(null)
     }
@@ -92,7 +92,7 @@ export function LoanDetailPage({ loan, onBack }: { loan: Loan; onBack: () => voi
       })
       setPending(null)
     } catch {
-      setError('Could not save the schedule. The database needs an update: use “Copy the SQL” in the box at the top of the app.')
+      setError('Could not save the schedule. Please check your connection and try again.')
     } finally {
       setBusy(false)
     }

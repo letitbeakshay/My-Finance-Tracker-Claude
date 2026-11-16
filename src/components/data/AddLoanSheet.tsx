@@ -106,7 +106,7 @@ export function AddLoanSheet({ open, onClose, loan }: AddLoanSheetProps) {
       else await loanRepo.add(input)
       onClose()
     } catch {
-      setError('Could not save. The database needs an update: use “Copy the SQL” in the box at the top of the app.')
+      setError('Could not save. Please check your connection and try again.')
     } finally {
       setSaving(false)
     }

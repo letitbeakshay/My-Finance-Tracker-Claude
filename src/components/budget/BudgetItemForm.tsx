@@ -69,7 +69,7 @@ export function BudgetItemForm({
       else await budgetItemRepo.add({ ...values, month })
       onSaved(values)
     } catch {
-      setError('Could not save. The database needs an update: use “Copy the SQL” in the box at the top of the app.')
+      setError('Could not save. Please check your connection and try again.')
     } finally {
       setBusy(false)
     }

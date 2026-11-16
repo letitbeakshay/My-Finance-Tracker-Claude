@@ -37,7 +37,7 @@ export function ReceivedSheet({ expense, bankAccounts, onClose }: { expense: Exp
       rememberAccount('reimbursement', accountId)
       onClose()
     } catch {
-      setError('Could not save. The database needs an update: use “Copy the SQL” in the box at the top of the app.')
+      setError('Could not save. Please check your connection and try again.')
     } finally {
       setBusy(false)
     }
