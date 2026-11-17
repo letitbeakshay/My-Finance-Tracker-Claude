@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
-import { motion } from 'framer-motion'
-import clsx from 'clsx'
+import { Toggle } from '@/components/ui/toggle'
+import { cn } from '@/lib/utils'
 
 interface ChipProps {
   children: ReactNode
@@ -9,21 +9,11 @@ interface ChipProps {
   className?: string
 }
 
+/** A choice chip: the shadcn Toggle, pressed when selected. */
 export function Chip({ children, selected, onClick, className }: ChipProps) {
   return (
-    <motion.button
-      type="button"
-      whileTap={{ scale: 0.94 }}
-      onClick={onClick}
-      className={clsx(
-        'shrink-0 rounded-chip px-4 h-11 flex items-center gap-1.5 text-[15px] font-medium border transition-colors',
-        selected
-          ? 'bg-accent-soft border-accent text-accent-ink'
-          : 'bg-surface border-border text-white',
-        className,
-      )}
-    >
+    <Toggle pressed={!!selected} onPressedChange={() => onClick?.()} className={cn('shrink-0', className)}>
       {children}
-    </motion.button>
+    </Toggle>
   )
 }

@@ -1,3 +1,4 @@
+import { Input } from '@/components/ui/input'
 interface SearchBarProps {
   value: string
   onChange: (value: string) => void
@@ -13,7 +14,7 @@ export function SearchBar({ value, onChange, onOpenFilters, activeFilterCount }:
           <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
           <path d="m20 20-3.5-3.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
         </svg>
-        <input
+        <Input
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder="Search category, amount, notes..."

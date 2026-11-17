@@ -30,17 +30,16 @@ function Item({
       onClick={onClick}
       aria-current={active ? 'page' : undefined}
       aria-label={label}
-      className="flex-1 flex flex-col items-center justify-center gap-0.5 h-full transition-colors"
+      className="flex-1 flex items-center justify-center h-full transition-colors"
     >
       <span
         className={clsx(
-          'w-11 h-11 rounded-full flex items-center justify-center transition-colors',
+          'w-12 h-12 rounded-full flex items-center justify-center transition-colors',
           active ? 'bg-primary text-on-primary' : 'text-tertiary',
         )}
       >
         <Icon size={21} strokeWidth={active ? 2.3 : 1.9} />
       </span>
-      <span className={clsx('text-[10px] font-semibold leading-none', active ? 'text-white' : 'text-tertiary')}>{label}</span>
     </button>
   )
 }
@@ -52,7 +51,7 @@ export function MobileNav({ active, onExpense, onInsights, onAdd, onDashboard, o
       style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 12px)' }}
     >
       <div
-        className="pointer-events-auto flex items-center bg-card/90 backdrop-blur-xl border border-border/70 rounded-full px-2.5 h-[74px]"
+        className="pointer-events-auto flex items-center bg-card/90 backdrop-blur-xl border border-border/70 rounded-full px-2.5 h-[68px]"
         style={{ boxShadow: '0 14px 34px -10px rgba(25,40,28,0.28)' }}
       >
         <Item label="Expense" icon={Receipt} active={active === 'expense'} onClick={onExpense} />

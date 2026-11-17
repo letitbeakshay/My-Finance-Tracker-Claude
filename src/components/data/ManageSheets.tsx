@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
+import { Input } from '@/components/ui/input'
 import { format, parseISO } from 'date-fns'
 import { BottomSheet } from '../ui/BottomSheet'
-import { Button } from '../ui/Button'
+import { Button } from '../ui/button'
 import { incomeRepo, loanRepo } from '../../db/repository'
 import { formatCurrency } from '../../lib/currency'
 import { loanStats } from '../../lib/loanMath'
@@ -155,7 +156,7 @@ export function LoanSheet({ loan, onClose }: { loan: Loan | null; onClose: () =>
             )}
             {!loan.closed && !stats.hasPlan && (
               <div className="flex gap-3 mb-3">
-                <input
+                <Input
                   value={payment}
                   onChange={(e) => setPayment(e.target.value.replace(/[^0-9.]/g, ''))}
                   inputMode="decimal"

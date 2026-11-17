@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { Input } from '@/components/ui/input'
 import { EmojiIcon } from '../ui/EmojiIcon'
 import { Reorder } from 'framer-motion'
 import clsx from 'clsx'
@@ -147,7 +148,7 @@ export function CategoryPicker({
       {header}
       <div className="relative mb-3">
         <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-tertiary pointer-events-none" />
-        <input
+        <Input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search categories"

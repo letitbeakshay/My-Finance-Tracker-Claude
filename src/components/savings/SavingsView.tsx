@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react'
+import { Progress } from '@/components/ui/progress'
 import { format, parseISO } from 'date-fns'
 import { ChevronLeft, ChevronRight, Pencil, Plus } from 'lucide-react'
-import { Card } from '../ui/Card'
+import { Card } from '../ui/card'
 import { EmojiIcon } from '../ui/EmojiIcon'
 import { Hero, HeroPill } from '../ui/Hero'
 import { SavingsPlanSheet } from './SavingsPlanSheet'
@@ -14,11 +15,7 @@ import type { SavingsPlan } from '../../types'
 const GREEN = 'var(--color-savings)'
 
 function Meter({ pct }: { pct: number }) {
-  return (
-    <div className="h-2.5 rounded-full bg-white/5 overflow-hidden">
-      <div className="h-full rounded-full transition-all duration-700" style={{ width: `${Math.min(100, pct)}%`, background: GREEN }} />
-    </div>
-  )
+  return <Progress value={Math.max(0, Math.min(100, pct))} indicatorColor={GREEN} height="h-2.5" />
 }
 
 /** Your savings plans: how much is in each, where it is kept, and how close you are to the target. */

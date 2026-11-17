@@ -9,9 +9,10 @@ import { VERSES } from '../../lib/scripture'
 import { formatCurrency } from '../../lib/currency'
 import { itemsForMonth } from '../../lib/planMonth'
 import { formatMonthLabel } from '../../lib/analytics'
-import { Card } from '../ui/Card'
+import { Card } from '../ui/card'
+import { Progress } from '@/components/ui/progress'
 import { Hero, HeroPill } from '../ui/Hero'
-import { Button } from '../ui/Button'
+import { Button } from '../ui/button'
 import { BottomSheet } from '../ui/BottomSheet'
 import { CategoryIcon } from '../ui/CategoryIcon'
 import { NewCategorySheet } from '../settings/NewCategorySheet'
@@ -21,11 +22,7 @@ import { BudgetSpendDetail, type BudgetDetailTarget } from './BudgetSpendDetail'
 import type { BudgetItem, Category } from '../../types'
 
 function Meter({ pct, color, height = 'h-2' }: { pct: number; color: string; height?: string }) {
-  return (
-    <div className={`${height} rounded-full bg-white/5 overflow-hidden`}>
-      <div className="h-full rounded-full transition-all duration-700" style={{ width: `${Math.min(100, Math.max(0, pct))}%`, background: color }} />
-    </div>
-  )
+  return <Progress value={Math.max(0, Math.min(100, pct))} indicatorColor={color} height={height} />
 }
 
 /** Set, change or remove the monthly limit for one category. */

@@ -1,12 +1,7 @@
-import { iconForEmoji } from '../../lib/emojiIcons'
+import { resolveIcon } from '../../lib/emojiIcons'
 
-/** An icon from the app's line-icon set, or the emoji itself when it is one someone picked that we have no icon for. */
-export function EmojiIcon({ emoji, size = 18, className }: { emoji?: string; size?: number; className?: string }) {
-  const Icon = iconForEmoji(emoji)
-  if (Icon) return <Icon size={size} className={className} aria-hidden />
-  return (
-    <span className={className} style={{ fontSize: size, lineHeight: 1 }} aria-hidden>
-      {emoji}
-    </span>
-  )
+/** A line icon for a stored icon value (an old emoji or a chosen `i:name`), optionally guided by the item's name. Never an emoji. */
+export function EmojiIcon({ emoji, name, size = 18, className }: { emoji?: string; name?: string; size?: number; className?: string }) {
+  const Icon = resolveIcon(emoji, name)
+  return <Icon size={size} className={className} aria-hidden />
 }

@@ -4,6 +4,7 @@ import type { Category, Expense, PaymentAccount } from '../../types'
 import { formatCurrency } from '../../lib/currency'
 import { PAYMENT_METHOD_ICONS } from '../../lib/paymentIcons'
 import { EXPENSE_TYPE_COLORS as TYPE_DOT, PAYMENT_METHOD_LABELS } from '../../types'
+import { EmojiIcon } from '../ui/EmojiIcon'
 
 interface TransactionItemProps {
   expense: Expense
@@ -28,7 +29,7 @@ export function TransactionItem({ expense, category, account, onClick }: Transac
       className="w-full flex items-center gap-3.5 py-3.5 text-left"
     >
       <div className="w-11 h-11 rounded-full bg-surface border border-border flex items-center justify-center text-xl shrink-0">
-        {category?.icon ?? '📦'}
+        <EmojiIcon emoji={category?.icon} name={category?.name} size={20} />
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1.5">
@@ -46,7 +47,7 @@ export function TransactionItem({ expense, category, account, onClick }: Transac
       <p className="text-white font-semibold text-[15px] shrink-0 tabular-nums">
         {formatCurrency(expense.amount)}
       </p>
-      <span className="text-lg opacity-70 shrink-0">{PAYMENT_METHOD_ICONS[expense.paymentMethod]}</span>
+      <span className="text-lg opacity-70 shrink-0">{(() => { const I = PAYMENT_METHOD_ICONS[expense.paymentMethod]; return <I size={18} /> })()}</span>
     </motion.button>
   )
 }

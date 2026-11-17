@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
+import { Input } from '@/components/ui/input'
 import { format, parseISO } from 'date-fns'
 import { BottomSheet } from '../ui/BottomSheet'
-import { Button } from '../ui/Button'
+import { Button } from '../ui/button'
 import { SegmentedControl } from '../ui/SegmentedControl'
 import { loanRepo } from '../../db/repository'
 import { emiFor, loanStats } from '../../lib/loanMath'
@@ -119,31 +120,31 @@ export function AddLoanSheet({ open, onClose, loan }: AddLoanSheetProps) {
         <SegmentedControl options={KIND_OPTIONS} value={kind} onChange={setKind} />
       </div>
       <div className="flex flex-col gap-3 mb-5">
-        <input autoFocus={!loan} value={name} onChange={(e) => setName(e.target.value)} placeholder="Name, e.g. Home loan — PNB" className={FIELD} />
+        <Input autoFocus={!loan} value={name} onChange={(e) => setName(e.target.value)} placeholder="Name, e.g. Home loan — PNB" className={FIELD} />
         <Labelled label="Loan amount (the amount you took)">
-          <input value={principal} onChange={(e) => setPrincipal(dec(e.target.value))} inputMode="decimal" placeholder="e.g. 900000" className={FIELD} />
+          <Input value={principal} onChange={(e) => setPrincipal(dec(e.target.value))} inputMode="decimal" placeholder="e.g. 900000" className={FIELD} />
         </Labelled>
         <div className="grid grid-cols-2 gap-3">
           <Labelled label="Interest rate (% a year)">
-            <input value={rate} onChange={(e) => setRate(dec(e.target.value))} inputMode="decimal" placeholder="e.g. 8.5" className={FIELD} />
+            <Input value={rate} onChange={(e) => setRate(dec(e.target.value))} inputMode="decimal" placeholder="e.g. 8.5" className={FIELD} />
           </Labelled>
           <Labelled label="Total months (tenure)">
-            <input value={tenure} onChange={(e) => setTenure(int(e.target.value))} inputMode="numeric" placeholder="e.g. 240" className={FIELD} />
+            <Input value={tenure} onChange={(e) => setTenure(int(e.target.value))} inputMode="numeric" placeholder="e.g. 240" className={FIELD} />
           </Labelled>
         </div>
         <Labelled label={autoEmi && !typedEmi ? `Monthly EMI (worked out: ${formatCurrency(autoEmi)})` : 'Monthly EMI'}>
-          <input value={emi} onChange={(e) => setEmi(dec(e.target.value))} inputMode="decimal" placeholder={autoEmi ? String(autoEmi) : 'e.g. 11598'} className={FIELD} />
+          <Input value={emi} onChange={(e) => setEmi(dec(e.target.value))} inputMode="decimal" placeholder={autoEmi ? String(autoEmi) : 'e.g. 11598'} className={FIELD} />
         </Labelled>
         <Labelled label="How many EMIs have you already paid?">
-          <input value={emisPaid} onChange={(e) => setEmisPaid(int(e.target.value))} inputMode="numeric" placeholder="e.g. 14" className={FIELD} />
+          <Input value={emisPaid} onChange={(e) => setEmisPaid(int(e.target.value))} inputMode="numeric" placeholder="e.g. 14" className={FIELD} />
         </Labelled>
         {!stats.hasPlan && (
           <Labelled label="Or the amount already paid (no EMI plan)">
-            <input value={amountPaid} onChange={(e) => setAmountPaid(dec(e.target.value))} inputMode="decimal" placeholder="e.g. 50000" className={FIELD} />
+            <Input value={amountPaid} onChange={(e) => setAmountPaid(dec(e.target.value))} inputMode="decimal" placeholder="e.g. 50000" className={FIELD} />
           </Labelled>
         )}
         <Labelled label="Next EMI due date">
-          <input type="date" value={nextDueDate} onChange={(e) => setNextDueDate(e.target.value)} className={FIELD} />
+          <Input type="date" value={nextDueDate} onChange={(e) => setNextDueDate(e.target.value)} className={FIELD} />
         </Labelled>
       </div>
 

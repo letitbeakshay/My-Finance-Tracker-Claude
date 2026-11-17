@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
+import { Input } from '@/components/ui/input'
 import clsx from 'clsx'
-import { Button } from '../ui/Button'
+import { Button } from '../ui/button'
 import { Chip } from '../ui/Chip'
 import { useAllCategories } from '../../hooks/useLiveData'
 import { budgetItemRepo } from '../../db/repository'
@@ -119,8 +120,8 @@ export function BudgetItemForm({
         </p>
       </div>
       <div className="flex flex-col gap-3 mb-5">
-        <input autoFocus={autoFocus} value={name} onChange={(e) => setName(e.target.value)} placeholder="Name, e.g. PNB EMI" className={FIELD} />
-        <input
+        <Input autoFocus={autoFocus} value={name} onChange={(e) => setName(e.target.value)} placeholder="Name, e.g. PNB EMI" className={FIELD} />
+        <Input
           value={amount}
           onChange={(e) => setAmount(e.target.value.replace(/[^0-9.]/g, ''))}
           inputMode="decimal"

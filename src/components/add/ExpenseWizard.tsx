@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { Input } from '@/components/ui/input'
 import { EmojiIcon } from '../ui/EmojiIcon'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -18,7 +19,7 @@ import { suggestFromNote } from '../../lib/suggest'
 import { CountTheCostSheet } from './CountTheCostSheet'
 import { PleasesGodPicker } from './PleasesGodPicker'
 import type { AddExpensePreset } from './AddExpenseScreen'
-import { Button } from '../ui/Button'
+import { Button } from '../ui/button'
 import {
   useEffectiveBudgets,
   useCategories,
@@ -279,7 +280,7 @@ export function ExpenseWizard({ onDone, onCancel, preset, modeSwitch }: ExpenseW
                 <QuickRepeat className="mb-6 -mt-3" onSaved={onDone} />
                 <div className="mb-5">
                   <p className={LABEL}>Note</p>
-                  <input
+                  <Input
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && valid && go(1)}
@@ -309,7 +310,7 @@ export function ExpenseWizard({ onDone, onCancel, preset, modeSwitch }: ExpenseW
                 </div>
                 <div>
                   <p className={LABEL}>Date</p>
-                  <input
+                  <Input
                     type="date"
                     value={date}
                     max={format(new Date(), 'yyyy-MM-dd')}

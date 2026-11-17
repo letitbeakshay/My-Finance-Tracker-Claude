@@ -1,7 +1,10 @@
 import { useState, type FormEvent, type ReactNode } from 'react'
+import { Input } from '@/components/ui/input'
 import { motion } from 'framer-motion'
 import { AlertCircle, CheckCircle2, Eye, EyeOff, Loader2 } from 'lucide-react'
-import { Button } from '../ui/Button'
+import { Button } from '../ui/button'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Label as FieldLabel } from '@/components/ui/label'
 import {
   EMAIL_RE,
   changePassword,
@@ -48,9 +51,9 @@ function Shell({ children }: { children: ReactNode }) {
 
 function Label({ children, htmlFor }: { children: ReactNode; htmlFor: string }) {
   return (
-    <label htmlFor={htmlFor} className="text-tertiary text-[13px] font-medium pl-1 mb-1.5 block">
+    <FieldLabel htmlFor={htmlFor} className="text-tertiary text-[13px] font-medium pl-1 mb-1.5 block">
       {children}
-    </label>
+    </FieldLabel>
   )
 }
 
@@ -87,7 +90,7 @@ function PasswordField({
   const [show, setShow] = useState(false)
   return (
     <div className="relative">
-      <input
+      <Input
         id={id}
         type={show ? 'text' : 'password'}
         value={value}
@@ -219,27 +222,12 @@ export function AuthScreen() {
     <Shell>
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
         {mode !== 'forgot' && (
-          <div className="flex bg-surface border border-border rounded-full p-1.5 mb-5" role="tablist">
-            {(
-              [
-                ['signin', 'Sign in'],
-                ['signup', 'Create account'],
-              ] as const
-            ).map(([m, label]) => (
-              <button
-                key={m}
-                type="button"
-                role="tab"
-                aria-selected={mode === m}
-                onClick={() => switchTo(m)}
-                className={`flex-1 h-11 rounded-full text-[15px] font-semibold transition-colors ${
-                  mode === m ? 'bg-primary text-on-primary' : 'text-secondary'
-                }`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
+          <Tabs value={mode} onValueChange={(v) => switchTo(v as Mode)} className="mb-5">
+            <TabsList className="w-full h-14">
+              <TabsTrigger value="signin" className="text-[15px]">Sign in</TabsTrigger>
+              <TabsTrigger value="signup" className="text-[15px]">Create account</TabsTrigger>
+            </TabsList>
+          </Tabs>
         )}
 
         {mode === 'forgot' && (
@@ -253,7 +241,7 @@ export function AuthScreen() {
           {mode === 'signup' && (
             <div>
               <Label htmlFor="name">Your name (optional)</Label>
-              <input
+              <Input
                 id="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -265,7 +253,7 @@ export function AuthScreen() {
           )}
           <div>
             <Label htmlFor="email">Email</Label>
-            <input
+            <Input
               id="email"
               type="email"
               inputMode="email"

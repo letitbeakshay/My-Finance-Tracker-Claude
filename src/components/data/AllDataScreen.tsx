@@ -12,6 +12,8 @@ import {
 import { INCOME_ICON } from '../../lib/dataIcons'
 import { CategoryIcon } from '../ui/CategoryIcon'
 import { formatMonthLabel } from '../../lib/analytics'
+import { CategoryTiles } from '../ui/CategoryTiles'
+import { monthlyTrend } from '../../lib/trend'
 import { debtSummary, monthPlan } from '../../lib/stewardship'
 import { Share2 } from 'lucide-react'
 import { readSession, writeSession } from '../../lib/session'
@@ -158,16 +160,20 @@ export function AllDataScreen() {
 
   if (!expenses || !incomes || !loans) return null
 
-  // Spending for each day of the shown month, for the line on the green panel.
-  const dailySpend = (() => {
-    const isCurrent = month.getFullYear() === new Date().getFullYear() && month.getMonth() === new Date().getMonth()
-    const days = isCurrent ? new Date().getDate() : new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate()
-    const values = Array.from({ length: days }, () => 0)
+  // Six months of income and spending for the chart.
+  const incomeTrend = monthlyTrend(earnedOnly(incomes), month)
+  const expenseTrend = monthlyTrend(personalOnly(expenses, reimbursable), month)
+  const categoryTiles = (() => {
+    const parents = parentMap(categories ?? [])
+    const merged = new Map<string, number>()
     for (const e of personalOnly(monthExpenses, reimbursable)) {
-      const d = parseInt(e.date.slice(8, 10), 10)
-      if (d >= 1 && d <= days) values[d - 1] += e.amount
+      const top = parents.get(e.categoryId) ?? e.categoryId
+      merged.set(top, (merged.get(top) ?? 0) + e.amount)
     }
-    return { values, labels: [1, Math.ceil(days / 2), days].filter((d, i, a) => a.indexOf(d) === i).map(String) }
+    return [...merged.entries()]
+      .map(([id, amount]) => ({ category: categoryMap.get(id)!, amount }))
+      .filter((t) => t.category)
+      .sort((a, b) => b.amount - a.amount)
   })()
   const totalIncome = earnedOnly(monthIncomes).reduce((s, i) => s + i.amount, 0)
   // Reimbursable spending is paid back, so the totals show your own spending.
@@ -252,14 +258,17 @@ export function AllDataScreen() {
                 </div>
               )}
               <SummaryCards
-                daily={dailySpend.values}
-                dailyLabels={dailySpend.labels}
+                incomeTrend={incomeTrend}
+                expenseTrend={expenseTrend}
                 income={totalIncome}
                 expenses={totalExpenses}
                 cardSpend={cardSpend}
                 youOwe={youOwe}
                 owedToYou={owedToYou}
               />
+              <div className="mb-6">
+                <CategoryTiles tiles={categoryTiles} limit={8} onViewAll={() => setSection('budgets')} />
+              </div>
               <div className="grid gap-5 lg:gap-6 items-start">
                 <TransactionsPanel
                   rows={rows}

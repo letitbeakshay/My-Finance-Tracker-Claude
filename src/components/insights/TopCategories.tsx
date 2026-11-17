@@ -1,6 +1,7 @@
-import { Card } from '../ui/Card'
+import { Card } from '../ui/card'
 import type { Category } from '../../types'
 import { formatCurrency } from '../../lib/currency'
+import { EmojiIcon } from '../ui/EmojiIcon'
 
 interface TopCategoriesProps {
   breakdown: { categoryId: string; amount: number }[]
@@ -21,7 +22,7 @@ export function TopCategories({ breakdown, categoryMap }: TopCategoriesProps) {
             <Card key={b.categoryId} className="flex items-center gap-3.5" padded>
               <span className="text-tertiary text-[14px] font-bold w-4">{i + 1}</span>
               <div className="w-10 h-10 rounded-full bg-surface border border-border flex items-center justify-center text-lg shrink-0">
-                {category?.icon ?? '📦'}
+                <EmojiIcon emoji={category?.icon} name={category?.name} size={18} />
               </div>
               <span className="text-white text-[15px] font-medium flex-1 truncate">
                 {category?.name ?? 'Others'}

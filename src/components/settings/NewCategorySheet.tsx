@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
+import { Input } from '@/components/ui/input'
 import { BottomSheet } from '../ui/BottomSheet'
-import { Button } from '../ui/Button'
+import { Button } from '../ui/button'
 import { Chip } from '../ui/Chip'
 import { categoryRepo } from '../../db/repository'
-import { CATEGORY_EMOJI_OPTIONS } from '../../lib/categoryEmoji'
 import type { Category } from '../../types'
+import { EmojiIcon } from '../ui/EmojiIcon'
+import { PICKABLE_ICONS } from '../../lib/emojiIcons'
 
 interface NewCategorySheetProps {
   open: boolean
@@ -19,7 +21,7 @@ interface NewCategorySheetProps {
 
 export function NewCategorySheet({ open, onClose, onCreated, initial, parents, defaultName }: NewCategorySheetProps) {
   const [name, setName] = useState(initial?.name ?? '')
-  const [icon, setIcon] = useState(initial?.icon ?? '📦')
+  const [icon, setIcon] = useState(initial?.icon ?? 'i:box')
   const [parentId, setParentId] = useState<string | null>(initial?.parentId ?? null)
 
   // Opening to add a category you just searched for starts with that name filled in.
@@ -38,7 +40,7 @@ export function NewCategorySheet({ open, onClose, onCreated, initial, parents, d
       onCreated(category)
     }
     setName('')
-    setIcon('📦')
+    setIcon('i:box')
     setParentId(null)
   }
 
@@ -49,10 +51,10 @@ export function NewCategorySheet({ open, onClose, onCreated, initial, parents, d
       </h2>
 
       <div className="flex items-center gap-3 mb-5">
-        <div className="w-14 h-14 rounded-full bg-card border border-border flex items-center justify-center text-2xl shrink-0">
-          {icon}
+        <div className="w-14 h-14 rounded-full bg-card border border-border flex items-center justify-center text-secondary shrink-0">
+          <EmojiIcon emoji={icon} name={name} size={26} />
         </div>
-        <input
+        <Input
           autoFocus
           value={name}
           onChange={(e) => setName(e.target.value)}
@@ -79,21 +81,28 @@ export function NewCategorySheet({ open, onClose, onCreated, initial, parents, d
         </div>
       )}
 
-      <div className="grid grid-cols-8 gap-2 mb-6">
-        {CATEGORY_EMOJI_OPTIONS.map((e) => (
-          <button
-            key={e}
-            type="button"
-            onClick={() => setIcon(e)}
-            className="aspect-square rounded-xl flex items-center justify-center text-xl border"
-            style={{
-              borderColor: icon === e ? 'var(--color-accent)' : 'var(--color-border)',
-              background: icon === e ? 'var(--color-accent-soft)' : 'var(--color-surface)',
-            }}
-          >
-            {e}
-          </button>
-        ))}
+      <div className="grid grid-cols-6 gap-2 mb-6 max-h-[28dvh] overflow-y-auto">
+        {Object.entries(PICKABLE_ICONS).map(([key, Icon]) => {
+          const value = `i:${key}`
+          const on = icon === value
+          return (
+            <button
+              key={key}
+              type="button"
+              aria-label={key}
+              aria-pressed={on}
+              onClick={() => setIcon(value)}
+              className="aspect-square rounded-2xl flex items-center justify-center border transition-colors"
+              style={{
+                borderColor: on ? 'var(--color-accent)' : 'var(--color-border)',
+                background: on ? 'var(--color-accent-soft)' : 'var(--color-surface)',
+                color: on ? 'var(--color-accent-ink)' : 'var(--color-secondary)',
+              }}
+            >
+              <Icon size={22} />
+            </button>
+          )
+        })}
       </div>
 
       <Button onClick={handleSave} disabled={!name.trim()}>

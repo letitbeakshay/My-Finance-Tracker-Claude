@@ -1,5 +1,5 @@
 import { Quote } from 'lucide-react'
-import { Card } from '../ui/Card'
+import { Card } from '../ui/card'
 import type { Verse } from '../../lib/scripture'
 
 export function VerseCard({ verse, className }: { verse: Verse; className?: string }) {

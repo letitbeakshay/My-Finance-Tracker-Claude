@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react'
+import { Input } from '@/components/ui/input'
 import { EmojiIcon } from '../ui/EmojiIcon'
 import clsx from 'clsx'
 import { BottomSheet } from '../ui/BottomSheet'
-import { Button } from '../ui/Button'
+import { Button } from '../ui/button'
 import { savingsPlanRepo } from '../../db/repository'
 import { usePaymentAccounts } from '../../hooks/useLiveData'
 import { SAVINGS_KINDS } from '../../lib/savings'
 import type { SavingsKind, SavingsPlan } from '../../types'
+import { Landmark } from 'lucide-react'
 
 const FIELD = 'w-full h-14 bg-card border border-border rounded-2xl px-4 text-white text-[16px] placeholder:text-tertiary'
 const dec = (v: string) => v.replace(/[^0-9.]/g, '')
@@ -119,7 +121,7 @@ export function SavingsPlanSheet({ open, onClose, plan, onSaved }: Props) {
       <p className="text-secondary text-[14px] mb-5">Give your savings a name, a place and a goal.</p>
 
       <div className="flex flex-col gap-3 mb-5">
-        <input autoFocus={!plan} value={name} onChange={(e) => setName(e.target.value)} placeholder="Name, e.g. Emergency fund" className={FIELD} />
+        <Input autoFocus={!plan} value={name} onChange={(e) => setName(e.target.value)} placeholder="Name, e.g. Emergency fund" className={FIELD} />
 
         <p className="text-tertiary text-[12px] font-semibold uppercase tracking-wide mt-1">How are you saving?</p>
         <div className="flex flex-wrap gap-2">
@@ -137,38 +139,38 @@ export function SavingsPlanSheet({ open, onClose, plan, onSaved }: Props) {
             {banks.map((b) => (
               <button key={b.id} type="button" onClick={() => setAccountId(accountId === b.id ? '' : b.id)} aria-pressed={accountId === b.id}
                 className={clsx('h-10 px-3.5 rounded-chip border text-[14px] font-medium', accountId === b.id ? 'bg-accent-soft border-accent text-accent-ink' : 'bg-surface border-border text-white')}>
-                🏦 {b.label}
+                <Landmark size={16} /> {b.label}
               </button>
             ))}
           </div>
         )}
         {!accountId && (
-          <input value={institution} onChange={(e) => setInstitution(e.target.value)} placeholder="Bank, post office or fund house, e.g. Canara Bank, Zerodha" className={FIELD} />
+          <Input value={institution} onChange={(e) => setInstitution(e.target.value)} placeholder="Bank, post office or fund house, e.g. Canara Bank, Zerodha" className={FIELD} />
         )}
 
         <div className="grid grid-cols-2 gap-3">
           <Labelled label="Target amount">
-            <input value={target} onChange={(e) => setTarget(dec(e.target.value))} inputMode="decimal" placeholder="e.g. 300000" className={FIELD} />
+            <Input value={target} onChange={(e) => setTarget(dec(e.target.value))} inputMode="decimal" placeholder="e.g. 300000" className={FIELD} />
           </Labelled>
           <Labelled label="Put in each month">
-            <input value={monthly} onChange={(e) => setMonthly(dec(e.target.value))} inputMode="decimal" placeholder="e.g. 5000" className={FIELD} />
+            <Input value={monthly} onChange={(e) => setMonthly(dec(e.target.value))} inputMode="decimal" placeholder="e.g. 5000" className={FIELD} />
           </Labelled>
         </div>
         <Labelled label="Already saved here before you started tracking">
-          <input value={opening} onChange={(e) => setOpening(dec(e.target.value))} inputMode="decimal" placeholder="e.g. 50000" className={FIELD} />
+          <Input value={opening} onChange={(e) => setOpening(dec(e.target.value))} inputMode="decimal" placeholder="e.g. 50000" className={FIELD} />
         </Labelled>
         <Labelled label="Interest rate (% a year, optional)">
-          <input value={rate} onChange={(e) => setRate(dec(e.target.value))} inputMode="decimal" placeholder="e.g. 7.1" className={FIELD} />
+          <Input value={rate} onChange={(e) => setRate(dec(e.target.value))} inputMode="decimal" placeholder="e.g. 7.1" className={FIELD} />
         </Labelled>
         <div className="grid grid-cols-2 gap-3">
           <Labelled label="Start date">
-            <input type="date" value={start} onChange={(e) => setStart(e.target.value)} className={FIELD} />
+            <Input type="date" value={start} onChange={(e) => setStart(e.target.value)} className={FIELD} />
           </Labelled>
           <Labelled label="Maturity date">
-            <input type="date" value={maturity} onChange={(e) => setMaturity(e.target.value)} className={FIELD} />
+            <Input type="date" value={maturity} onChange={(e) => setMaturity(e.target.value)} className={FIELD} />
           </Labelled>
         </div>
-        <input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Notes (optional), e.g. account or folio number" className={FIELD} />
+        <Input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Notes (optional), e.g. account or folio number" className={FIELD} />
       </div>
 
       {error && <p className="text-danger text-[14px] mb-3">{error}</p>}

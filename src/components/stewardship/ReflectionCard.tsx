@@ -1,8 +1,9 @@
 import { useState } from 'react'
+import { Textarea } from '@/components/ui/textarea'
 import { format } from 'date-fns'
 import { Share2 } from 'lucide-react'
-import { Card } from '../ui/Card'
-import { Button } from '../ui/Button'
+import { Card } from '../ui/card'
+import { Button } from '../ui/button'
 import { reflectionRepo } from '../../db/repository'
 import { buildReport, type MonthPlan } from '../../lib/stewardship'
 import { VERSES } from '../../lib/scripture'
@@ -68,7 +69,7 @@ export function ReflectionCard({ month, plan, owed, reflection }: ReflectionCard
         {PROMPTS.map((p) => (
           <label key={p.key} className="block">
             <span className="block text-white text-[14px] font-medium mb-1.5">{p.label}</span>
-            <textarea
+            <Textarea
               value={values[p.key]}
               onChange={(e) => {
                 setValues({ ...values, [p.key]: e.target.value })

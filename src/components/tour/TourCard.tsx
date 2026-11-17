@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Compass } from 'lucide-react'
-import { Card } from '../ui/Card'
-import { Button } from '../ui/Button'
+import { Card } from '../ui/card'
+import { Button } from '../ui/button'
 import { Tour } from './Tour'
 
 /** Settings: replay the quick tour. */

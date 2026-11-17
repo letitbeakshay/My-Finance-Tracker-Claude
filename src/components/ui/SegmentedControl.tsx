@@ -1,8 +1,9 @@
-import { motion } from 'framer-motion'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 interface Option<T extends string> {
   value: T
   label: string
+  /** A status colour for the selected pill (for example need / want). */
   color?: string
 }
 
@@ -12,35 +13,22 @@ interface SegmentedControlProps<T extends string> {
   onChange: (value: T) => void
 }
 
-export function SegmentedControl<T extends string>({
-  options,
-  value,
-  onChange,
-}: SegmentedControlProps<T>) {
+/** A pill switch built on the shadcn Tabs. */
+export function SegmentedControl<T extends string>({ options, value, onChange }: SegmentedControlProps<T>) {
   return (
-    <div className="relative flex bg-surface border border-border rounded-full p-1.5">
-      {options.map((opt) => {
-        const active = opt.value === value
-        return (
-          <button
+    <Tabs value={value} onValueChange={(v) => onChange(v as T)} className="w-full">
+      <TabsList className="w-full h-14">
+        {options.map((opt) => (
+          <TabsTrigger
             key={opt.value}
-            type="button"
-            onClick={() => onChange(opt.value)}
-            className="relative flex-1 h-11 rounded-full text-[15px] font-semibold z-10"
-            style={{ color: active ? (opt.color ? 'var(--color-on-type)' : 'var(--color-on-primary)') : 'var(--color-secondary)' }}
+            value={opt.value}
+            className="text-[15px]"
+            style={value === opt.value && opt.color ? { background: opt.color, color: 'var(--color-on-type)' } : undefined}
           >
-            {active && (
-              <motion.div
-                layoutId="segmented-bg"
-                transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-                className="absolute inset-0 rounded-full -z-10"
-                style={{ background: opt.color ?? 'var(--color-primary)' }}
-              />
-            )}
-            <span className="relative">{opt.label}</span>
-          </button>
-        )
-      })}
-    </div>
+            {opt.label}
+          </TabsTrigger>
+        ))}
+      </TabsList>
+    </Tabs>
   )
 }

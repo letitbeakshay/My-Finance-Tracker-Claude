@@ -1,6 +1,7 @@
 import { Check, HandHeart } from 'lucide-react'
-import { Card } from '../ui/Card'
-import { Button } from '../ui/Button'
+import { Progress } from '@/components/ui/progress'
+import { Card } from '../ui/card'
+import { Button } from '../ui/button'
 import { formatCurrency } from '../../lib/currency'
 import { VERSES } from '../../lib/scripture'
 import type { MonthPlan } from '../../lib/stewardship'
@@ -36,12 +37,7 @@ export function FirstFruitsCard({ plan, givingPercent, onGive, compact }: FirstF
             {formatCurrency(plan.given)}
             <span className="text-tertiary text-[15px] font-medium"> of {formatCurrency(plan.givingTarget)}</span>
           </p>
-          <div className="h-2 rounded-full bg-white/5 overflow-hidden my-3">
-            <div
-              className="h-full rounded-full transition-all duration-700"
-              style={{ width: `${progress}%`, background: 'var(--color-giving)' }}
-            />
-          </div>
+          <Progress value={Math.max(0, Math.min(100, progress))} height="h-2" indicatorColor={'var(--color-giving)'} className="my-3" />
           {done ? (
             <p className="text-giving text-[14px] font-medium flex items-center gap-1.5">
               <Check size={16} /> Given faithfully this month

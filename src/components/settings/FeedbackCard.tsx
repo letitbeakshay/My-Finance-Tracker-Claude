@@ -1,8 +1,9 @@
 import { useState } from 'react'
+import { Textarea } from '@/components/ui/textarea'
 import clsx from 'clsx'
 import { Check, MessageSquareHeart } from 'lucide-react'
-import { Card } from '../ui/Card'
-import { Button } from '../ui/Button'
+import { Card } from '../ui/card'
+import { Button } from '../ui/button'
 import { BottomSheet } from '../ui/BottomSheet'
 import { feedbackRepo } from '../../db/repository'
 
@@ -81,7 +82,7 @@ export function FeedbackCard() {
                 </button>
               ))}
             </div>
-            <textarea
+            <Textarea
               value={text}
               onChange={(e) => setText(e.target.value)}
               maxLength={4000}

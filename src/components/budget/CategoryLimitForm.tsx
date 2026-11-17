@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Button } from '../ui/Button'
+import { Input } from '@/components/ui/input'
+import { Button } from '../ui/button'
 import { budgetRepo } from '../../db/repository'
 import type { Category } from '../../types'
 
@@ -41,7 +42,7 @@ export function CategoryLimitForm({
 
   return (
     <>
-      <input
+      <Input
         autoFocus={autoFocus}
         value={text}
         onChange={(e) => setText(e.target.value.replace(/[^0-9.]/g, ''))}

@@ -1,7 +1,8 @@
-import { Card } from '../ui/Card'
+import { Card } from '../ui/card'
 import type { Category, Expense } from '../../types'
 import { formatCurrency } from '../../lib/currency'
 import { regretExpenses } from '../../lib/analytics'
+import { EmojiIcon } from '../ui/EmojiIcon'
 
 interface RegretListProps {
   expenses: Expense[]
@@ -29,7 +30,7 @@ export function RegretList({ expenses, categoryMap, onSelect }: RegretListProps)
               style={{ cursor: 'pointer' }}
             >
               <div className="w-10 h-10 rounded-full bg-want-soft flex items-center justify-center text-lg shrink-0">
-                {category?.icon ?? '📦'}
+                <EmojiIcon emoji={category?.icon} name={category?.name} size={18} />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-white text-[15px] font-medium truncate">

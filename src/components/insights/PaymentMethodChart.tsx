@@ -1,4 +1,5 @@
-import { Card } from '../ui/Card'
+import { Card } from '../ui/card'
+import { Progress } from '@/components/ui/progress'
 import { formatCurrency } from '../../lib/currency'
 import { PAYMENT_METHOD_ICONS } from '../../lib/paymentIcons'
 import { PAYMENT_METHOD_LABELS } from '../../types'
@@ -21,21 +22,13 @@ export function PaymentMethodChart({ breakdown }: PaymentMethodChartProps) {
           <div key={b.method}>
             <div className="flex items-center justify-between mb-1.5">
               <span className="text-white text-[14px] font-medium">
-                {PAYMENT_METHOD_ICONS[b.method]} {PAYMENT_METHOD_LABELS[b.method]}
+                {(() => { const I = PAYMENT_METHOD_ICONS[b.method]; return <I size={14} className="inline -mt-0.5" /> })()} {PAYMENT_METHOD_LABELS[b.method]}
               </span>
               <span className="text-secondary text-[13px] tabular-nums">
                 {formatCurrency(b.amount)}
               </span>
             </div>
-            <div className="h-2 rounded-full bg-white/5 overflow-hidden">
-              <div
-                className="h-full rounded-full transition-all duration-700"
-                style={{
-                  width: `${(b.amount / max) * 100}%`,
-                  background: CATEGORICAL_DARK[i % CATEGORICAL_DARK.length],
-                }}
-              />
-            </div>
+            <Progress value={Math.max(0, Math.min(100, (b.amount / max) * 100))} height="h-2" indicatorColor={CATEGORICAL_DARK[i % CATEGORICAL_DARK.length]} />
           </div>
         ))}
       </div>

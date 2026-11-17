@@ -1,8 +1,9 @@
 import { useState } from 'react'
+import { Input } from '@/components/ui/input'
 import clsx from 'clsx'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Check, Landmark, CreditCard, PiggyBank, HandHeart, Zap } from 'lucide-react'
-import { Button } from '../ui/Button'
+import { Button } from '../ui/button'
 import { CurrencySelect } from '../ui/CurrencySelect'
 import { getCurrency, setCurrency } from '../../lib/currency'
 import { paymentAccountRepo, settingsRepo } from '../../db/repository'
@@ -82,7 +83,7 @@ export function Onboarding({ name, onDone }: { name?: string; onDone: () => void
       await paymentAccountRepo.add({
         label: label.trim(),
         type: accountType,
-        icon: accountType === 'bank_account' ? '🏦' : '💳',
+        icon: accountType === 'bank_account' ? 'i:bank' : 'i:card',
       })
       setAdded((a) => [...a, label.trim()])
       setLabel('')
@@ -208,7 +209,7 @@ export function Onboarding({ name, onDone }: { name?: string; onDone: () => void
                     ))}
                   </div>
                   <div className="flex gap-2 mt-3">
-                    <input
+                    <Input
                       value={label}
                       onChange={(e) => setLabel(e.target.value)}
                       onKeyDown={(e) => e.key === 'Enter' && addAccount()}

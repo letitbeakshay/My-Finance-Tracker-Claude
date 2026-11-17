@@ -16,7 +16,7 @@ export function Money({ value, className, decimals }: { value: number; className
       {value < 0 ? '−' : ''}
       {c.symbol}
       {whole.toLocaleString(c.locale)}
-      {showDecimals && <span style={{ fontWeight: 400, opacity: 0.7, fontSize: '0.62em' }}>.{cents}</span>}
+      {showDecimals && <span style={{ fontWeight: 300, opacity: 0.55 }}>.{cents}</span>}
     </span>
   )
 }

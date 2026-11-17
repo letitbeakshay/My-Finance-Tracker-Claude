@@ -1,9 +1,11 @@
-import { Card } from '../ui/Card'
+import type { ReactNode } from 'react'
+import { Card } from '../ui/card'
+import { Progress } from '@/components/ui/progress'
 import { formatCurrency } from '../../lib/currency'
 
 interface TypeBreakdownCardProps {
   label: string
-  icon: string
+  icon: ReactNode
   amount: number
   percentage: number
   color: string
@@ -21,8 +23,8 @@ export function TypeBreakdownCard({
   return (
     <Card className="flex flex-col gap-3 flex-1" padded>
       <div
-        className="w-10 h-10 rounded-full flex items-center justify-center text-lg"
-        style={{ background: softColor }}
+        className="w-10 h-10 rounded-full flex items-center justify-center"
+        style={{ background: softColor, color }}
       >
         {icon}
       </div>
@@ -31,12 +33,7 @@ export function TypeBreakdownCard({
         <p className="text-white text-[19px] font-bold tabular-nums">{formatCurrency(amount)}</p>
       </div>
       <div className="flex items-center gap-2">
-        <div className="h-1.5 flex-1 rounded-full bg-white/5 overflow-hidden">
-          <div
-            className="h-full rounded-full transition-all duration-700"
-            style={{ width: `${Math.min(percentage, 100)}%`, background: color }}
-          />
-        </div>
+        <Progress value={Math.max(0, Math.min(100, Math.min(percentage, 100)))} height="h-1.5" indicatorColor={color} className="flex-1" />
         <span className="text-[12px] font-medium" style={{ color }}>
           {percentage}%
         </span>

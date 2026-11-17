@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
-import { Button } from './Button'
+import { Receipt } from 'lucide-react'
+import { Button } from './button'
 
 interface EmptyStateProps {
   icon?: ReactNode
@@ -12,7 +13,7 @@ export function EmptyState({ icon, title, actionLabel, onAction }: EmptyStatePro
   return (
     <div className="flex flex-col items-center justify-center text-center py-16 px-6 gap-5">
       <div className="w-20 h-20 rounded-full bg-surface border border-border flex items-center justify-center text-4xl">
-        {icon ?? '🧾'}
+        {icon ?? <Receipt size={32} className="text-tertiary" />}
       </div>
       <p className="text-secondary text-[16px]">{title}</p>
       {actionLabel && onAction && (

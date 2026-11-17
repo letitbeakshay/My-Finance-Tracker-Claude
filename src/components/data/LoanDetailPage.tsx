@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { Progress } from '@/components/ui/progress'
 import { format, parseISO } from 'date-fns'
 import clsx from 'clsx'
 import { Check, ChevronLeft, FileUp, Loader2 } from 'lucide-react'
-import { Card } from '../ui/Card'
-import { Button } from '../ui/Button'
+import { Card } from '../ui/card'
+import { Button } from '../ui/button'
 import { AddLoanSheet } from './AddLoanSheet'
 import { loanRepo } from '../../db/repository'
 import { formatCurrency } from '../../lib/currency'
@@ -141,9 +142,7 @@ export function LoanDetailPage({ loan, onBack }: { loan: Loan; onBack: () => voi
               {formatCurrency(stats.outstanding)}
               <span className="text-tertiary text-[15px] font-medium"> pending</span>
             </p>
-            <div className="h-2.5 rounded-full bg-white/5 overflow-hidden mt-4">
-              <div className="h-full rounded-full" style={{ width: `${pct}%`, background: color }} />
-            </div>
+            <Progress value={Math.max(0, Math.min(100, pct))} height="h-2.5" indicatorColor={color} className="mt-4" />
             <p className="text-tertiary text-[12px] mt-1.5 tabular-nums">
               {formatCurrency(stats.principalPaid)} of {formatCurrency(loan.principal)} paid back
             </p>
@@ -257,7 +256,7 @@ export function LoanDetailPage({ loan, onBack }: { loan: Loan; onBack: () => voi
               </div>
 
               <div className="max-h-[72dvh] overflow-y-auto divide-y divide-border/60">
-                {shown.length === 0 && <p className="text-secondary text-[14px] text-center py-10">{view === 'paid' ? 'Nothing paid yet.' : 'All paid. 🎉'}</p>}
+                {shown.length === 0 && <p className="text-secondary text-[14px] text-center py-10">{view === 'paid' ? 'Nothing paid yet.' : 'All paid. Well done.'}</p>}
                 {shown.map(({ r, balance }) => (
                   <div key={r.n} className={clsx('px-5 py-3 flex items-center gap-3 md:grid md:gap-3', COLS, r.paid && 'bg-positive/5')}>
                     <button

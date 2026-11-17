@@ -1,6 +1,7 @@
 import { format, parseISO } from 'date-fns'
+import { Progress } from '@/components/ui/progress'
 import clsx from 'clsx'
-import { Card } from '../ui/Card'
+import { Card } from '../ui/card'
 import { formatCurrency } from '../../lib/currency'
 import { loanStats } from '../../lib/loanMath'
 import { DebtFreeCard } from './DebtFreeCard'
@@ -74,9 +75,7 @@ export function LoansPanel({ loans, onAdd, onSelect, showDebtFree }: LoansPanelP
                     {formatCurrency(stats.outstanding)}
                   </span>
                 </div>
-                <div className="h-1.5 rounded-full bg-surface overflow-hidden mb-1.5">
-                  <div className="h-full rounded-full" style={{ width: `${pct}%`, background: color }} />
-                </div>
+                <Progress value={Math.max(0, Math.min(100, pct))} height="h-1.5" indicatorColor={color} className="mb-1.5" />
                 <p className="text-tertiary text-[12px]">
                   {loan.closed
                     ? 'Closed'

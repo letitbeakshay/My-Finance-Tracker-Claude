@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
+import { Input } from '@/components/ui/input'
 import { BottomSheet } from '../ui/BottomSheet'
-import { Button } from '../ui/Button'
+import { Button } from '../ui/button'
 import { SegmentedControl } from '../ui/SegmentedControl'
 import { paymentAccountRepo } from '../../db/repository'
 import type { PaymentAccount, PaymentAccountType } from '../../types'
@@ -12,9 +13,9 @@ const TYPE_OPTIONS: { value: PaymentAccountType; label: string; color: string }[
 ]
 
 const ICON_BY_TYPE: Record<PaymentAccountType, string> = {
-  bank_account: '🏦',
-  debit_card: '💳',
-  credit_card: '💳',
+  bank_account: 'i:bank',
+  debit_card: 'i:card',
+  credit_card: 'i:card',
 }
 
 const FIELD = 'w-full h-14 bg-card border border-border rounded-2xl px-4 text-white text-[16px] placeholder:text-tertiary'
@@ -110,15 +111,15 @@ export function NewPaymentAccountSheet({ open, onClose, onSaved, initial, defaul
       </div>
 
       <div className="flex flex-col gap-3 mb-6">
-        <input
+        <Input
           autoFocus={!initial}
           value={label}
           onChange={(e) => setLabel(e.target.value)}
           placeholder={credit ? 'e.g. HDFC Regalia' : type === 'debit_card' ? 'e.g. SBI Debit Card' : 'e.g. SBI Savings'}
           className={FIELD}
         />
-        <input value={bankName} onChange={(e) => setBankName(e.target.value)} placeholder="Bank name (optional)" className={FIELD} />
-        <input
+        <Input value={bankName} onChange={(e) => setBankName(e.target.value)} placeholder="Bank name (optional)" className={FIELD} />
+        <Input
           value={last4}
           onChange={(e) => setLast4(e.target.value.replace(/[^0-9]/g, '').slice(0, 4))}
           inputMode="numeric"
@@ -128,17 +129,17 @@ export function NewPaymentAccountSheet({ open, onClose, onSaved, initial, defaul
         {credit && (
           <>
             <Labelled label="Interest rate on unpaid bills (% a year, usually 36 to 42)">
-              <input value={rate} onChange={(e) => setRate(dec(e.target.value))} inputMode="decimal" placeholder="e.g. 42" className={FIELD} />
+              <Input value={rate} onChange={(e) => setRate(dec(e.target.value))} inputMode="decimal" placeholder="e.g. 42" className={FIELD} />
             </Labelled>
             <Labelled label="Credit limit">
-              <input value={limit} onChange={(e) => setLimit(dec(e.target.value))} inputMode="decimal" placeholder="e.g. 100000" className={FIELD} />
+              <Input value={limit} onChange={(e) => setLimit(dec(e.target.value))} inputMode="decimal" placeholder="e.g. 100000" className={FIELD} />
             </Labelled>
             <div className="grid grid-cols-2 gap-3">
               <Labelled label="Bill date (day of month)">
-                <input value={statementDay} onChange={(e) => setStatementDay(day(e.target.value))} inputMode="numeric" placeholder="e.g. 15" className={FIELD} />
+                <Input value={statementDay} onChange={(e) => setStatementDay(day(e.target.value))} inputMode="numeric" placeholder="e.g. 15" className={FIELD} />
               </Labelled>
               <Labelled label="Due date (day of month)">
-                <input value={dueDay} onChange={(e) => setDueDay(day(e.target.value))} inputMode="numeric" placeholder="e.g. 5" className={FIELD} />
+                <Input value={dueDay} onChange={(e) => setDueDay(day(e.target.value))} inputMode="numeric" placeholder="e.g. 5" className={FIELD} />
               </Labelled>
             </div>
           </>

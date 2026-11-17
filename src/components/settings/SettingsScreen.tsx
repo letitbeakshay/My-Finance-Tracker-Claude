@@ -1,14 +1,15 @@
 import { useState } from 'react'
+import { Input } from '@/components/ui/input'
 import { format } from 'date-fns'
 import { CategoryManager } from './CategoryManager'
 import { PaymentAccountManager } from './PaymentAccountManager'
 import { AccountCard } from './AccountCard'
 import { FeedbackCard } from './FeedbackCard'
 import { TourCard } from '../tour/TourCard'
-import { Card } from '../ui/Card'
+import { Card } from '../ui/card'
 import { SegmentedControl } from '../ui/SegmentedControl'
 import { useTheme, type Theme } from '../../lib/theme'
-import { Button } from '../ui/Button'
+import { Button } from '../ui/button'
 import { CurrencySelect } from '../ui/CurrencySelect'
 import { getCurrency, setCurrency } from '../../lib/currency'
 import { BottomSheet } from '../ui/BottomSheet'
@@ -85,7 +86,7 @@ export function SettingsScreen({ onBack, onSignedOut }: SettingsScreenProps) {
             <div className="w-[230px]">
               <CurrencySelect
                 value={getCurrency().code}
-                className="w-full h-11 bg-surface border border-border rounded-xl px-3 text-white text-[16px] md:text-[14px]"
+                className="h-11 text-[15px]"
                 onChange={async (code) => {
                   await settingsRepo.setCurrency(code)
                   setCurrency(code)
@@ -144,7 +145,7 @@ export function SettingsScreen({ onBack, onSignedOut }: SettingsScreenProps) {
           This deletes every expense, income, loan, budget, category and account. A backup file is
           downloaded first. To continue, type <span className="text-white font-semibold">DELETE</span>.
         </p>
-        <input
+        <Input
           value={typed}
           onChange={(e) => setTyped(e.target.value)}
           placeholder="Type DELETE"

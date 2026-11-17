@@ -1,8 +1,9 @@
 import { useState } from 'react'
+import { Input } from '@/components/ui/input'
 import { format } from 'date-fns'
 import { Check, Eye, EyeOff } from 'lucide-react'
-import { Card } from '../ui/Card'
-import { Button } from '../ui/Button'
+import { Card } from '../ui/card'
+import { Button } from '../ui/button'
 import { BottomSheet } from '../ui/BottomSheet'
 import { useAuth, changePassword, deleteMyAccount, friendlyAuthError, passwordProblem, signOut } from '../../lib/accounts'
 import { SUPPORT_EMAIL } from '../../lib/config'
@@ -112,7 +113,7 @@ export function AccountCard({ onSignedOut }: { onSignedOut: () => void }) {
             <h2 className="text-white text-[20px] font-bold mb-4">Change password</h2>
             <div className="flex flex-col gap-3 mb-4">
               <div className="relative">
-                <input
+                <Input
                   type={showPw ? 'text' : 'password'}
                   value={pw}
                   onChange={(e) => setPw(e.target.value)}
@@ -124,7 +125,7 @@ export function AccountCard({ onSignedOut }: { onSignedOut: () => void }) {
                   {showPw ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
               </div>
-              <input type={showPw ? 'text' : 'password'} value={pw2} onChange={(e) => setPw2(e.target.value)} autoComplete="new-password" placeholder="Type it again" className={FIELD} />
+              <Input type={showPw ? 'text' : 'password'} value={pw2} onChange={(e) => setPw2(e.target.value)} autoComplete="new-password" placeholder="Type it again" className={FIELD} />
             </div>
             {pwError && <p className="text-danger text-[14px] mb-3">{pwError}</p>}
             <Button onClick={savePw} disabled={busy || !pw || !pw2}>
@@ -147,7 +148,7 @@ export function AccountCard({ onSignedOut }: { onSignedOut: () => void }) {
           This permanently deletes your account and every expense, income, loan, budget, category and savings plan. It cannot be undone. A copy of your data is saved to this device first. To continue, type{' '}
           <span className="text-white font-semibold">DELETE</span>.
         </p>
-        <input
+        <Input
           value={typed}
           onChange={(e) => setTyped(e.target.value)}
           placeholder="Type DELETE"

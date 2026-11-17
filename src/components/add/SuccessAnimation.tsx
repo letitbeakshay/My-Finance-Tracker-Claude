@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import { Check, Hourglass } from 'lucide-react'
-import { Button } from '../ui/Button'
+import { Button } from '../ui/button'
 import { formatCurrency } from '../../lib/currency'
 import { VERSES } from '../../lib/scripture'
 

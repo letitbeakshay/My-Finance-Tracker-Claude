@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { format, parseISO } from 'date-fns'
 import { Check, X } from 'lucide-react'
-import { Card } from '../ui/Card'
+import { Card } from '../ui/card'
 import { formatCurrency } from '../../lib/currency'
 import { categoryPath } from '../../lib/categoryTree'
 import { VERSES } from '../../lib/scripture'

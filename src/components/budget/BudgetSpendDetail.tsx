@@ -1,7 +1,8 @@
 import { useMemo } from 'react'
+import { Progress } from '@/components/ui/progress'
 import { format, parseISO } from 'date-fns'
 import { Check, ChevronLeft, X } from 'lucide-react'
-import { Card } from '../ui/Card'
+import { Card } from '../ui/card'
 import { CategoryIcon } from '../ui/CategoryIcon'
 import { useAllCategories, useExpenses } from '../../hooks/useLiveData'
 import { formatCurrency } from '../../lib/currency'
@@ -77,9 +78,7 @@ export function BudgetSpendDetail({
         </p>
         {limit !== undefined && (
           <>
-            <div className="h-2.5 rounded-full bg-white/5 overflow-hidden mt-3">
-              <div className="h-full rounded-full" style={{ width: `${pct}%`, background: color }} />
-            </div>
+            <Progress value={Math.max(0, Math.min(100, pct))} height="h-2.5" indicatorColor={color} className="mt-3" />
             <p className="text-[13px] font-medium mt-2 tabular-nums" style={{ color }}>
               {over ? `${formatCurrency(-left!)} over your limit` : `${formatCurrency(left!)} left`}
             </p>

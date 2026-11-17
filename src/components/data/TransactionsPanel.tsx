@@ -1,8 +1,9 @@
 import type { ReactNode } from 'react'
+import { Input } from '@/components/ui/input'
 import { format, parseISO } from 'date-fns'
 import clsx from 'clsx'
 import { Check, FileUp, X } from 'lucide-react'
-import { Card } from '../ui/Card'
+import { Card } from '../ui/card'
 import { Chip } from '../ui/Chip'
 import { formatCurrency } from '../../lib/currency'
 
@@ -59,7 +60,7 @@ export function TransactionsPanel({
       <div className="p-5 pb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-white text-[19px] font-bold">{title}</h2>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <input
+          <Input
             value={search}
             onChange={(e) => onSearch(e.target.value)}
             placeholder="Search"

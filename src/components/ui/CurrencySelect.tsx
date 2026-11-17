@@ -1,19 +1,21 @@
 import { CURRENCIES, getCurrency } from '../../lib/currency'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
-/** Pick the currency money is shown in. 16px text so phones do not zoom. */
+/** Pick the currency money is shown in (the shadcn Select). */
 export function CurrencySelect({ value, onChange, className }: { value?: string; onChange: (code: string) => void; className?: string }) {
+  const current = CURRENCIES.find((c) => c.code === (value ?? getCurrency().code))
   return (
-    <select
-      value={value ?? getCurrency().code}
-      onChange={(e) => onChange(e.target.value)}
-      aria-label="Currency"
-      className={className ?? 'w-full h-14 bg-card border border-border rounded-2xl px-4 text-white text-[16px] focus:border-accent outline-none'}
-    >
-      {CURRENCIES.map((c) => (
-        <option key={c.code} value={c.code}>
-          {c.symbol.trim()} · {c.code} · {c.name}
-        </option>
-      ))}
-    </select>
+    <Select value={current?.code} onValueChange={(v) => v && onChange(v as string)}>
+      <SelectTrigger aria-label="Currency" className={className}>
+        <SelectValue>{current ? `${current.symbol.trim()} · ${current.code}` : undefined}</SelectValue>
+      </SelectTrigger>
+      <SelectContent>
+        {CURRENCIES.map((c) => (
+          <SelectItem key={c.code} value={c.code}>
+            {c.symbol.trim()} · {c.code} · {c.name}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   )
 }

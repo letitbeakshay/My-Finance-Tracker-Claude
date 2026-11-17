@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
+import { Input } from '@/components/ui/input'
 import { format } from 'date-fns'
 import { BottomSheet } from '../ui/BottomSheet'
-import { Button } from '../ui/Button'
+import { Button } from '../ui/button'
 import { Check } from 'lucide-react'
 import clsx from 'clsx'
 import { expenseRepo, incomeRepo } from '../../db/repository'
@@ -175,21 +176,21 @@ export function IncomeForm({ open, onClose, bankAccounts, givingPercent, onGive 
         </div>
       )}
       <div className="flex flex-col gap-3 mb-6">
-        <input
+        <Input
           autoFocus
           value={source}
           onChange={(e) => setSource(e.target.value)}
           placeholder="Source, e.g. Salary"
           className={FIELD}
         />
-        <input
+        <Input
           value={amount}
           onChange={(e) => setAmount(e.target.value.replace(/[^0-9.]/g, ''))}
           inputMode="decimal"
           placeholder="Amount"
           className={FIELD}
         />
-        <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className={FIELD} />
+        <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className={FIELD} />
         {bankAccounts.length > 0 && (
           <select value={accountId} onChange={(e) => setAccountId(e.target.value)} className={FIELD}>
             <option value="">Received in… (optional)</option>
@@ -200,7 +201,7 @@ export function IncomeForm({ open, onClose, bankAccounts, givingPercent, onGive 
             ))}
           </select>
         )}
-        <input
+        <Input
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           placeholder="Notes (optional)"

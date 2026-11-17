@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { format, parseISO } from 'date-fns'
 import { Receipt } from 'lucide-react'
-import { Card } from '../ui/Card'
+import { Card } from '../ui/card'
 import { usePaymentAccounts } from '../../hooks/useLiveData'
 import { ReceivedSheet } from './ReceivedSheet'
 import { formatCurrency } from '../../lib/currency'

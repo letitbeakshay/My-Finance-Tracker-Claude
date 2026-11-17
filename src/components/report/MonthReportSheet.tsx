@@ -4,7 +4,7 @@ import { format } from 'date-fns'
 import { Download, FileText, Loader2, Share2 } from 'lucide-react'
 import { toPng } from 'html-to-image'
 import { BottomSheet } from '../ui/BottomSheet'
-import { Button } from '../ui/Button'
+import { Button } from '../ui/button'
 import { categoryBreakdown } from '../../lib/analytics'
 import { formatCurrency } from '../../lib/currency'
 import { APP_NAME } from '../../lib/config'
@@ -77,7 +77,7 @@ function ReportCard({ month, plan, expenses, categories, owed, name }: ReportPro
             {top.map(([id, amount]) => (
               <div key={id} style={{ marginBottom: 10 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, fontWeight: 600 }}>
-                  <span>{byId.get(id)?.icon} {byId.get(id)?.name ?? 'Other'}</span>
+                  <span>{byId.get(id)?.name ?? 'Other'}</span>
                   <span>{formatCurrency(amount)}</span>
                 </div>
                 <div style={{ height: 6, borderRadius: 3, background: '#e8efe5', marginTop: 5 }}>

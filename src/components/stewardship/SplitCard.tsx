@@ -1,4 +1,4 @@
-import { Card } from '../ui/Card'
+import { Card } from '../ui/card'
 import { formatCurrency } from '../../lib/currency'
 import type { MonthPlan } from '../../lib/stewardship'
 

@@ -1,6 +1,6 @@
 import { BottomSheet } from '../ui/BottomSheet'
 import { EmojiIcon } from '../ui/EmojiIcon'
-import { Button } from '../ui/Button'
+import { Button } from '../ui/button'
 import { Chip } from '../ui/Chip'
 import type { Category, ExpenseType, PaymentMethod } from '../../types'
 import { EXPENSE_TYPE_LABELS, PAYMENT_METHOD_LABELS } from '../../types'
@@ -46,7 +46,7 @@ export function FilterSheet({ open, onClose, categories, filters, onChange }: Fi
       <div className="flex gap-2 flex-wrap mb-6">
         {PAYMENT_METHODS.map((m) => (
           <Chip key={m} selected={filters.paymentMethod === m} onClick={() => toggle('paymentMethod', m)}>
-            {PAYMENT_METHOD_ICONS[m]} {PAYMENT_METHOD_LABELS[m]}
+            {(() => { const I = PAYMENT_METHOD_ICONS[m]; return <I size={15} /> })()} {PAYMENT_METHOD_LABELS[m]}
           </Chip>
         ))}
       </div>

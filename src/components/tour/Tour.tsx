@@ -2,7 +2,7 @@ import { useState } from 'react'
 import clsx from 'clsx'
 import { AnimatePresence, motion } from 'framer-motion'
 import { HandHeart, PiggyBank, Plus, Settings2, Target, Zap, type LucideIcon } from 'lucide-react'
-import { Button } from '../ui/Button'
+import { Button } from '../ui/button'
 
 interface Slide {
   icon: LucideIcon

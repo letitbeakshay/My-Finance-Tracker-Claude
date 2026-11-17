@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import clsx from 'clsx'
 import { Money } from './Money'
+import { Badge } from '@/components/ui/badge'
 
 /**
  * The headline panel of a screen: deep green, a big amount, and a few frosted pills.
@@ -41,5 +42,5 @@ export function Hero({
 }
 
 export function HeroPill({ children }: { children: ReactNode }) {
-  return <span className="hero-pill rounded-full px-3 h-7 inline-flex items-center gap-1 text-[12px] font-semibold">{children}</span>
+  return <Badge variant="glass">{children}</Badge>
 }

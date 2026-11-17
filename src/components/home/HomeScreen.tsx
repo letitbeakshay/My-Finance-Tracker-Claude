@@ -10,12 +10,10 @@ import {
 } from '../../hooks/useLiveData'
 import { formatCurrency } from '../../lib/currency'
 import {
-  formatMonthLabel,
   filterByMonth,
   thisWeekSpending,
   todaySpending,
   typeBreakdown,
-  sum,
 } from '../../lib/analytics'
 import { TypeBreakdownCard } from './TypeBreakdownCard'
 import { TransactionItem } from './TransactionItem'
@@ -26,8 +24,13 @@ import { FirstFruitsCard } from '../stewardship/FirstFruitsCard'
 import { BudgetProgressCard } from '../budget/BudgetProgressCard'
 import { monthPlan } from '../../lib/stewardship'
 import { ReimbursementCard } from '../stewardship/ReimbursementCard'
-import { Hero, HeroPill } from '../ui/Hero'
-import { Sparkline } from '../ui/Sparkline'
+import { ShoppingCart, Sparkles, PiggyBank } from 'lucide-react'
+import { TrendHero } from '../ui/TrendHero'
+import { CategoryTiles } from '../ui/CategoryTiles'
+import { monthlyTrend } from '../../lib/trend'
+import { categoryBreakdown } from '../../lib/analytics'
+import { topLevelId } from '../../lib/categoryTree'
+import { earnedOnly } from '../../lib/reimbursement'
 import { QuickRepeat } from '../add/QuickRepeat'
 import { parentMap } from '../../lib/categoryTree'
 import { personalOnly, reimbursableIds } from '../../lib/reimbursement'
@@ -79,18 +82,21 @@ export function HomeScreen({
 
   const breakdown = useMemo(() => typeBreakdown(monthExpenses), [monthExpenses])
   const todayTotal = useMemo(() => todaySpending(personal, today), [personal, today])
-  const monthTotal = useMemo(() => sum(monthExpenses), [monthExpenses])
-  // Spending for each day of the month so far, for the line on the green panel.
-  const { dailyTotals, dailyLabels } = useMemo(() => {
-    const days = today.getDate()
-    const totals = Array.from({ length: days }, () => 0)
-    for (const e of monthExpenses) {
-      const d = parseInt(e.date.slice(8, 10), 10)
-      if (d >= 1 && d <= days) totals[d - 1] += e.amount
+  // Six months of income and spending for the chart, and this month's spending by category for the tiles.
+  const incomeTrend = useMemo(() => monthlyTrend(earnedOnly(incomes ?? []), today), [incomes, today])
+  const expenseTrend = useMemo(() => monthlyTrend(personal, today), [personal, today])
+  const parents = useMemo(() => parentMap(categories ?? []), [categories])
+  const categoryTiles = useMemo(() => {
+    const merged = new Map<string, number>()
+    for (const { categoryId, amount } of categoryBreakdown(monthExpenses)) {
+      const top = topLevelId(categoryId, parents)
+      merged.set(top, (merged.get(top) ?? 0) + amount)
     }
-    const labels = [1, Math.ceil(days / 2), days].filter((d, i, a) => a.indexOf(d) === i).map(String)
-    return { dailyTotals: totals, dailyLabels: labels }
-  }, [monthExpenses, today])
+    return [...merged.entries()]
+      .map(([id, amount]) => ({ category: categoryMap.get(id)!, amount }))
+      .filter((t) => t.category)
+      .sort((a, b) => b.amount - a.amount)
+  }, [monthExpenses, parents, categoryMap])
   const recent = useMemo(() => (expenses ?? []).slice(0, 8), [expenses])
 
   const plan = useMemo(
@@ -136,13 +142,20 @@ export function HomeScreen({
 
       <QuickRepeat className="mb-7" />
 
-      <Hero label="Spent today" value={todayTotal} pills={<HeroPill>{formatMonthLabel(today)}</HeroPill>} className="mb-7">
-        <div className="mt-5">
-          <p className="opacity-80 text-[12px]">So far this month</p>
-          <p className="text-[22px] font-bold tabular-nums mt-0.5">{formatCurrency(monthTotal)}</p>
-        </div>
-        <Sparkline values={dailyTotals} labels={dailyLabels} />
-      </Hero>
+      <TrendHero
+        income={incomeTrend}
+        expenses={expenseTrend}
+        className="mb-7"
+        footer={
+          <p className="mt-3 text-[13px] opacity-85">
+            Spent today <span className="font-semibold tabular-nums">{formatCurrency(todayTotal)}</span>
+          </p>
+        }
+      />
+
+      <div className="mb-8">
+        <CategoryTiles tiles={categoryTiles} />
+      </div>
 
       <div className="flex flex-col gap-4 mb-8">
         {plan && settings && (
@@ -170,7 +183,7 @@ export function HomeScreen({
       <div className="grid grid-cols-2 gap-3 mb-9">
         <TypeBreakdownCard
           label="Giving"
-          icon="🙏"
+          icon={<HandHeart size={20} />}
           amount={breakdown.giving}
           percentage={breakdown.givingPct}
           color="var(--color-giving)"
@@ -178,7 +191,7 @@ export function HomeScreen({
         />
         <TypeBreakdownCard
           label="Needs"
-          icon="🛒"
+          icon={<ShoppingCart size={20} />}
           amount={breakdown.needs}
           percentage={breakdown.needsPct}
           color="var(--color-need)"
@@ -186,7 +199,7 @@ export function HomeScreen({
         />
         <TypeBreakdownCard
           label="Wants"
-          icon="✨"
+          icon={<Sparkles size={20} />}
           amount={breakdown.wants}
           percentage={breakdown.wantsPct}
           color="var(--color-want)"
@@ -194,7 +207,7 @@ export function HomeScreen({
         />
         <TypeBreakdownCard
           label="Savings"
-          icon="💰"
+          icon={<PiggyBank size={20} />}
           amount={breakdown.savings}
           percentage={breakdown.savingsPct}
           color="var(--color-savings)"

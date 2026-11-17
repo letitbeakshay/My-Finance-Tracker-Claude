@@ -8,11 +8,11 @@ export function CategoryIcon({
   size = 18,
   className,
 }: {
-  category: Pick<Category, 'id' | 'icon'>
+  category: Pick<Category, 'id' | 'icon'> & { name?: string }
   size?: number
   className?: string
 }) {
   const Icon = builtInCategoryIcon(category.id)
   if (Icon) return <Icon size={size} className={className} />
-  return <EmojiIcon emoji={category.icon} size={size} className={className} />
+  return <EmojiIcon emoji={category.icon} name={category.name} size={size} className={className} />
 }

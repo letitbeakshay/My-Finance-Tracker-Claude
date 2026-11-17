@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { EmojiIcon } from '../ui/EmojiIcon'
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts'
-import { Card } from '../ui/Card'
+import { Card } from '../ui/card'
 import type { Category } from '../../types'
 import { formatCurrency } from '../../lib/currency'
 import { CATEGORICAL_DARK, CHART_OTHER_COLOR } from '../../lib/chartPalette'

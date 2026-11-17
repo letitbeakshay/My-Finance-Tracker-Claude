@@ -1,5 +1,6 @@
 import { AlertTriangle, CheckCircle2, CircleAlert } from 'lucide-react'
 import { BUDGET_STATUS_COLOR, type BudgetLine } from '../../lib/budgets'
+import { Badge } from '@/components/ui/badge'
 import { formatCurrency } from '../../lib/currency'
 
 /** What a budget looks like if `amount` is added to it. */
@@ -20,12 +21,9 @@ export function BudgetBadge({ line, amount }: { line: BudgetLine; amount: number
   const color = BUDGET_STATUS_COLOR[status]
   const Icon = ICON[status]
   return (
-    <span
-      className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold shrink-0"
-      style={{ color, background: `color-mix(in srgb, ${color} 14%, transparent)` }}
-    >
-      <Icon size={12} strokeWidth={2.4} /> {LABEL[status]}
-    </span>
+    <Badge variant="secondary" className="h-6 px-2.5 text-[11px] shrink-0" style={{ color, background: `color-mix(in srgb, ${color} 14%, transparent)` }}>
+      <Icon size={12} /> {LABEL[status]}
+    </Badge>
   )
 }
 

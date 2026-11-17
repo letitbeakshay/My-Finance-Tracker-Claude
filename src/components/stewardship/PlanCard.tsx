@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { Card } from '../ui/Card'
-import { Button } from '../ui/Button'
+import { Input } from '@/components/ui/input'
+import { Card } from '../ui/card'
+import { Button } from '../ui/button'
 import { settingsRepo } from '../../db/repository'
 import { formatCurrency } from '../../lib/currency'
 import type { AppSettings } from '../../types'
@@ -13,7 +14,7 @@ function Field({ label, hint, value, onChange }: { label: string; hint: string; 
     <label className="block">
       <span className="text-white text-[14px] font-medium">{label}</span>
       <span className="block text-tertiary text-[12px] mb-1.5">{hint}</span>
-      <input
+      <Input
         value={value}
         onChange={(e) => onChange(e.target.value.replace(/[^0-9.]/g, ''))}
         inputMode="decimal"

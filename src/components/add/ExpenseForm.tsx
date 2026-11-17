@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { Input } from '@/components/ui/input'
 import { format } from 'date-fns'
 import { AmountInput } from './AmountInput'
 import { CategoryPicker } from './CategoryPicker'
@@ -6,7 +7,7 @@ import { PaymentMethodPicker } from './PaymentMethodPicker'
 import { PaymentAccountPicker } from './PaymentAccountPicker'
 import { SavingsPlanPicker } from '../savings/SavingsPlanPicker'
 import { SegmentedControl } from '../ui/SegmentedControl'
-import { Button } from '../ui/Button'
+import { Button } from '../ui/button'
 import { PleasesGodPicker } from './PleasesGodPicker'
 import { useCategories, usePaymentAccounts } from '../../hooks/useLiveData'
 import { expenseRepo } from '../../db/repository'
@@ -153,7 +154,7 @@ export function ExpenseForm({ onDone, onCancel, editExpense }: ExpenseFormProps)
           <p className="text-secondary text-[13px] font-medium mb-2.5 uppercase tracking-wide">
             Notes
           </p>
-          <input
+          <Input
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             placeholder="Add a note (optional)"
@@ -165,7 +166,7 @@ export function ExpenseForm({ onDone, onCancel, editExpense }: ExpenseFormProps)
           <p className="text-secondary text-[13px] font-medium mb-2.5 uppercase tracking-wide">
             Date
           </p>
-          <input
+          <Input
             type="date"
             value={date}
             max={format(new Date(), 'yyyy-MM-dd')}

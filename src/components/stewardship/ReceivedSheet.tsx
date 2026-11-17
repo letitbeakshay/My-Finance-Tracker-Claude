@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
+import { Input } from '@/components/ui/input'
 import { format } from 'date-fns'
 import { BottomSheet } from '../ui/BottomSheet'
-import { Button } from '../ui/Button'
+import { Button } from '../ui/button'
 import { expenseRepo } from '../../db/repository'
 import { formatCurrency } from '../../lib/currency'
 import { lastAccountFor, rememberAccount } from '../../lib/lastAccount'
@@ -51,8 +52,8 @@ export function ReceivedSheet({ expense, bankAccounts, onClose }: { expense: Exp
           <h2 className="text-white text-[20px] font-bold mt-0.5">{expense.notes || 'Reimbursement'}</h2>
           <p className="text-secondary text-[14px] mt-1 mb-4">You paid {formatCurrency(expense.amount)}.</p>
           <div className="flex flex-col gap-3 mb-4">
-            <input value={amount} onChange={(e) => setAmount(e.target.value.replace(/[^0-9.]/g, ''))} inputMode="decimal" placeholder="Amount received" className={FIELD} />
-            <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className={FIELD} />
+            <Input value={amount} onChange={(e) => setAmount(e.target.value.replace(/[^0-9.]/g, ''))} inputMode="decimal" placeholder="Amount received" className={FIELD} />
+            <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className={FIELD} />
             {bankAccounts.length > 0 && (
               <select value={accountId} onChange={(e) => setAccountId(e.target.value)} className={FIELD}>
                 <option value="">Which bank account? (optional)</option>

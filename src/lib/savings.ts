@@ -2,15 +2,15 @@ import { differenceInCalendarMonths, isSameMonth, parseISO } from 'date-fns'
 import type { Expense, SavingsKind, SavingsPlan } from '../types'
 
 export const SAVINGS_KINDS: { value: SavingsKind; label: string; icon: string; hint: string }[] = [
-  { value: 'fd', label: 'Fixed Deposit (FD)', icon: '🔒', hint: 'A lump sum locked for a period' },
-  { value: 'rd', label: 'Recurring Deposit (RD)', icon: '🔁', hint: 'A fixed amount every month' },
-  { value: 'sip', label: 'Mutual fund / SIP', icon: '📈', hint: 'Invested every month' },
-  { value: 'ppf', label: 'PPF / EPF / NPS', icon: '🏛️', hint: 'Long-term, government backed' },
-  { value: 'gold', label: 'Gold', icon: '🪙', hint: 'Gold you buy over time' },
-  { value: 'chit', label: 'Chit fund', icon: '🤝', hint: 'A monthly chit' },
-  { value: 'emergency', label: 'Emergency fund', icon: '🛟', hint: 'For a surprise bill' },
-  { value: 'account', label: 'Savings account', icon: '🏦', hint: 'Kept in a bank account' },
-  { value: 'other', label: 'Other', icon: '💰', hint: 'Anything else' },
+  { value: 'fd', label: 'Fixed Deposit (FD)', icon: 'i:shield', hint: 'A lump sum locked for a period' },
+  { value: 'rd', label: 'Recurring Deposit (RD)', icon: 'i:coins', hint: 'A fixed amount every month' },
+  { value: 'sip', label: 'Mutual fund / SIP', icon: 'i:chart', hint: 'Invested every month' },
+  { value: 'ppf', label: 'PPF / EPF / NPS', icon: 'i:bank', hint: 'Long-term, government backed' },
+  { value: 'gold', label: 'Gold', icon: 'i:coins', hint: 'Gold you buy over time' },
+  { value: 'chit', label: 'Chit fund', icon: 'i:give', hint: 'A monthly chit' },
+  { value: 'emergency', label: 'Emergency fund', icon: 'i:shield', hint: 'For a surprise bill' },
+  { value: 'account', label: 'Savings account', icon: 'i:bank', hint: 'Kept in a bank account' },
+  { value: 'other', label: 'Other', icon: 'i:piggy', hint: 'Anything else' },
 ]
 
 export const kindMeta = (k: SavingsKind) => SAVINGS_KINDS.find((x) => x.value === k) ?? SAVINGS_KINDS[SAVINGS_KINDS.length - 1]

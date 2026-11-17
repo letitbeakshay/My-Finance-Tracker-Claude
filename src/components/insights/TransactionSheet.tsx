@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from 'react'
 import { format, parseISO } from 'date-fns'
 import { BottomSheet } from '../ui/BottomSheet'
-import { Button } from '../ui/Button'
+import { Button } from '../ui/button'
 import { AddExpenseScreen } from '../add/AddExpenseScreen'
 import { expenseRepo } from '../../db/repository'
 import type { Category, Expense, PaymentAccount } from '../../types'
@@ -9,6 +9,7 @@ import { EXPENSE_TYPE_COLORS as TYPE_COLOR, EXPENSE_TYPE_LABELS, PAYMENT_METHOD_
 import { formatCurrency } from '../../lib/currency'
 import { useAllCategories } from '../../hooks/useLiveData'
 import { categoryPath } from '../../lib/categoryTree'
+import { EmojiIcon } from '../ui/EmojiIcon'
 
 interface TransactionSheetProps {
   expense: Expense | null
@@ -49,7 +50,7 @@ export function TransactionSheet({ expense, category, account, onClose }: Transa
     <BottomSheet open={!!expense} onClose={onClose}>
       <div className="flex items-center gap-4 mb-6">
         <div className="w-14 h-14 rounded-full bg-card border border-border flex items-center justify-center text-2xl">
-          {category?.icon ?? '📦'}
+          <EmojiIcon emoji={category?.icon} name={category?.name} size={24} />
         </div>
         <div>
           <p className="text-white text-[24px] font-bold leading-none tabular-nums">

@@ -30,7 +30,7 @@ export function PaymentMethodPicker({ value, onChange, big }: PaymentMethodPicke
                 selected ? 'bg-accent-soft border-accent text-accent-ink' : 'bg-surface border-border text-white',
               )}
             >
-              <span className={hero ? 'text-[30px]' : 'text-[22px]'}>{PAYMENT_METHOD_ICONS[method]}</span>
+              <span className={hero ? 'text-[30px]' : 'text-[22px]'}>{(() => { const I = PAYMENT_METHOD_ICONS[method]; return <I size={hero ? 30 : 22} /> })()}</span>
               <span className="min-w-0">
                 <span className={clsx('block font-semibold', hero ? 'text-[20px]' : 'text-[16px]')}>{PAYMENT_METHOD_LABELS[method]}</span>
                 {hero && <span className="block text-[12px] opacity-70">GPay, PhonePe, Paytm, any UPI app</span>}
@@ -45,7 +45,7 @@ export function PaymentMethodPicker({ value, onChange, big }: PaymentMethodPicke
     <div className="flex flex-wrap gap-2">
       {PAYMENT_METHODS.map((method) => (
         <Chip key={method} selected={value === method} onClick={() => onChange(method)} className="h-10 px-3.5 text-[14px]">
-          <span>{PAYMENT_METHOD_ICONS[method]}</span>
+          <span>{(() => { const I = PAYMENT_METHOD_ICONS[method]; return <I size={16} /> })()}</span>
           <span>{PAYMENT_METHOD_LABELS[method]}</span>
         </Chip>
       ))}
