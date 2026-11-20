@@ -79,6 +79,94 @@ if ('IntersectionObserver' in window) {
   reveals.forEach((el) => el.classList.add('in'))
 }
 
+// ---------- See it in action: step through the app screens ----------
+function setupTour() {
+  const root = document.querySelector<HTMLElement>('.tour')
+  const steps = Array.from(document.querySelectorAll<HTMLButtonElement>('.tstep'))
+  const screens = Array.from(document.querySelectorAll<HTMLElement>('.tscreen .scr'))
+  if (!root || !steps.length || steps.length !== screens.length) return
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  const STEP_MS = 7000
+  root.style.setProperty('--tour-ms', `${STEP_MS}ms`)
+  let current = 0
+  let timer: number | undefined
+  let visible = false
+  let started = Date.now()
+  let remaining = STEP_MS
+
+  const show = (i: number) => {
+    const prev = screens[current]
+    current = (i + screens.length) % screens.length
+    steps.forEach((s, k) => {
+      s.classList.toggle('on', k === current)
+      s.setAttribute('aria-selected', String(k === current))
+    })
+    // Phone-size caption mirrors the active step's words.
+    const cap = root.querySelector<HTMLElement>('.tour-caption')
+    if (cap) {
+      cap.querySelector('b')!.textContent = steps[current].querySelector('.ttext b')?.textContent ?? ''
+      cap.querySelector('span')!.textContent = steps[current].querySelector('.ttext > span')?.textContent ?? ''
+    }
+    // Restart the progress bars.
+    for (const bar of [steps[current].querySelector<HTMLElement>('.tbar'), cap?.querySelector<HTMLElement>('.cbar')]) {
+      if (!bar) continue
+      const d = bar.style.display
+      bar.style.display = 'none'
+      void bar.offsetWidth
+      bar.style.display = d
+    }
+    const next = screens[current]
+    if (prev !== next) {
+      prev.classList.remove('on')
+      window.setTimeout(() => {
+        if (prev !== screens[current]) prev.classList.remove('play')
+      }, 500)
+    }
+    next.classList.remove('play')
+    void next.offsetWidth
+    next.classList.add('on', 'play')
+    remaining = STEP_MS
+    schedule()
+  }
+
+  const schedule = () => {
+    window.clearTimeout(timer)
+    if (!visible || reduced) return
+    started = Date.now()
+    timer = window.setTimeout(() => show(current + 1), remaining)
+  }
+  const pause = () => {
+    if (timer === undefined) return
+    window.clearTimeout(timer)
+    timer = undefined
+    remaining = Math.max(400, remaining - (Date.now() - started))
+    root.classList.add('tour-paused')
+  }
+  const resume = () => {
+    root.classList.remove('tour-paused')
+    schedule()
+  }
+
+  steps.forEach((s, k) => s.addEventListener('click', () => show(k)))
+
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(
+      ([e]) => {
+        const wasVisible = visible
+        visible = e.isIntersecting
+        if (visible && !wasVisible) show(current)
+        else if (!visible) pause()
+      },
+      { threshold: 0.35 },
+    ).observe(root)
+  } else {
+    visible = true
+    show(0)
+  }
+  document.addEventListener('visibilitychange', () => (document.hidden ? pause() : visible && resume()))
+}
+setupTour()
+
 // ---------- Waiting list ----------
 const SUPABASE_URL = (import.meta.env.VITE_SUPABASE_URL as string | undefined)?.replace(/\/$/, '')
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined
