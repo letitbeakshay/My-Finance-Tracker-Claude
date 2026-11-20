@@ -2226,3 +2226,112 @@ details p {
 .cta-box .linkbtn:disabled {
   color: rgba(255, 255, 255, 0.7);
 }
+
+/* Hero: small, quiet chips instead of screenshot cards, and a gentle 3D tilt on the phone. */
+.chip {
+  width: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px 12px 12px;
+  border-radius: 20px;
+  background: color-mix(in srgb, var(--card) 88%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  white-space: nowrap;
+}
+.chip b {
+  display: block;
+  font-family: var(--display);
+  font-size: 18px;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+.chip small {
+  display: block;
+  font-size: 13px;
+  color: var(--faint);
+}
+.chip-ic {
+  width: 40px;
+  height: 40px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 13px;
+  background: var(--accent);
+  color: #fff;
+}
+.chip-ic.gold {
+  background: var(--gold);
+}
+.chip-bar {
+  display: block;
+  width: 120px;
+  height: 5px;
+  margin-top: 7px;
+  border-radius: 5px;
+  background: var(--surface);
+  overflow: hidden;
+}
+.chip-bar i {
+  display: block;
+  width: 65%;
+  height: 100%;
+  border-radius: 5px;
+  background: var(--accent);
+  transform-origin: left;
+  animation: chip-bar 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) 1.6s both;
+}
+@keyframes chip-bar {
+  from { transform: scaleX(0); }
+}
+.fs-1 {
+  top: 16%;
+  right: max(-12px, calc(50% - 290px));
+}
+.fs-2 {
+  bottom: 12%;
+  left: max(-12px, calc(50% - 300px));
+}
+@media (max-width: 560px) {
+  .chip {
+    width: auto;
+    padding: 9px 14px 9px 9px;
+    gap: 9px;
+    border-radius: 16px;
+  }
+  .chip b { font-size: 15px; }
+  .chip small { font-size: 11.5px; }
+  .chip-ic { width: 32px; height: 32px; border-radius: 10px; }
+  .chip-ic .ic { width: 17px; height: 17px; }
+  .chip-bar { width: 90px; }
+  .fs-1 { right: -4px; top: 10%; }
+  .fs-2 { left: -4px; bottom: 8%; }
+}
+
+.hero-phone {
+  --tilt: rotateY(-14deg) rotateX(5deg) rotateZ(2deg);
+  transform-style: preserve-3d;
+  animation: phone-in-tilt 1.3s cubic-bezier(0.2, 0.8, 0.2, 1) both, phone-float-tilt 7s ease-in-out 1.5s infinite;
+  box-shadow: 30px 50px 90px -30px rgba(10, 25, 14, 0.55), var(--shadow-lg), inset 0 0 0 1.5px rgba(255, 255, 255, 0.08);
+}
+@keyframes phone-in-tilt {
+  from { opacity: 0; transform: translateY(70px) rotateY(-30deg) rotateX(18deg) scale(0.9); }
+  to { opacity: 1; transform: var(--tilt); }
+}
+@keyframes phone-float-tilt {
+  0%, 100% { transform: var(--tilt) translateY(0); }
+  50% { transform: var(--tilt) translateY(-12px); }
+}
+@media (max-width: 560px) {
+  .hero-phone {
+    --tilt: rotateY(-9deg) rotateX(4deg) rotateZ(1.5deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-phone {
+    animation: none;
+    transform: var(--tilt);
+  }
+}
