@@ -573,5 +573,52 @@ end $$;
 revoke all on function join_waitlist(text, text, text) from public;
 grant execute on function join_waitlist(text, text, text) to anon, authenticated;
 
+-- Copy each new waiting-list sign-up to a Google Sheet (an Apps Script web app). The address and the
+-- shared secret live only in the database, never in this repo. Set or change them in the SQL editor:
+--   insert into waitlist_hook (id, url, secret) values (1, '<web app url>', '<secret>')
+--   on conflict (id) do update set url = excluded.url, secret = excluded.secret;
+-- With no row there, nothing is sent. The sheet is only a copy: the waitlist table stays the main list.
+do $$
+begin
+  if exists (select 1 from pg_available_extensions where name = 'pg_net') then
+    create extension if not exists pg_net with schema extensions;
+  end if;
+end $$;
+
+create table if not exists waitlist_hook (
+  id int primary key check (id = 1),
+  url text not null,
+  secret text not null
+);
+alter table waitlist_hook enable row level security;
+revoke all on waitlist_hook from anon, authenticated;
+
+create or replace function send_waitlist_to_sheet() returns trigger
+language plpgsql security definer set search_path = public, extensions as $$
+declare h waitlist_hook;
+begin
+  select * into h from waitlist_hook where id = 1;
+  if h.url is not null then
+    perform net.http_post(
+      url => h.url,
+      body => jsonb_build_object(
+        'secret', h.secret,
+        'email', new.email,
+        'source', coalesce(new.source, ''),
+        'created_at', to_char(new.created_at at time zone 'UTC', 'YYYY-MM-DD HH24:MI') || ' UTC'
+      ),
+      headers => '{"Content-Type": "application/json"}'::jsonb,
+      timeout_milliseconds => 10000
+    );
+  end if;
+  return new;
+exception when others then
+  return new; -- never let the sheet copy block a sign-up
+end $$;
+
+revoke all on function send_waitlist_to_sheet() from public, anon, authenticated;
+drop trigger if exists send_waitlist_to_sheet on waitlist;
+create trigger send_waitlist_to_sheet after insert on waitlist for each row execute function send_waitlist_to_sheet();
+
 -- Make the API pick up any new tables and columns straight away.
 notify pgrst, 'reload schema';
