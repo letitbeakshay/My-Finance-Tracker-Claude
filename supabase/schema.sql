@@ -551,33 +551,23 @@ create unique index if not exists waitlist_email_key on waitlist (lower(email));
 alter table waitlist enable row level security;
 revoke all on waitlist from anon, authenticated;
 
--- Checks the address, ignores repeats quietly (so it never reveals who is already on the list), and
--- caps sign-ups across everyone at 100 per 10 minutes so a script cannot flood the table.
-create or replace function join_waitlist(p_email text, p_name text default null, p_source text default null)
-returns text
-language plpgsql security definer set search_path = public as $$
-declare e text := lower(trim(coalesce(p_email, '')));
-begin
-  if char_length(e) > 254 or e !~ '^[^@\s]+@[^@\s]+\.[^@\s]+$' then
-    raise exception 'Please enter a valid email address.';
-  end if;
-  if (select count(*) from waitlist where created_at > now() - interval '10 minutes') >= 100 then
-    raise exception 'Lots of people are joining right now. Please try again in a few minutes.';
-  end if;
-  insert into waitlist (email, name, source)
-  values (e, nullif(left(trim(coalesce(p_name, '')), 80), ''), nullif(left(trim(coalesce(p_source, '')), 80), ''))
-  on conflict (lower(email)) do nothing;
-  return 'ok';
-end $$;
+-- Email check: join_waitlist() emails a 6-digit code (through the Google Sheet's Apps Script, below)
+-- and verify_waitlist() confirms it. Everyone who joins is kept, confirmed or not.
+alter table waitlist add column if not exists verified_at timestamptz;
+alter table waitlist add column if not exists code text;
+alter table waitlist add column if not exists code_sent_at timestamptz;
+alter table waitlist add column if not exists code_tries int not null default 0;
+alter table waitlist add column if not exists sends int not null default 0;
+alter table waitlist add column if not exists sends_since timestamptz;
+-- People who joined before the email check existed count as confirmed.
+update waitlist set verified_at = created_at
+where verified_at is null and code_sent_at is null and created_at < timestamptz '2026-11-22 00:00+00';
 
-revoke all on function join_waitlist(text, text, text) from public;
-grant execute on function join_waitlist(text, text, text) to anon, authenticated;
-
--- Copy each new waiting-list sign-up to a Google Sheet (an Apps Script web app). The address and the
--- shared secret live only in the database, never in this repo. Set or change them in the SQL editor:
+-- Copy sign-ups to a Google Sheet and send the code emails (an Apps Script web app). The address and
+-- the shared secret live only in the database, never in this repo. Set or change them in the SQL editor:
 --   insert into waitlist_hook (id, url, secret) values (1, '<web app url>', '<secret>')
 --   on conflict (id) do update set url = excluded.url, secret = excluded.secret;
--- With no row there, nothing is sent. The sheet is only a copy: the waitlist table stays the main list.
+-- With no row there, nothing is sent and people join without the email check.
 do $$
 begin
   if exists (select 1 from pg_available_extensions where name = 'pg_net') then
@@ -593,32 +583,132 @@ create table if not exists waitlist_hook (
 alter table waitlist_hook enable row level security;
 revoke all on waitlist_hook from anon, authenticated;
 
-create or replace function send_waitlist_to_sheet() returns trigger
+-- Earlier version sent rows from a trigger; join_waitlist now does it.
+drop trigger if exists send_waitlist_to_sheet on waitlist;
+drop function if exists send_waitlist_to_sheet();
+
+-- Sends one message to the Apps Script. True when it was queued; never raises.
+create or replace function waitlist_notify(payload jsonb) returns boolean
 language plpgsql security definer set search_path = public, extensions as $$
 declare h waitlist_hook;
 begin
   select * into h from waitlist_hook where id = 1;
-  if h.url is not null then
-    perform net.http_post(
-      url => h.url,
-      body => jsonb_build_object(
-        'secret', h.secret,
-        'email', new.email,
-        'source', coalesce(new.source, ''),
-        'created_at', to_char(new.created_at at time zone 'UTC', 'YYYY-MM-DD HH24:MI') || ' UTC'
-      ),
-      headers => '{"Content-Type": "application/json"}'::jsonb,
-      timeout_milliseconds => 10000
-    );
+  if h.url is null then
+    return false;
   end if;
-  return new;
+  perform net.http_post(
+    url => h.url,
+    body => payload || jsonb_build_object('secret', h.secret),
+    headers => '{"Content-Type": "application/json"}'::jsonb,
+    timeout_milliseconds => 10000
+  );
+  return true;
 exception when others then
-  return new; -- never let the sheet copy block a sign-up
+  return false;
+end $$;
+revoke all on function waitlist_notify(jsonb) from public, anon, authenticated;
+
+-- Returns 'sent' (a code is on its way), 'joined' (saved; no email check possible yet) or 'verified'
+-- (already confirmed). Caps new sign-ups at 100 per 10 minutes across everyone, one code per 45 seconds
+-- and five codes an hour per address.
+create or replace function join_waitlist(p_email text, p_name text default null, p_source text default null)
+returns text
+language plpgsql security definer set search_path = public as $$
+declare
+  e text := lower(trim(coalesce(p_email, '')));
+  r waitlist;
+  is_new boolean := false;
+  new_code text;
+begin
+  if char_length(e) > 254 or e !~ '^[^@\s]+@[^@\s]+\.[^@\s]+$' then
+    raise exception 'Please enter a valid email address.';
+  end if;
+
+  select * into r from waitlist where lower(email) = e;
+  if found and r.verified_at is not null then
+    return 'verified';
+  end if;
+  if not found then
+    if (select count(*) from waitlist where created_at > now() - interval '10 minutes') >= 100 then
+      raise exception 'Lots of people are joining right now. Please try again in a few minutes.';
+    end if;
+    insert into waitlist (email, name, source)
+    values (e, nullif(left(trim(coalesce(p_name, '')), 80), ''), nullif(left(trim(coalesce(p_source, '')), 80), ''))
+    returning * into r;
+    is_new := true;
+  end if;
+
+  if not exists (select 1 from waitlist_hook where id = 1) then
+    return 'joined';
+  end if;
+  if r.code_sent_at is not null and r.code_sent_at > now() - interval '45 seconds' then
+    return 'sent';
+  end if;
+  if r.sends_since is null or r.sends_since < now() - interval '1 hour' then
+    r.sends := 0;
+    r.sends_since := now();
+  end if;
+  if r.sends >= 5 then
+    raise exception 'We have sent several codes already. Please check your inbox or try again in an hour.';
+  end if;
+
+  new_code := lpad(floor(random() * 1000000)::int::text, 6, '0');
+  update waitlist
+  set code = new_code, code_sent_at = now(), code_tries = 0, sends = r.sends + 1, sends_since = r.sends_since
+  where id = r.id;
+
+  if not waitlist_notify(jsonb_build_object(
+    'action', case when is_new then 'joined' else 'resend' end,
+    'email', e,
+    'source', coalesce(r.source, ''),
+    'created_at', to_char(r.created_at at time zone 'UTC', 'YYYY-MM-DD HH24:MI') || ' UTC',
+    'code', new_code
+  )) then
+    return 'joined';
+  end if;
+  return 'sent';
 end $$;
 
-revoke all on function send_waitlist_to_sheet() from public, anon, authenticated;
-drop trigger if exists send_waitlist_to_sheet on waitlist;
-create trigger send_waitlist_to_sheet after insert on waitlist for each row execute function send_waitlist_to_sheet();
+revoke all on function join_waitlist(text, text, text) from public;
+grant execute on function join_waitlist(text, text, text) to anon, authenticated;
+
+-- Returns 'verified', 'wrong', 'expired' (older than 15 minutes), 'locked' (five wrong tries) or
+-- 'missing' (no code was sent to this address).
+create or replace function verify_waitlist(p_email text, p_code text)
+returns text
+language plpgsql security definer set search_path = public as $$
+declare
+  e text := lower(trim(coalesce(p_email, '')));
+  r waitlist;
+begin
+  select * into r from waitlist where lower(email) = e;
+  if not found or (r.code is null and r.verified_at is null) then
+    return 'missing';
+  end if;
+  if r.verified_at is not null then
+    return 'verified';
+  end if;
+  if r.code_tries >= 5 then
+    return 'locked';
+  end if;
+  if r.code_sent_at < now() - interval '15 minutes' then
+    return 'expired';
+  end if;
+  if regexp_replace(coalesce(p_code, ''), '\D', '', 'g') <> r.code then
+    update waitlist set code_tries = code_tries + 1 where id = r.id;
+    return 'wrong';
+  end if;
+  update waitlist set verified_at = now(), code = null where id = r.id;
+  perform waitlist_notify(jsonb_build_object(
+    'action', 'verified',
+    'email', e,
+    'at', to_char(now() at time zone 'UTC', 'YYYY-MM-DD HH24:MI') || ' UTC'
+  ));
+  return 'verified';
+end $$;
+
+revoke all on function verify_waitlist(text, text) from public;
+grant execute on function verify_waitlist(text, text) to anon, authenticated;
 
 -- Make the API pick up any new tables and columns straight away.
 notify pgrst, 'reload schema';

@@ -167,29 +167,42 @@ function setupTour() {
 }
 setupTour()
 
-// ---------- Waiting list ----------
+// ---------- Waiting list (with a 6-digit email code) ----------
 const SUPABASE_URL = (import.meta.env.VITE_SUPABASE_URL as string | undefined)?.replace(/\/$/, '')
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/
 const NOTE = 'No spam. One email when your spot is ready.'
+const CODE_NOTE = "Can't find it? Check your spam or promotions folder."
+const RESEND_SECONDS = 45
 
-async function joinWaitlist(email: string, source: string) {
+async function rpc(fn: string, args: Record<string, unknown>): Promise<string> {
   if (!SUPABASE_URL || !SUPABASE_KEY) throw new Error('The waiting list is not connected yet. Please try again later.')
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/join_waitlist`, {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` },
-    body: JSON.stringify({ p_email: email, p_name: null, p_source: source }),
+    body: JSON.stringify(args),
   })
-  if (!res.ok) {
-    let msg = 'Something went wrong. Please try again.'
-    try {
-      const body = await res.json()
-      if (typeof body?.message === 'string' && body.message.length < 140) msg = body.message
-    } catch {
-      /* keep the plain message */
-    }
-    throw new Error(msg)
+  let body: unknown = null
+  try {
+    body = await res.json()
+  } catch {
+    /* no body */
   }
+  if (!res.ok) {
+    const msg = (body as { message?: unknown } | null)?.message
+    throw new Error(typeof msg === 'string' && msg.length < 160 ? msg : 'Something went wrong. Please try again.')
+  }
+  return typeof body === 'string' ? body : ''
+}
+
+const joinWaitlist = (email: string, source: string) => rpc('join_waitlist', { p_email: email, p_name: null, p_source: source })
+const verifyCode = (email: string, code: string) => rpc('verify_waitlist', { p_email: email, p_code: code })
+
+const VERIFY_MESSAGES: Record<string, string> = {
+  wrong: "That code isn't right. Please check it and try again.",
+  expired: 'That code has expired. Tap "Resend code" for a new one.',
+  locked: 'Too many tries. Tap "Resend code" for a new one.',
+  missing: 'Please tap "Resend code" for a new one.',
 }
 
 function markAllJoined(email: string) {
@@ -198,6 +211,7 @@ function markAllJoined(email: string) {
   } catch {
     /* private mode: fine */
   }
+  document.querySelectorAll('.otp').forEach((el) => el.remove())
   document.querySelectorAll<HTMLFormElement>('form.join').forEach((form) => {
     const done = document.createElement('div')
     done.className = 'joined'
@@ -205,6 +219,127 @@ function markAllJoined(email: string) {
     done.innerHTML = `<span class="ic-round"><i class="ic ic-check"></i></span><div><b>You're on the list!</b><span class="msg"></span></div>`
     done.querySelector('.msg')!.textContent = `We'll email ${email} when your spot is ready.`
     form.replaceWith(done)
+  })
+}
+
+let otpCount = 0
+
+/** Swap the email form for the code step: enter the 6-digit code, resend it, or change the address. */
+function showCodeStep(form: HTMLFormElement, email: string, source: string) {
+  const id = `otp-${++otpCount}`
+  const step = document.createElement('div')
+  step.className = 'otp'
+  step.innerHTML = `
+    <p class="otp-title">Check your email</p>
+    <p class="otp-sub">We sent a 6-digit code to <b class="otp-email"></b>. Enter it below to confirm.</p>
+    <form class="otp-form" novalidate>
+      <label class="sr" for="${id}">6-digit code</label>
+      <div class="field">
+        <input id="${id}" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="7" placeholder="6-digit code" />
+        <button class="btn btn-dark" type="submit"><span class="btn-label">Confirm</span><span class="spinner" aria-hidden="true"></span></button>
+      </div>
+      <p class="form-note" role="status" aria-live="polite"></p>
+    </form>
+    <p class="otp-links">
+      <button type="button" class="linkbtn" data-resend>Resend code</button>
+      <span aria-hidden="true">·</span>
+      <button type="button" class="linkbtn" data-change>Use a different email</button>
+    </p>`
+  step.querySelector('.otp-email')!.textContent = email
+  const codeForm = step.querySelector<HTMLFormElement>('form')!
+  const codeInput = step.querySelector<HTMLInputElement>('input')!
+  const note = step.querySelector<HTMLElement>('.form-note')!
+  const confirmBtn = codeForm.querySelector<HTMLButtonElement>('button')!
+  const resendBtn = step.querySelector<HTMLButtonElement>('[data-resend]')!
+  const changeBtn = step.querySelector<HTMLButtonElement>('[data-change]')!
+  note.textContent = CODE_NOTE
+
+  form.hidden = true
+  form.after(step)
+  codeInput.focus()
+
+  let timer: number | undefined
+  const startCooldown = () => {
+    let left = RESEND_SECONDS
+    resendBtn.disabled = true
+    const tick = () => {
+      resendBtn.textContent = left > 0 ? `Resend code in ${left}s` : 'Resend code'
+      if (left <= 0) {
+        resendBtn.disabled = false
+        window.clearInterval(timer)
+      }
+      left--
+    }
+    window.clearInterval(timer)
+    tick()
+    timer = window.setInterval(tick, 1000)
+  }
+  startCooldown()
+
+  const setNote = (text: string, error = false) => {
+    note.textContent = text
+    note.classList.toggle('error', error)
+  }
+
+  codeInput.addEventListener('input', () => {
+    const digits = codeInput.value.replace(/\D/g, '').slice(0, 6)
+    codeInput.value = digits.length > 3 ? `${digits.slice(0, 3)} ${digits.slice(3)}` : digits
+    if (note.classList.contains('error')) setNote(CODE_NOTE)
+    if (codeInput.value.replace(/\D/g, '').length === 6) codeForm.requestSubmit()
+  })
+
+  codeForm.addEventListener('submit', async (e) => {
+    e.preventDefault()
+    if (codeForm.classList.contains('loading')) return
+    const code = codeInput.value.replace(/\D/g, '')
+    if (code.length !== 6) {
+      setNote('Please enter the 6-digit code from the email.', true)
+      codeInput.focus()
+      return
+    }
+    codeForm.classList.add('loading')
+    confirmBtn.disabled = true
+    try {
+      const result = await verifyCode(email, code)
+      if (result === 'verified') {
+        window.clearInterval(timer)
+        markAllJoined(email)
+        return
+      }
+      setNote(VERIFY_MESSAGES[result] ?? 'Something went wrong. Please try again.', true)
+      codeInput.select()
+    } catch (err) {
+      setNote(err instanceof Error ? err.message : 'Something went wrong. Please try again.', true)
+    } finally {
+      codeForm.classList.remove('loading')
+      confirmBtn.disabled = false
+    }
+  })
+
+  resendBtn.addEventListener('click', async () => {
+    resendBtn.disabled = true
+    try {
+      const result = await joinWaitlist(email, source)
+      if (result === 'verified' || result === 'joined') {
+        window.clearInterval(timer)
+        markAllJoined(email)
+        return
+      }
+      setNote('A new code is on its way.')
+      codeInput.value = ''
+      codeInput.focus()
+      startCooldown()
+    } catch (err) {
+      setNote(err instanceof Error ? err.message : 'Something went wrong. Please try again.', true)
+      resendBtn.disabled = false
+    }
+  })
+
+  changeBtn.addEventListener('click', () => {
+    window.clearInterval(timer)
+    step.remove()
+    form.hidden = false
+    form.querySelector<HTMLInputElement>('input[name="email"]')?.focus()
   })
 }
 
@@ -240,8 +375,9 @@ document.querySelectorAll<HTMLFormElement>('form.join').forEach((form) => {
     button.disabled = true
     try {
       const source = [form.dataset.source, campaign].filter(Boolean).join(':')
-      await joinWaitlist(email, source)
-      markAllJoined(email)
+      const result = await joinWaitlist(email, source)
+      if (result === 'sent') showCodeStep(form, email, source)
+      else markAllJoined(email) // 'joined' (no email check yet) or 'verified' (already confirmed)
     } catch (err) {
       note.classList.add('error')
       note.textContent = err instanceof Error ? err.message : 'Something went wrong. Please try again.'
@@ -252,7 +388,7 @@ document.querySelectorAll<HTMLFormElement>('form.join').forEach((form) => {
   })
 })
 
-// Someone who already joined sees the thank-you straight away.
+// Someone who already joined and confirmed sees the thank-you straight away.
 try {
   const saved = localStorage.getItem('fp_waitlist')
   if (saved) markAllJoined(saved)

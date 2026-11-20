@@ -2144,3 +2144,85 @@ details p {
 .shot-view.tscreen {
   height: auto;
 }
+
+/* ---------- Waiting list: email code step ---------- */
+.otp {
+  margin-top: 30px;
+  max-width: 520px;
+  animation: pop 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+.cta-box .otp {
+  margin: 30px auto 0;
+  position: relative;
+}
+.otp-title {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 22px;
+  letter-spacing: -0.02em;
+}
+.otp-sub {
+  margin: 4px 0 14px;
+  color: var(--muted);
+  font-size: 16px;
+}
+.otp-sub b {
+  color: var(--ink);
+  word-break: break-all;
+}
+.cta-box .otp-sub,
+.cta-box .otp-sub b {
+  color: rgba(255, 255, 255, 0.92);
+}
+.otp .field input {
+  letter-spacing: 0.3em;
+  font-weight: 600;
+  font-size: 18px;
+}
+.otp .field input::placeholder {
+  letter-spacing: 0;
+  font-weight: 500;
+  font-size: 16px;
+}
+.otp-form.loading .spinner {
+  display: inline-block;
+}
+.otp-form.loading .btn-label {
+  display: none;
+}
+.otp-links {
+  margin-top: 6px;
+  padding-left: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  font-size: 14px;
+  color: var(--faint);
+}
+.cta-box .otp-links {
+  justify-content: center;
+  padding-left: 0;
+  color: rgba(255, 255, 255, 0.8);
+}
+.linkbtn {
+  border: 0;
+  background: none;
+  padding: 4px 0;
+  font: 600 14px var(--sans);
+  color: var(--accent-ink);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.linkbtn:disabled {
+  color: var(--faint);
+  text-decoration: none;
+  cursor: default;
+}
+.cta-box .linkbtn {
+  color: #fff;
+}
+.cta-box .linkbtn:disabled {
+  color: rgba(255, 255, 255, 0.7);
+}
