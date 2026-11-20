@@ -216,8 +216,16 @@ function markAllJoined(email: string) {
     const done = document.createElement('div')
     done.className = 'joined'
     done.setAttribute('role', 'status')
-    done.innerHTML = `<span class="ic-round"><i class="ic ic-check"></i></span><div><b>You're on the list!</b><span class="msg"></span></div>`
+    done.innerHTML = `<span class="ic-round"><i class="ic ic-check"></i></span><div><b>You're on the list!</b><span class="msg"></span><button type="button" class="linkbtn again">Use a different email</button></div>`
     done.querySelector('.msg')!.textContent = `We'll email ${email} when your spot is ready.`
+    done.querySelector('.again')!.addEventListener('click', () => {
+      try {
+        localStorage.removeItem('fp_waitlist')
+      } catch {
+        /* ignore */
+      }
+      location.reload()
+    })
     form.replaceWith(done)
   })
 }

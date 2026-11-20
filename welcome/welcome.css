@@ -2335,3 +2335,11 @@ details p {
     transform: var(--tilt);
   }
 }
+
+.joined .again {
+  margin-top: 4px;
+  font-size: 13.5px;
+}
+.cta-box .joined .again {
+  color: var(--accent-ink);
+}
