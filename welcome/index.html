@@ -63,72 +63,18 @@
             </ul>
           </div>
 
-          <!-- Phone mockup of the app's Home screen -->
+          <!-- The real app's Home screen in a phone, scrolling slowly -->
           <div class="hero-visual reveal" aria-hidden="true">
             <div class="glow"></div>
-            <div class="phone">
+            <div class="phone hero-phone">
               <div class="phone-notch"></div>
-              <div class="screen">
-                <div class="app-top">
-                  <div>
-                    <p class="muted-xs">Good morning</p>
-                    <p class="app-name">Hannah</p>
-                  </div>
-                  <span class="avatar">H</span>
-                </div>
-
-                <div class="panel">
-                  <div class="seg">
-                    <span>Income</span><span class="on">Expenses</span>
-                  </div>
-                  <p class="panel-label">Spent this month</p>
-                  <p class="big">$1,284<span>.50</span></p>
-                  <span class="pill-up">↓ 8% less than last month</span>
-                  <div class="chart">
-                    <svg viewBox="0 0 300 120" preserveAspectRatio="none" class="chart-svg">
-                      <defs>
-                        <linearGradient id="fill" x1="0" x2="0" y1="0" y2="1">
-                          <stop offset="0" stop-color="#fff" stop-opacity=".38" />
-                          <stop offset="1" stop-color="#fff" stop-opacity="0" />
-                        </linearGradient>
-                      </defs>
-                      <path class="area" fill="url(#fill)" d="" />
-                      <path class="line" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" d="" />
-                      <circle class="pt" r="5" fill="#fff" stroke="#161a16" stroke-width="2.5" />
-                    </svg>
-                    <div class="bubble"><b>$1,284</b><span>Nov</span></div>
-                    <div class="months"><span>Jun</span><span>Jul</span><span>Aug</span><span>Sep</span><span>Oct</span><span>Nov</span></div>
-                  </div>
-                </div>
-
-                <p class="sec-title">Categories</p>
-                <div class="tiles">
-                  <div class="tile"><span class="ic ic-home"></span><p>Home</p><b>$620</b></div>
-                  <div class="tile"><span class="ic ic-cart"></span><p>Groceries</p><b>$248</b></div>
-                  <div class="tile"><span class="ic ic-heart"></span><p>Giving</p><b>$180</b></div>
-                  <div class="tile"><span class="ic ic-car"></span><p>Transport</p><b>$96</b></div>
-                </div>
-
-                <div class="dock">
-                  <span class="d on"><i class="ic ic-home"></i></span>
-                  <span class="d"><i class="ic ic-chart"></i></span>
-                  <span class="d plus">+</span>
-                  <span class="d"><i class="ic ic-wallet"></i></span>
-                  <span class="d"><i class="ic ic-user"></i></span>
-                </div>
+              <div class="screen shot-screen">
+                <div class="statusbar"><span>9:41</span><span class="batt"></span></div>
+                <div class="shot-view"><img class="hero-scroll" src="./shots/home-tall.jpg" alt="" width="390" height="2600" /></div>
               </div>
             </div>
-
-            <!-- Floating "just added" card -->
-            <div class="float-card fc-1">
-              <span class="ic-round"><i class="ic ic-coffee"></i></span>
-              <div><p>Lunch with team</p><small>Debit card · just now</small></div>
-              <b>$12.40</b>
-            </div>
-            <div class="float-card fc-2">
-              <span class="ic-round green"><i class="ic ic-check"></i></span>
-              <div><p>Car loan</p><small>Payment marked done</small></div>
-            </div>
+            <img class="float-shot fs-1" src="./shots/ff-card.jpg" alt="" width="350" height="300" />
+            <img class="float-shot fs-2" src="./shots/budget-card.jpg" alt="" width="350" height="330" />
           </div>
         </div>
       </section>
@@ -138,146 +84,52 @@
         <div class="wrap">
           <p class="kicker reveal">See it in action</p>
           <h2 class="reveal">How Faithful Portion works.</h2>
-          <p class="sub reveal">Five small moments that change how you handle money. Tap any step to see it.</p>
+          <p class="sub reveal">Real screens from the app. Tap any step to see it.</p>
 
           <div class="tour-grid">
             <ol class="tour-steps" role="tablist" aria-label="App tour">
               <li><button class="tstep on" role="tab" aria-selected="true" data-step="0">
                 <span class="tnum">1</span>
-                <span class="ttext"><b>Add it in seconds</b><span>Type the amount and a note. The app picks the category and how you paid.</span></span>
+                <span class="ttext"><b>Add an expense</b><span>Type the amount and a short note. The things you buy most are one tap away.</span></span>
                 <span class="tbar"></span>
               </button></li>
               <li><button class="tstep" role="tab" aria-selected="false" data-step="1">
                 <span class="tnum">2</span>
-                <span class="ttext"><b>Take a moment</b><span>One simple question after each spend helps you notice your habits.</span></span>
+                <span class="ttext"><b>Choose and reflect</b><span>Pick where it went and see what is left in your budget. Then one question: does this please God?</span></span>
                 <span class="tbar"></span>
               </button></li>
               <li><button class="tstep" role="tab" aria-selected="false" data-step="2">
                 <span class="tnum">3</span>
-                <span class="ttext"><b>Count the cost</b><span>Before a big buy, the app asks four honest questions. Then you decide.</span></span>
+                <span class="ttext"><b>Plan your month</b><span>Make a simple plan for the month and see what is left, day by day.</span></span>
                 <span class="tbar"></span>
               </button></li>
               <li><button class="tstep" role="tab" aria-selected="false" data-step="3">
                 <span class="tnum">4</span>
-                <span class="ttext"><b>Give, save, live</b><span>See how much you gave, saved and lived on. Giving comes first.</span></span>
+                <span class="ttext"><b>Give first</b><span>See what you gave, saved and lived on, with giving first.</span></span>
                 <span class="tbar"></span>
               </button></li>
               <li><button class="tstep" role="tab" aria-selected="false" data-step="4">
                 <span class="tnum">5</span>
-                <span class="ttext"><b>Walk out of debt</b><span>Mark each payment and watch your loans go down, one by one.</span></span>
+                <span class="ttext"><b>Pay off loans</b><span>The app shows which loan to clear first, and when you will be free.</span></span>
                 <span class="tbar"></span>
               </button></li>
             </ol>
 
             <div class="tour-caption" aria-live="polite"><b></b><span></span><i class="cbar"></i></div>
 
-            <div class="tour-device" aria-hidden="true">
+            <div class="tour-device">
               <div class="glow"></div>
               <div class="phone still">
                 <div class="phone-notch"></div>
-                <div class="screen tscreen">
-
-                  <!-- 1. Add an expense -->
-                  <div class="scr s-add on play">
-                    <div class="scr-head"><span class="x">✕</span><b>Add expense</b><span class="dots"><i class="on"></i><i></i><i></i><i></i></span></div>
-                    <p class="lbl">Amount</p>
-                    <p class="type-amt"><span>$</span><span>1</span><span>2</span><span>.</span><span>4</span><span>0</span><i class="caret"></i></p>
-                    <p class="lbl">Note</p>
-                    <div class="note"><span class="typed">Lunch with team</span></div>
-                    <p class="lbl">Category <em class="sugg"><i class="ic ic-sparkles"></i> Suggested</em></p>
-                    <div class="cats">
-                      <span class="cat pick"><i class="ic ic-food"></i>Food</span>
-                      <span class="cat"><i class="ic ic-cart"></i>Groceries</span>
-                      <span class="cat"><i class="ic ic-car"></i>Transport</span>
-                      <span class="cat"><i class="ic ic-bag"></i>Shopping</span>
-                    </div>
-                    <p class="lbl">Paid with</p>
-                    <div class="cats">
-                      <span class="cat pick2"><i class="ic ic-card"></i>Debit card</span>
-                      <span class="cat"><i class="ic ic-wallet"></i>Cash</span>
-                    </div>
-                    <span class="save-btn">Save</span>
-                    <div class="saved"><span class="big-check"><i class="ic ic-check"></i></span><b>Saved</b><small>$12.40 · Food</small></div>
-                    <div class="undo"><span>Expense saved</span><b>Undo</b></div>
+                <div class="screen shot-screen">
+                  <div class="statusbar"><span>9:41</span><span class="batt"></span></div>
+                  <div class="shot-view tscreen">
+                  <div class="scr on play"><img src="./shots/entry-amount.jpg" alt="Add an expense screen in the app" width="390" height="844" loading="lazy" /></div>
+                  <div class="scr"><img src="./shots/entry-category.jpg" alt="Choose and reflect screen in the app" width="390" height="844" loading="lazy" /></div>
+                  <div class="scr"><img src="./shots/budgets.jpg" alt="Plan your month screen in the app" width="390" height="844" loading="lazy" /></div>
+                  <div class="scr"><img src="./shots/stewardship.jpg" alt="Give first screen in the app" width="390" height="844" loading="lazy" /></div>
+                  <div class="scr"><img src="./shots/loans.jpg" alt="Pay off loans screen in the app" width="390" height="844" loading="lazy" /></div>
                   </div>
-
-                  <!-- 2. A moment to reflect -->
-                  <div class="scr s-reflect">
-                    <div class="scr-head"><span class="x">‹</span><b>Add expense</b><span class="dots"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></span></div>
-                    <div class="row-card"><span class="ic-round"><i class="ic ic-food"></i></span><div><b>Lunch with team</b><small>Food · Debit card</small></div><b>$12.40</b></div>
-                    <div class="q-card">
-                      <p class="q">Does this please God?</p>
-                      <p class="q-sub">No right or wrong answer. Just notice.</p>
-                      <div class="yn"><span class="yes"><i class="ic ic-check"></i> Yes</span><span class="no">Not really</span></div>
-                    </div>
-                    <div class="verse-card">
-                      <p>“He that is faithful in that which is least is faithful also in much.”</p>
-                      <small>Luke 16:10</small>
-                    </div>
-                  </div>
-
-                  <!-- 3. Count the cost -->
-                  <div class="scr s-cost">
-                    <div class="scr-head"><span class="x">‹</span><b>Add expense</b><span class="dots"><i class="on"></i><i class="on"></i><i></i><i></i></span></div>
-                    <p class="lbl">Amount</p>
-                    <p class="type-amt still-amt">$899<span class="dec">.00</span></p>
-                    <div class="note"><span>New phone</span></div>
-                    <div class="dim"></div>
-                    <div class="sheet">
-                      <span class="grab"></span>
-                      <b class="sheet-title">Count the cost</b>
-                      <p class="sheet-verse">“Which of you, intending to build a tower, sitteth not down first, and counteth the cost?” Luke 14:28</p>
-                      <ul class="checks">
-                        <li><span class="cb"><i class="ic ic-check"></i></span>Is this a need, or a want?</li>
-                        <li><span class="cb"><i class="ic ic-check"></i></span>Have I prayed about it?</li>
-                        <li><span class="cb"><i class="ic ic-check"></i></span>Can I pay for it without debt?</li>
-                        <li><span class="cb"><i class="ic ic-check"></i></span>Could I wait a few days?</li>
-                      </ul>
-                      <span class="pray-btn">I’ve prayed — save</span>
-                    </div>
-                  </div>
-
-                  <!-- 4. Give, save, live -->
-                  <div class="scr s-split">
-                    <div class="scr-head"><span></span><b>November</b><span></span></div>
-                    <div class="ff">
-                      <svg viewBox="0 0 120 120" class="ff-ring"><circle cx="60" cy="60" r="50" class="track" /><circle cx="60" cy="60" r="50" class="val" /></svg>
-                      <div><small>First fruits</small><b>$320 of $320</b><span class="ff-tag">Given faithfully this month</span></div>
-                    </div>
-                    <div class="split-card">
-                      <b>Give, save, live</b>
-                      <small>Give first, save second, live on the rest</small>
-                      <div class="stack"><i class="g"></i><i class="s"></i><i class="l"></i></div>
-                      <ul class="legend">
-                        <li><span class="sw g"></span>Give<b>$320</b><em>10%</em></li>
-                        <li><span class="sw s"></span>Save<b>$640</b><em>20%</em></li>
-                        <li><span class="sw l"></span>Live<b>$2,240</b><em>70%</em></li>
-                      </ul>
-                    </div>
-                    <div class="refl">
-                      <small>Monthly reflection</small>
-                      <b>What am I grateful to God for this month?</b>
-                      <p class="typed2">A steady job and family meals.</p>
-                    </div>
-                  </div>
-
-                  <!-- 5. Out of debt -->
-                  <div class="scr s-debt">
-                    <div class="scr-head"><span></span><b>Debt-free plan</b><span></span></div>
-                    <div class="debt-hero">
-                      <small>Left to pay</small>
-                      <p class="dh-amt"><span class="from">$7,950</span><span class="to">$7,550</span></p>
-                      <div class="dh-bar"><i></i></div>
-                      <span class="dh-pill">Smallest first · on track</span>
-                    </div>
-                    <ol class="dl">
-                      <li class="dl-done"><span class="dn"><i class="ic ic-check"></i></span><div><b>Phone plan</b><small>Paid off</small></div><em>$0</em></li>
-                      <li class="dl-now"><span class="dn">2</span><div><b>Credit card</b><small>$400 due this month</small></div><em class="mp">Mark paid</em></li>
-                      <li><span class="dn">3</span><div><b>Car loan</b><small>Next after the card</small></div><em>$6,400</em></li>
-                    </ol>
-                    <div class="toast-ok"><i class="ic ic-check"></i> Payment marked. $400 closer.</div>
-                  </div>
-
                 </div>
               </div>
             </div>

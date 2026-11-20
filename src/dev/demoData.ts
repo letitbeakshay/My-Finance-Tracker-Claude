@@ -1,5 +1,6 @@
 import { addDays, format, subDays } from 'date-fns'
 import { CATEGORY_PLAN } from './demoPlan'
+import { GLOBAL_TABLES } from './demoGlobal'
 
 /**
  * Dev-only sample data for previewing the app (`?demo` on the dev server).
@@ -28,7 +29,7 @@ const EXPENSES: E[] = [
   ['e14', 10000, 'amma', 'need', 'bank_transfer', 'acc2', 'Amma allowance', 2, true],
 ]
 
-export const DEMO_TABLES: Record<string, unknown[]> = {
+const PERSONAL_TABLES: Record<string, unknown[]> = {
   categories: CATEGORY_PLAN.flatMap((parent, i) => [
     {
       id: slug(parent.name), name: parent.name, icon: parent.icon, color: null, archived: false, sort_order: i, wallet_id: null,
@@ -84,3 +85,7 @@ export const DEMO_TABLES: Record<string, unknown[]> = {
     { id: 'app', currency: '₹', onboarded_at: null, giving_percent: 10, saving_percent: 10, pause_threshold: 2000, giving_seeded: true },
   ],
 }
+
+/** `?demo=global` shows neutral sample data (US dollars, default categories) for screenshots. */
+export const DEMO_TABLES: Record<string, unknown[]> =
+  new URLSearchParams(location.search).get('demo') === 'global' ? GLOBAL_TABLES : PERSONAL_TABLES

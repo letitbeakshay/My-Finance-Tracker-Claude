@@ -13,7 +13,7 @@ export interface AuthState {
   recovering: boolean
 }
 
-const DEMO_USER = { id: 'demo', email: 'demo@example.com', user_metadata: { name: 'Demo' } } as unknown as User
+const DEMO_USER = { id: 'demo', email: 'demo@example.com', user_metadata: { name: new URLSearchParams(location.search).get('demo') === 'global' ? 'Grace' : 'Demo' } } as unknown as User
 
 /** Who is signed in, kept up to date as people sign in, out or come back from a password-reset email. */
 export function useAuth(): AuthState & { clearRecovery: () => void } {
