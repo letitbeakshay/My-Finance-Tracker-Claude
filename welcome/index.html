@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Faithful Portion</title>
+    <meta name="description" content="A calm, simple way to track your spending, plan your month and get out of debt. Join the waiting list." />
+    <meta name="theme-color" content="#f3f6f1" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0f1410" media="(prefers-color-scheme: dark)" />
+    <meta property="og:title" content="Faithful Portion" />
+    <meta property="og:description" content="Be faithful with every portion. Track spending, plan your month and get out of debt, one honest entry at a time." />
+    <meta property="og:type" content="website" />
+    <link rel="icon" type="image/svg+xml" href="./mark.svg" />
+  </head>
+  <body>
+    <a class="skip" href="#join">Skip to the waiting list</a>
+
+    <header class="nav">
+      <div class="wrap nav-in">
+        <a class="brand" href="#top" aria-label="Faithful Portion home">
+          <span class="mark" aria-hidden="true"></span>
+          <span>Faithful Portion</span>
+        </a>
+        <nav class="nav-links" aria-label="Sections">
+          <a href="#why">Why</a>
+          <a href="#features">Features</a>
+          <a href="#soon">Coming soon</a>
+          <a href="#faq">Questions</a>
+        </nav>
+        <a class="btn btn-dark btn-sm" href="#join">Join<span class="long">&nbsp;the waiting list</span></a>
+      </div>
+    </header>
+
+    <main id="top">
+      <!-- Hero -->
+      <section class="hero">
+        <div class="wrap hero-grid">
+          <div class="hero-copy">
+            <p class="eyebrow reveal"><span class="dot"></span> Opening soon · Join the waiting list</p>
+            <h1 class="reveal">Be faithful with <em>every</em> portion.</h1>
+            <p class="lead reveal">
+              A calm, simple way to track what you spend, plan your month and get out of debt.
+              One honest entry at a time.
+            </p>
+
+            <form class="join reveal" id="join" data-source="hero" novalidate>
+              <label class="sr" for="hero-email">Your email</label>
+              <div class="field">
+                <input id="hero-email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="Your email address" required />
+                <button class="btn btn-dark" type="submit">
+                  <span class="btn-label">Join the waiting list</span>
+                  <span class="spinner" aria-hidden="true"></span>
+                </button>
+              </div>
+              <input class="hp" name="company" tabindex="-1" autocomplete="off" aria-hidden="true" />
+              <p class="form-note" role="status" aria-live="polite">No spam. One email when your spot is ready.</p>
+            </form>
+
+            <ul class="ticks reveal" aria-label="Highlights">
+              <li><span class="tick"></span>Works on any phone</li>
+              <li><span class="tick"></span>Any currency</li>
+              <li><span class="tick"></span>No bank login needed</li>
+            </ul>
+          </div>
+
+          <!-- Phone mockup of the app's Home screen -->
+          <div class="hero-visual reveal" aria-hidden="true">
+            <div class="glow"></div>
+            <div class="phone">
+              <div class="phone-notch"></div>
+              <div class="screen">
+                <div class="app-top">
+                  <div>
+                    <p class="muted-xs">Good morning</p>
+                    <p class="app-name">Hannah</p>
+                  </div>
+                  <span class="avatar">H</span>
+                </div>
+
+                <div class="panel">
+                  <div class="seg">
+                    <span>Income</span><span class="on">Expenses</span>
+                  </div>
+                  <p class="panel-label">Spent this month</p>
+                  <p class="big">$1,284<span>.50</span></p>
+                  <span class="pill-up">↓ 8% less than last month</span>
+                  <div class="chart">
+                    <svg viewBox="0 0 300 120" preserveAspectRatio="none" class="chart-svg">
+                      <defs>
+                        <linearGradient id="fill" x1="0" x2="0" y1="0" y2="1">
+                          <stop offset="0" stop-color="#fff" stop-opacity=".38" />
+                          <stop offset="1" stop-color="#fff" stop-opacity="0" />
+                        </linearGradient>
+                      </defs>
+                      <path class="area" fill="url(#fill)" d="" />
+                      <path class="line" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" d="" />
+                      <circle class="pt" r="5" fill="#fff" stroke="#161a16" stroke-width="2.5" />
+                    </svg>
+                    <div class="bubble"><b>$1,284</b><span>Nov</span></div>
+                    <div class="months"><span>Jun</span><span>Jul</span><span>Aug</span><span>Sep</span><span>Oct</span><span>Nov</span></div>
+                  </div>
+                </div>
+
+                <p class="sec-title">Categories</p>
+                <div class="tiles">
+                  <div class="tile"><span class="ic ic-home"></span><p>Home</p><b>$620</b></div>
+                  <div class="tile"><span class="ic ic-cart"></span><p>Groceries</p><b>$248</b></div>
+                  <div class="tile"><span class="ic ic-heart"></span><p>Giving</p><b>$180</b></div>
+                  <div class="tile"><span class="ic ic-car"></span><p>Transport</p><b>$96</b></div>
+                </div>
+
+                <div class="dock">
+                  <span class="d on"><i class="ic ic-home"></i></span>
+                  <span class="d"><i class="ic ic-chart"></i></span>
+                  <span class="d plus">+</span>
+                  <span class="d"><i class="ic ic-wallet"></i></span>
+                  <span class="d"><i class="ic ic-user"></i></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Floating "just added" card -->
+            <div class="float-card fc-1">
+              <span class="ic-round"><i class="ic ic-coffee"></i></span>
+              <div><p>Lunch with team</p><small>Debit card · just now</small></div>
+              <b>$12.40</b>
+            </div>
+            <div class="float-card fc-2">
+              <span class="ic-round green"><i class="ic ic-check"></i></span>
+              <div><p>Car loan</p><small>Payment marked done</small></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Why -->
+      <section class="why" id="why">
+        <div class="wrap">
+          <p class="kicker reveal">Why you write it down yourself</p>
+          <h2 class="reveal">Every amount is a small moment<br class="br" /> to stop and think.</h2>
+          <p class="sub reveal">
+            Faithful Portion does not pull in your bank feed. You add each expense yourself, on purpose.
+            Big or small, everything you have is a gift. That short pause is where good habits begin.
+          </p>
+
+          <div class="steps">
+            <article class="step reveal">
+              <span class="num">1</span>
+              <h3>Notice</h3>
+              <p>Type the amount and a few words. It takes about three seconds.</p>
+              <div class="mini-entry"><span class="amt">$12.40</span><span class="cur"></span></div>
+            </article>
+            <article class="step reveal">
+              <span class="num">2</span>
+              <h3>Pause</h3>
+              <p>For a moment, ask yourself: was this a good way to use what I've been given?</p>
+              <div class="mini-q">Was this a good use?</div>
+            </article>
+            <article class="step reveal">
+              <span class="num">3</span>
+              <h3>Grow</h3>
+              <p>Over time, small choices add up to a month you planned and a life with less worry.</p>
+              <div class="mini-bars"><i style="--h:14px"></i><i style="--h:20px"></i><i style="--h:17px"></i><i style="--h:28px"></i><i style="--h:38px"></i></div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- Features -->
+      <section class="features" id="features">
+        <div class="wrap">
+          <p class="kicker reveal">What you can do</p>
+          <h2 class="reveal">Simple tools for a calmer month.</h2>
+
+          <div class="bento">
+            <article class="card c-quick reveal">
+              <div class="card-head"><span class="badge-ic"><i class="ic ic-zap"></i></span><h3>Quick to add</h3></div>
+              <p>The app guesses the category from your note and remembers how you pay. Repeat your last spend in one tap.</p>
+              <div class="chips">
+                <span class="chip dark">↻ Repeat last</span>
+                <span class="chip">Groceries</span>
+                <span class="chip">Coffee</span>
+                <span class="chip">Fuel</span>
+                <span class="chip">Rent</span>
+              </div>
+            </article>
+
+            <article class="card c-see reveal">
+              <div class="card-head"><span class="badge-ic"><i class="ic ic-chart"></i></span><h3>See where it goes</h3></div>
+              <p>Six months of money in and money out, and the categories that take the most.</p>
+              <div class="hbars">
+                <div><span>Home</span><i style="--w:88%"></i><b>$620</b></div>
+                <div><span>Groceries</span><i style="--w:52%"></i><b>$248</b></div>
+                <div><span>Giving</span><i style="--w:40%" class="gold"></i><b>$180</b></div>
+                <div><span>Transport</span><i style="--w:24%"></i><b>$96</b></div>
+              </div>
+            </article>
+
+            <article class="card c-plan reveal">
+              <div class="card-head"><span class="badge-ic"><i class="ic ic-calendar"></i></span><h3>Plan your month</h3></div>
+              <p>Give every dollar a job before the month starts. Put giving first. Then check how you're doing.</p>
+              <ul class="plan">
+                <li><span>Giving</span><em>$180 of $180</em><i style="--p:100%" class="gold"></i></li>
+                <li><span>Home</span><em>$620 of $650</em><i style="--p:95%"></i></li>
+                <li><span>Groceries</span><em>$248 of $400</em><i style="--p:62%"></i></li>
+                <li><span>Fun</span><em>$40 of $120</em><i style="--p:33%"></i></li>
+              </ul>
+            </article>
+
+            <article class="card c-debt dark-card reveal">
+              <div class="card-head"><span class="badge-ic light"><i class="ic ic-mountain"></i></span><h3>Get out of debt</h3></div>
+              <p>Track every loan and card. Mark each payment. Follow a clear order, smallest first, to be free.</p>
+              <ol class="loans">
+                <li class="done"><span>Phone plan</span><b>Paid off</b></li>
+                <li><span>Credit card</span><b>$1,150 left</b></li>
+                <li><span>Car loan</span><b>$6,400 left</b></li>
+              </ol>
+            </article>
+
+            <article class="card c-save reveal">
+              <div class="card-head"><span class="badge-ic"><i class="ic ic-piggy"></i></span><h3>Save for what matters</h3></div>
+              <p>A wedding, a rainy day, a gift for someone in need. Set a goal and watch it grow.</p>
+              <div class="ring-row">
+                <svg class="ring" viewBox="0 0 120 120"><circle cx="60" cy="60" r="50" class="track" /><circle cx="60" cy="60" r="50" class="val" /></svg>
+                <div><b>Wedding fund</b><small>$4,200 of $6,000</small></div>
+              </div>
+            </article>
+
+            <article class="card c-cur reveal">
+              <div class="card-head"><span class="badge-ic"><i class="ic ic-globe"></i></span><h3>Use it anywhere</h3></div>
+              <p>Works in your own currency, on any phone or computer. Add it to your home screen like an app.</p>
+              <div class="currencies"><span>$</span><span>£</span><span>€</span><span>₹</span><span>₦</span><span>₱</span><span>R</span><span>A$</span></div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- Coming soon -->
+      <section class="soon" id="soon">
+        <div class="wrap soon-grid">
+          <div>
+            <p class="kicker reveal">Coming soon</p>
+            <h2 class="reveal">You don't have to do it alone.</h2>
+            <p class="sub reveal">
+              Money is easier with someone beside you. We're building ways to plan together and to stay encouraged.
+            </p>
+          </div>
+          <div class="soon-cards">
+            <article class="soon-card reveal">
+              <div class="avatars"><span class="av a1">J</span><span class="av a2">M</span></div>
+              <h3>Couples</h3>
+              <p>Share one monthly plan, see spending together, and choose what stays private.</p>
+              <span class="tag">Coming soon</span>
+            </article>
+            <article class="soon-card reveal">
+              <div class="avatars"><span class="av a3">D</span><span class="hand"><i class="ic ic-hand"></i></span><span class="av a4">S</span></div>
+              <h3>Accountability partner</h3>
+              <p>Invite a trusted friend to check in with you and help you stay on track.</p>
+              <span class="tag">Coming soon</span>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- Verse -->
+      <section class="verse">
+        <div class="wrap">
+          <blockquote class="reveal">
+            <p>“Whoever can be trusted with very little can also be trusted with much.”</p>
+            <cite>Luke 16:10</cite>
+          </blockquote>
+        </div>
+      </section>
+
+      <!-- FAQ -->
+      <section class="faq" id="faq">
+        <div class="wrap faq-grid">
+          <div>
+            <p class="kicker reveal">Questions</p>
+            <h2 class="reveal">Good to know.</h2>
+          </div>
+          <div class="qa">
+            <details class="reveal">
+              <summary>Does it connect to my bank?</summary>
+              <p>No. You add each expense yourself, on purpose. It's quick, and it keeps you aware of every choice. You don't need to share any bank logins.</p>
+            </details>
+            <details class="reveal">
+              <summary>Which phones does it work on?</summary>
+              <p>Any phone or computer with a modern browser: iPhone, Android, Mac or Windows. You can add it to your home screen and open it like an app.</p>
+            </details>
+            <details class="reveal">
+              <summary>Can I use my own currency?</summary>
+              <p>Yes. Pick your currency in settings, such as dollars, pounds, euros, rupees, naira, pesos and more.</p>
+            </details>
+            <details class="reveal">
+              <summary>When can I start?</summary>
+              <p>We're opening in small groups. Join the waiting list and we'll send you one email when your spot is ready.</p>
+            </details>
+          </div>
+        </div>
+      </section>
+
+      <!-- Final call -->
+      <section class="cta">
+        <div class="wrap">
+          <div class="cta-box reveal">
+            <h2>Start being faithful with your portion.</h2>
+            <p>Join the waiting list. We'll let you know when it's your turn.</p>
+            <form class="join" data-source="footer" novalidate>
+              <label class="sr" for="cta-email">Your email</label>
+              <div class="field light">
+                <input id="cta-email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="Your email address" required />
+                <button class="btn btn-dark" type="submit">
+                  <span class="btn-label">Join the waiting list</span>
+                  <span class="spinner" aria-hidden="true"></span>
+                </button>
+              </div>
+              <input class="hp" name="company" tabindex="-1" autocomplete="off" aria-hidden="true" />
+              <p class="form-note" role="status" aria-live="polite">No spam. One email when your spot is ready.</p>
+            </form>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <div class="wrap foot-in">
+        <a class="brand" href="#top"><span class="mark" aria-hidden="true"></span><span>Faithful Portion</span></a>
+        <p class="disclaimer">Screens shown are for display only and may change. Features marked “Coming soon” are still being built.</p>
+        <p class="copy">© <span id="year">2026</span> Faithful Portion</p>
+      </div>
+    </footer>
+
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

@@ -8,6 +8,15 @@ const base = process.env.VITE_BASE_PATH || '/'
 export default defineConfig({
   base,
   resolve: { alias: { '@': path.resolve(__dirname, './src') } },
+  build: {
+    rollupOptions: {
+      // The app, plus the public landing page with the waiting list at /welcome/.
+      input: {
+        main: path.resolve(__dirname, 'index.html'),
+        welcome: path.resolve(__dirname, 'welcome/index.html'),
+      },
+    },
+  },
   plugins: [
     react(),
     VitePWA({
@@ -33,6 +42,8 @@ export default defineConfig({
         ],
       },
       workbox: {
+        // Let the landing page load as itself instead of the app's offline page.
+        navigateFallbackDenylist: [/\/welcome(\/|$)/],
         globPatterns: ['**/*.{js,css,html,svg,png,ico,woff,woff2}'],
       },
     }),

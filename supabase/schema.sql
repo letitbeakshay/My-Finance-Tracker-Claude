@@ -536,5 +536,42 @@ revoke all on function limit_feedback() from public, anon, authenticated;
 drop trigger if exists limit_feedback on feedback;
 create trigger limit_feedback before insert on feedback for each row execute function limit_feedback();
 
+-- Waiting list from the public landing page (welcome/). Visitors are not signed in, so they can only
+-- call join_waitlist(); nobody can read the list through the API. You read it in the SQL editor:
+--   select created_at, email, name from waitlist order by id desc;
+create table if not exists waitlist (
+  id bigint generated always as identity primary key,
+  email text not null,
+  name text,
+  source text,
+  created_at timestamptz not null default now()
+);
+create unique index if not exists waitlist_email_key on waitlist (lower(email));
+
+alter table waitlist enable row level security;
+revoke all on waitlist from anon, authenticated;
+
+-- Checks the address, ignores repeats quietly (so it never reveals who is already on the list), and
+-- caps sign-ups across everyone at 100 per 10 minutes so a script cannot flood the table.
+create or replace function join_waitlist(p_email text, p_name text default null, p_source text default null)
+returns text
+language plpgsql security definer set search_path = public as $$
+declare e text := lower(trim(coalesce(p_email, '')));
+begin
+  if char_length(e) > 254 or e !~ '^[^@\s]+@[^@\s]+\.[^@\s]+$' then
+    raise exception 'Please enter a valid email address.';
+  end if;
+  if (select count(*) from waitlist where created_at > now() - interval '10 minutes') >= 100 then
+    raise exception 'Lots of people are joining right now. Please try again in a few minutes.';
+  end if;
+  insert into waitlist (email, name, source)
+  values (e, nullif(left(trim(coalesce(p_name, '')), 80), ''), nullif(left(trim(coalesce(p_source, '')), 80), ''))
+  on conflict (lower(email)) do nothing;
+  return 'ok';
+end $$;
+
+revoke all on function join_waitlist(text, text, text) from public;
+grant execute on function join_waitlist(text, text, text) to anon, authenticated;
+
 -- Make the API pick up any new tables and columns straight away.
 notify pgrst, 'reload schema';
