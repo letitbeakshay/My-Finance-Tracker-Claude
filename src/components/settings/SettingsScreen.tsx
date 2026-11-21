@@ -5,6 +5,7 @@ import { CategoryManager } from './CategoryManager'
 import { PaymentAccountManager } from './PaymentAccountManager'
 import { AccountCard } from './AccountCard'
 import { FeedbackCard } from './FeedbackCard'
+import { SharingCard } from './SharingCard'
 import { TourCard } from '../tour/TourCard'
 import { Card } from '../ui/card'
 import { SegmentedControl } from '../ui/SegmentedControl'
@@ -20,9 +21,11 @@ import { downloadFile } from '../../lib/download'
 interface SettingsScreenProps {
   onBack: () => void
   onSignedOut: () => void
+  /** Open someone's shared money, read-only. */
+  onViewShared: (person: { id: string; name: string }) => void
 }
 
-export function SettingsScreen({ onBack, onSignedOut }: SettingsScreenProps) {
+export function SettingsScreen({ onBack, onSignedOut, onViewShared }: SettingsScreenProps) {
   const { theme, set: setTheme } = useTheme()
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [typed, setTyped] = useState('')
@@ -73,6 +76,8 @@ export function SettingsScreen({ onBack, onSignedOut }: SettingsScreenProps) {
       </div>
 
       <AccountCard onSignedOut={onSignedOut} />
+
+      <SharingCard onView={onViewShared} />
 
       <CategoryManager />
 

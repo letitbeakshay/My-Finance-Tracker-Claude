@@ -710,5 +710,228 @@ end $$;
 revoke all on function verify_waitlist(text, text) from public;
 grant execute on function verify_waitlist(text, text) to anon, authenticated;
 
+-- ---------------------------------------------------------------------------------------------------------
+-- Sharing. Two kinds, both read-only for the other person:
+--   couple          two people see each other's month summary and plan (totals only, no single expenses)
+--   accountability  the owner lets one partner see everything, read-only
+-- Nobody can read or change this table directly; everything goes through the functions below, which check
+-- who is asking. The app's own screens keep reading only the signed-in person's rows.
+create table if not exists shares (
+  id bigint generated always as identity primary key,
+  owner_id uuid not null default auth.uid() references auth.users(id) on delete cascade,
+  kind text not null check (kind in ('couple', 'accountability')),
+  invite_email text not null,
+  viewer_id uuid references auth.users(id) on delete cascade,
+  token text not null unique default replace(gen_random_uuid()::text, '-', ''),
+  status text not null default 'pending' check (status in ('pending', 'active')),
+  created_at timestamptz not null default now(),
+  accepted_at timestamptz
+);
+create unique index if not exists shares_owner_kind_email on shares (owner_id, kind, lower(invite_email));
+alter table shares enable row level security;
+revoke all on shares from anon, authenticated;
+
+-- Invite emails go through the same Apps Script as the waiting list, once it knows how to send them.
+alter table waitlist_hook add column if not exists invites boolean not null default false;
+
+create or replace function share_me_email() returns text
+language sql stable security definer set search_path = public as $$
+  select lower(email) from auth.users where id = auth.uid()
+$$;
+revoke all on function share_me_email() from public, anon, authenticated;
+
+create or replace function share_person(uid uuid) returns jsonb
+language sql stable security definer set search_path = public as $$
+  select jsonb_build_object('id', u.id, 'email', u.email, 'name', coalesce(nullif(trim(u.raw_user_meta_data->>'name'), ''), split_part(u.email, '@', 1)))
+  from auth.users u where u.id = uid
+$$;
+revoke all on function share_person(uuid) from public, anon, authenticated;
+
+-- True when the signed-in person may see `owner`'s data at this level ('summary' or 'full').
+create or replace function share_can_view(owner uuid, level text) returns boolean
+language sql stable security definer set search_path = public as $$
+  select exists (
+    select 1 from shares s where s.status = 'active' and (
+      (s.kind = 'accountability' and s.owner_id = owner and s.viewer_id = auth.uid())
+      or (level = 'summary' and s.kind = 'couple' and (
+        (s.owner_id = owner and s.viewer_id = auth.uid()) or (s.owner_id = auth.uid() and s.viewer_id = owner)))
+    )
+  )
+$$;
+revoke all on function share_can_view(uuid, text) from public, anon, authenticated;
+
+-- Invite someone by email. Returns 'sent' (an email is on its way) or 'saved' (share the link yourself).
+create or replace function invite_share(p_email text, p_kind text)
+returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare
+  me uuid := auth.uid();
+  e text := lower(trim(coalesce(p_email, '')));
+  row shares;
+  link text;
+  sent boolean := false;
+begin
+  if me is null then raise exception 'Please sign in first.'; end if;
+  if p_kind not in ('couple', 'accountability') then raise exception 'Unknown kind of sharing.'; end if;
+  if char_length(e) > 254 or e !~ '^[^@\s]+@[^@\s]+\.[^@\s]+$' then raise exception 'Please enter a valid email address.'; end if;
+  if e = share_me_email() then raise exception 'That is your own email address.'; end if;
+  if p_kind = 'couple' and exists (select 1 from shares where kind = 'couple' and status = 'active' and (owner_id = me or viewer_id = me)) then
+    raise exception 'You already share with a partner. Remove that first to invite someone else.';
+  end if;
+  if (select count(*) from shares where owner_id = me and created_at > now() - interval '1 day') >= 10 then
+    raise exception 'You have sent a lot of invites today. Please try again tomorrow.';
+  end if;
+  insert into shares (owner_id, kind, invite_email) values (me, p_kind, e)
+  on conflict (owner_id, kind, lower(invite_email)) do update set created_at = now()
+  returning * into row;
+  if row.status = 'active' then raise exception 'You already share with this person.'; end if;
+  link := 'https://faithfulportion.site/app/?invite=' || row.token;
+  if exists (select 1 from waitlist_hook where id = 1 and invites) then
+    sent := waitlist_notify(jsonb_build_object(
+      'action', 'invite', 'email', e, 'kind', p_kind, 'link', link,
+      'from_name', share_person(me)->>'name', 'from_email', share_person(me)->>'email'));
+  end if;
+  return jsonb_build_object('id', row.id, 'status', case when sent then 'sent' else 'saved' end, 'link', link);
+end $$;
+revoke all on function invite_share(text, text) from public, anon;
+grant execute on function invite_share(text, text) to authenticated;
+
+-- What an invite link is for, so the app can ask "Accept?" before anything is shared.
+create or replace function share_invite_info(p_token text)
+returns jsonb
+language plpgsql stable security definer set search_path = public as $$
+declare row shares;
+begin
+  select * into row from shares where token = p_token;
+  if not found then return null; end if;
+  return jsonb_build_object('kind', row.kind, 'status', row.status, 'from', share_person(row.owner_id),
+    'for_me', lower(row.invite_email) = share_me_email(), 'invite_email', row.invite_email);
+end $$;
+revoke all on function share_invite_info(text) from public, anon;
+grant execute on function share_invite_info(text) to authenticated;
+
+create or replace function accept_share(p_token text)
+returns text
+language plpgsql security definer set search_path = public as $$
+declare me uuid := auth.uid(); row shares;
+begin
+  select * into row from shares where token = p_token for update;
+  if not found then raise exception 'This invite is no longer valid. Ask for a new one.'; end if;
+  if row.status = 'active' then
+    if row.viewer_id = me then return row.kind; end if;
+    raise exception 'This invite has already been used.';
+  end if;
+  if lower(row.invite_email) <> share_me_email() then
+    raise exception 'This invite was sent to %. Sign in with that email to accept it.', row.invite_email;
+  end if;
+  if row.owner_id = me then raise exception 'You cannot accept your own invite.'; end if;
+  if row.kind = 'couple' and exists (select 1 from shares where kind = 'couple' and status = 'active'
+      and (owner_id in (me, row.owner_id) or viewer_id in (me, row.owner_id))) then
+    raise exception 'One of you already shares with a partner.';
+  end if;
+  update shares set viewer_id = me, status = 'active', accepted_at = now() where id = row.id;
+  return row.kind;
+end $$;
+revoke all on function accept_share(text) from public, anon;
+grant execute on function accept_share(text) to authenticated;
+
+-- Stop sharing (either side) or decline an invite sent to you.
+create or replace function remove_share(p_id bigint)
+returns void
+language plpgsql security definer set search_path = public as $$
+begin
+  delete from shares where id = p_id and (owner_id = auth.uid() or viewer_id = auth.uid()
+    or (status = 'pending' and lower(invite_email) = share_me_email()));
+end $$;
+revoke all on function remove_share(bigint) from public, anon;
+grant execute on function remove_share(bigint) to authenticated;
+
+-- Everything the signed-in person shares, is shared with, or is invited to.
+create or replace function my_shares()
+returns jsonb
+language sql stable security definer set search_path = public as $$
+  select coalesce(jsonb_agg(x order by x->>'created_at' desc), '[]'::jsonb) from (
+    select jsonb_build_object('id', s.id, 'kind', s.kind, 'status', s.status, 'created_at', s.created_at,
+      'role', case when s.owner_id = auth.uid() then 'owner' when s.viewer_id = auth.uid() then 'viewer' else 'invited' end,
+      'invite_email', s.invite_email,
+      'token', case when s.viewer_id is null and lower(s.invite_email) = share_me_email() then s.token end,
+      'link', case when s.owner_id = auth.uid() and s.status = 'pending' then 'https://faithfulportion.site/app/?invite=' || s.token end,
+      'other', case when s.owner_id = auth.uid() then share_person(s.viewer_id) else share_person(s.owner_id) end) as x
+    from shares s
+    where s.owner_id = auth.uid() or s.viewer_id = auth.uid() or (s.status = 'pending' and lower(s.invite_email) = share_me_email())
+  ) q
+$$;
+revoke all on function my_shares() from public, anon;
+grant execute on function my_shares() to authenticated;
+
+-- Month summary (totals and plan only) for a couple partner or an accountability partner.
+create or replace function shared_summary(p_owner uuid, p_month text)
+returns jsonb
+language plpgsql stable security definer set search_path = public as $$
+declare
+  m_start date := to_date(p_month || '-01', 'YYYY-MM-DD');
+  m_end date := (to_date(p_month || '-01', 'YYYY-MM-DD') + interval '1 month')::date;
+  result jsonb;
+begin
+  if not share_can_view(p_owner, 'summary') then raise exception 'You do not have access to this.'; end if;
+  with reimb as (
+    select c.id from categories c where c.user_id = p_owner and (c.reimbursable or exists (
+      select 1 from categories p where p.id = c.parent_id and p.user_id = p_owner and p.reimbursable))
+  ), ex as (
+    select e.* from expenses e where e.user_id = p_owner and e.date >= m_start and e.date < m_end
+      and e.category_id not in (select id from reimb)
+  ), tops as (
+    select coalesce(p.id, c.id) as id, coalesce(p.name, c.name) as name, coalesce(p.icon, c.icon) as icon, sum(e.amount) as total
+    from ex e join categories c on c.id = e.category_id and c.user_id = p_owner
+    left join categories p on p.id = c.parent_id and p.user_id = p_owner
+    group by 1, 2, 3
+  ), plan as (
+    select b.name, b.amount, b.sort_order,
+      coalesce((select sum(e.amount) from ex e join categories c on c.id = e.category_id and c.user_id = p_owner
+        where c.id = any(b.category_ids) or c.parent_id = any(b.category_ids)), 0) as spent
+    from budget_items b where b.user_id = p_owner and (
+      (not b.recurring and b.start_month = p_month)
+      or (b.recurring and (b.start_month is null or b.start_month <= p_month) and (b.end_month is null or b.end_month >= p_month)))
+  )
+  select jsonb_build_object(
+    'person', share_person(p_owner),
+    'month', p_month,
+    'currency', (select currency from app_settings where user_id = p_owner and id = 'app'),
+    'giving_percent', (select giving_percent from app_settings where user_id = p_owner and id = 'app'),
+    'saving_percent', (select saving_percent from app_settings where user_id = p_owner and id = 'app'),
+    'income', coalesce((select sum(amount) from incomes where user_id = p_owner and date >= m_start and date < m_end
+      and lower(trim(source)) not like 'reimbursement%'), 0),
+    'spent', coalesce((select sum(amount) from ex), 0),
+    'by_type', (select coalesce(jsonb_object_agg(type, total), '{}'::jsonb) from (select type, sum(amount) total from ex group by type) t),
+    'categories', (select coalesce(jsonb_agg(jsonb_build_object('name', name, 'icon', icon, 'total', total) order by total desc), '[]'::jsonb) from tops),
+    'plan', (select coalesce(jsonb_agg(jsonb_build_object('name', name, 'amount', amount, 'spent', spent) order by sort_order), '[]'::jsonb) from plan),
+    'level', case when share_can_view(p_owner, 'full') then 'full' else 'summary' end
+  ) into result;
+  return result;
+end $$;
+revoke all on function shared_summary(uuid, text) from public, anon;
+grant execute on function shared_summary(uuid, text) to authenticated;
+
+-- Full read-only data (accountability partners only): the last 13 months of activity plus loans and savings.
+create or replace function shared_full(p_owner uuid)
+returns jsonb
+language plpgsql stable security definer set search_path = public as $$
+declare since date := (date_trunc('month', now()) - interval '12 months')::date;
+begin
+  if not share_can_view(p_owner, 'full') then raise exception 'You do not have access to this.'; end if;
+  return jsonb_build_object(
+    'person', share_person(p_owner),
+    'categories', (select coalesce(jsonb_agg(to_jsonb(c) - 'user_id'), '[]'::jsonb) from categories c where c.user_id = p_owner),
+    'payment_accounts', (select coalesce(jsonb_agg(to_jsonb(a) - 'user_id'), '[]'::jsonb) from payment_accounts a where a.user_id = p_owner),
+    'expenses', (select coalesce(jsonb_agg(to_jsonb(e) - 'user_id' order by e.date desc, e.created_at desc), '[]'::jsonb) from expenses e where e.user_id = p_owner and e.date >= since),
+    'incomes', (select coalesce(jsonb_agg(to_jsonb(i) - 'user_id' order by i.date desc), '[]'::jsonb) from incomes i where i.user_id = p_owner and i.date >= since),
+    'loans', (select coalesce(jsonb_agg(to_jsonb(l) - 'user_id'), '[]'::jsonb) from loans l where l.user_id = p_owner),
+    'savings_plans', (select coalesce(jsonb_agg(to_jsonb(sp) - 'user_id'), '[]'::jsonb) from savings_plans sp where sp.user_id = p_owner),
+    'budget_items', (select coalesce(jsonb_agg(to_jsonb(b) - 'user_id'), '[]'::jsonb) from budget_items b where b.user_id = p_owner)
+  );
+end $$;
+revoke all on function shared_full(uuid) from public, anon;
+grant execute on function shared_full(uuid) to authenticated;
+
 -- Make the API pick up any new tables and columns straight away.
 notify pgrst, 'reload schema';

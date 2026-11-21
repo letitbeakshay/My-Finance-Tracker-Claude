@@ -149,7 +149,8 @@ function linkProblemFromUrl() {
 }
 
 /** Sign in, create an account, or ask for a password-reset link. */
-export function AuthScreen() {
+/** `invited`: they opened a sharing invite link; it is accepted once they are signed in. */
+export function AuthScreen({ invited = false }: { invited?: boolean }) {
   const [linkProblem] = useState(linkProblemFromUrl)
   const [mode, setMode] = useState<Mode>(linkProblem ? 'forgot' : 'signin')
   const [name, setName] = useState('')
@@ -221,6 +222,11 @@ export function AuthScreen() {
   return (
     <Shell>
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
+        {invited && (
+          <p className="mb-4 rounded-2xl bg-accent-soft text-accent-ink px-4 py-3 text-[14px] leading-snug">
+            You have been invited to share. Sign in or create an account with the email the invite was sent to, and you can accept it straight after.
+          </p>
+        )}
         {mode !== 'forgot' && (
           <Tabs value={mode} onValueChange={(v) => switchTo(v as Mode)} className="mb-5">
             <TabsList className="w-full h-14">

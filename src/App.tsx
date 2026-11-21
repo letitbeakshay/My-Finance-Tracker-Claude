@@ -13,6 +13,9 @@ import { UndoBar } from './components/ui/UndoBar'
 import { Tour } from './components/tour/Tour'
 import { StewardshipScreen } from './components/stewardship/StewardshipScreen'
 import { BudgetsScreen } from './components/budget/BudgetsScreen'
+import { SharedViewScreen } from './components/sharing/SharedViewScreen'
+import { InviteAccept } from './components/sharing/InviteAccept'
+import { takeInviteToken } from './lib/sharing'
 import type { AddExpensePreset } from './components/add/AddExpenseScreen'
 import { AllDataScreen } from './components/data/AllDataScreen'
 import { ViewToggle, type View } from './components/layout/ViewToggle'
@@ -23,7 +26,7 @@ import { DEMO, useAuth } from './lib/accounts'
 import { useSettings } from './hooks/useLiveData'
 import { keepSessionFresh, readSession, writeSession } from './lib/session'
 
-type Route = Tab | 'add' | 'settings' | 'stewardship' | 'budgets'
+type Route = Tab | 'add' | 'settings' | 'stewardship' | 'budgets' | 'shared'
 
 /**
  * A fresh open starts on Expense, ready to type an amount. If you were on the Dashboard a moment ago
@@ -44,6 +47,10 @@ function SignedInApp() {
   const [launchKey, setLaunchKey] = useState(0)
   const [view, setView] = useState<View>(initialView)
   const [addPreset, setAddPreset] = useState<AddExpensePreset | null>(null)
+  // Someone else's money, read-only (a couple partner or someone you are accountability partner for).
+  const [shared, setShared] = useState<{ id: string; name: string } | null>(null)
+  // An invite link opened now, or before signing in.
+  const [invite, setInvite] = useState<string | null>(() => (DEMO ? null : takeInviteToken()))
 
   useEffect(() => {
     // The home-screen shortcuts open the app with ?action=...; tidy the address once it has been read.
@@ -177,6 +184,10 @@ function SignedInApp() {
             <SettingsScreen
               onBack={() => setRoute('home')}
               onSignedOut={() => setRoute('home')}
+              onViewShared={(person) => {
+                setShared(person)
+                setRoute('shared')
+              }}
             />
           </motion.div>
         )}
@@ -190,6 +201,18 @@ function SignedInApp() {
             className="flex-1 overflow-y-auto fixed inset-x-0 bottom-0 top-[var(--topbar-h)] max-w-[560px] mx-auto bg-bg z-50"
           >
             <StewardshipScreen onBack={() => setRoute('home')} onGive={handleGive} />
+          </motion.div>
+        )}
+        {route === 'shared' && shared && (
+          <motion.div
+            key="shared"
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 24 }}
+            transition={{ type: 'spring', stiffness: 380, damping: 34 }}
+            className="flex-1 overflow-y-auto fixed inset-x-0 bottom-0 top-[var(--topbar-h)] max-w-[560px] mx-auto bg-bg z-50"
+          >
+            <SharedViewScreen person={shared} onBack={() => setRoute('settings')} />
           </motion.div>
         )}
         {route === 'budgets' && (
@@ -206,12 +229,26 @@ function SignedInApp() {
         )}
       </AnimatePresence>
 
-      {route !== 'add' && route !== 'settings' && route !== 'stewardship' && route !== 'budgets' && (
+      {route !== 'add' && route !== 'settings' && route !== 'stewardship' && route !== 'budgets' && route !== 'shared' && (
         <div className="hidden md:block">
           <BottomNav active={tab} onChange={setRoute} onAdd={() => setRoute('add')} />
         </div>
       )}
       </>
+      )}
+
+      {invite && (
+        <InviteAccept
+          token={invite}
+          onDone={(opened) => {
+            setInvite(null)
+            if (opened) {
+              setView('enter')
+              setShared(opened)
+              setRoute('shared')
+            }
+          }}
+        />
       )}
 
       {(view === 'data' || route === 'home' || route === 'insights') && (
@@ -298,6 +335,7 @@ function Welcome({ name }: { name?: string }) {
 /** Decides what to show: the policy pages, sign-in, a new password, or the app itself. */
 function App() {
   const legal = legalPageFromUrl()
+  const [invited] = useState(() => !DEMO && !!takeInviteToken())
   const { loading, user, recovering, clearRecovery } = useAuth()
   const userId = user?.id
 
@@ -308,7 +346,7 @@ function App() {
 
   if (legal) return <LegalPage kind={legal} />
   if (loading) return <div className="fixed inset-0 bg-bg" aria-busy="true" />
-  if (!user) return <AuthScreen />
+  if (!user) return <AuthScreen invited={invited} />
   if (recovering) return <RecoveryScreen onDone={clearRecovery} />
 
   const name = typeof user.user_metadata?.name === 'string' ? user.user_metadata.name : undefined
