@@ -8,9 +8,6 @@ import './welcome.css'
 
 document.documentElement.classList.add('js')
 
-// Links to the app: /app/ on the live site (built with that base), the dev server's root locally.
-document.querySelectorAll<HTMLAnchorElement>('[data-app-link]').forEach((a) => (a.href = import.meta.env.BASE_URL))
-
 const year = document.getElementById('year')
 if (year) year.textContent = String(new Date().getFullYear())
 

@@ -472,11 +472,11 @@ export function ExpenseWizard({ onDone, onCancel, preset, modeSwitch }: ExpenseW
           </Button>
         )}
         {isLast ? (
-          <Button onClick={() => handleSave()} disabled={saving || !valid}>
+          <Button onClick={() => handleSave()} disabled={saving || !valid} className="!w-auto flex-1 min-w-0">
             Save Expense
           </Button>
         ) : (
-          <Button onClick={() => go(step + 1)} disabled={!valid}>
+          <Button onClick={() => go(step + 1)} disabled={!valid} className="!w-auto flex-1 min-w-0">
             Next
           </Button>
         )}

@@ -8,7 +8,7 @@
 //
 // Run from the project root: node scripts/arrange-site.mjs
 
-import { cpSync, existsSync, mkdirSync, readdirSync, renameSync, rmSync, writeFileSync } from 'node:fs'
+import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, renameSync, rmSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 const dist = 'dist'
@@ -26,7 +26,17 @@ mkdirSync(app)
 for (const name of entries) renameSync(join(dist, name), join(app, name))
 
 // 2. The landing page is the front door. Its files are referenced as /app/assets/…, so a copy works here.
-cpSync(join(app, 'welcome', 'index.html'), join(dist, 'index.html'))
+//    It is a waiting-list page, so it must not offer to install the app or point to it: drop the app's
+//    manifest and offline-worker tags that the build adds to every page.
+const landing = readFileSync(join(app, 'welcome', 'index.html'), 'utf8')
+  .replace(/<link rel="manifest"[^>]*>/g, '')
+  .replace(/<script[^>]*registerSW\.js[^>]*><\/script>/g, '')
+  .replace(/<script[^>]*id="vite-plugin-pwa:register-sw"[^>]*><\/script>/g, '')
+writeFileSync(join(dist, 'index.html'), landing)
+
+// The link-preview image sits at the top level too (https://faithfulportion.site/og-image.png).
+// (Copied, not moved: the app's offline worker expects every file it was built with.)
+if (existsSync(join(app, 'og-image.png'))) cpSync(join(app, 'og-image.png'), join(dist, 'og-image.png'))
 
 // 3. GitHub Pages needs the custom-domain file at the top.
 if (existsSync(join(app, 'CNAME'))) renameSync(join(app, 'CNAME'), join(dist, 'CNAME'))

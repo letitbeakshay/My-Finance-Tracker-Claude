@@ -18,8 +18,9 @@ const buttonVariants = cva(
       },
       size: {
         /** The big full-width action button used across the app. */
-        default: 'w-full h-14 rounded-full text-[17px]',
-        xl: 'w-full h-14 rounded-full text-[17px]',
+        // Full width on its own; shares the row evenly when another button sits beside it.
+        default: 'w-full shrink min-w-0 h-14 rounded-full text-[17px]',
+        xl: 'w-full shrink min-w-0 h-14 rounded-full text-[17px]',
         lg: 'h-12 rounded-full px-6 text-[16px]',
         md: 'h-11 rounded-full px-5 text-[15px]',
         sm: 'h-9 rounded-full px-4 text-[14px]',
