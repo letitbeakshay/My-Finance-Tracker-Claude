@@ -33,7 +33,8 @@ jobs:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
       - run: npm run build
         env:
-          VITE_BASE_PATH: /${{ github.event.repository.name }}/
+          # The site is served from its own domain (faithfulportion.site), so files live at the root.
+          VITE_BASE_PATH: /
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
       - uses: actions/upload-pages-artifact@v3
