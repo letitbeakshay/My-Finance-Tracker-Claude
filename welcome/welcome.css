@@ -2343,3 +2343,61 @@ details p {
 .cta-box .joined .again {
   color: var(--accent-ink);
 }
+
+/* ---------- Success message: roomy and quiet ---------- */
+.joined {
+  margin-top: 30px;
+  max-width: 520px;
+  padding: 18px 22px 18px 18px;
+  gap: 16px;
+  align-items: flex-start;
+}
+.joined .ic-round {
+  margin-top: 2px;
+}
+.joined b {
+  line-height: 1.3;
+}
+.joined .msg {
+  margin-top: 3px;
+  line-height: 1.5;
+  word-break: break-word;
+}
+.joined .again {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 0;
+}
+/* In the green box: centred, light glass card, white text. */
+.cta-box .joined {
+  position: relative;
+  margin: 36px auto 4px;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 28px 28px 24px;
+  text-align: center;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.cta-box .joined .ic-round {
+  width: 48px;
+  height: 48px;
+  margin: 0;
+  border-radius: 50%;
+  background: #fff;
+  color: #3b6a42;
+}
+.cta-box .joined b {
+  font-size: 19px;
+}
+.cta-box .joined .msg {
+  color: rgba(255, 255, 255, 0.86);
+}
+.cta-box .joined .again {
+  color: #fff;
+  margin-top: 12px;
+}
