@@ -130,20 +130,32 @@ export async function readStatementPdf(file: File) {
   return parsePages(pages)
 }
 
-/** A first guess at the category from the merchant and note. Rules only; learned choices override them. */
-const RULES: { test: RegExp; category: string }[] = [
-  { test: /coffee|cafe|brew|breadb|\btea\b|indcost|juice|bun\b/, category: 'Coffee' },
-  { test: /snack|bajji|bakery|puff|chaat/, category: 'Snacks' },
-  { test: /dinner|lunch|breakfast|grill|biryani|restaurant|hotel|meal|food|kaalan|mess|tiffin/, category: 'Outside Meal' },
-  { test: /petrol|fuel|oxygen|\boil\b|bunk/, category: 'Fuel' },
-  { test: /milk|egg|grocery|vegetable|fruit|supermarket|provision/, category: 'Grocery' },
-  { test: /recharge|jio|airtel|vodafone|google ?in|euronet/, category: 'Recharge' },
-  { test: /hospi|medical|pharm|clinic|doctor/, category: 'Medical' },
-  { test: /\bemi\b|nach|loan|housingfin|hdfcbank/, category: 'EMI' },
-  { test: /rent/, category: 'Rent' },
-  { test: /cred club|credit card/, category: 'Bills' },
-  { test: /max retail|retail|mart\b|shopping|tshirt|t-shirt/, category: 'Shopping' },
-  { test: /parking|trip|travel|uber|ola\b|redbus|irctc/, category: 'Travel' },
+/**
+ * A first guess at the category from the merchant and note. Rules only; learned choices override them.
+ * Each rule lists the category names it can land on, first match wins: the starting categories every
+ * new account gets (e.g. "Coffee & Tea", "Groceries") as well as older custom names.
+ */
+const RULES: { test: RegExp; categories: string[] }[] = [
+  { test: /coffee|cafe|starbucks|brew|breadb|\btea\b|indcost|juice|bun\b/, categories: ['Coffee & Tea', 'Coffee'] },
+  { test: /snack|bajji|bakery|puff|chaat|donut/, categories: ['Snacks'] },
+  { test: /swiggy|zomato|doordash|uber ?eats|deliveroo|grubhub/, categories: ['Food delivery', 'Restaurants', 'Outside Meal'] },
+  { test: /dinner|lunch|breakfast|grill|biryani|restaurant|hotel|meal|food|kaalan|mess|tiffin|pizza|burger|diner/, categories: ['Restaurants', 'Outside Meal', 'Eating Out'] },
+  { test: /petrol|fuel|oxygen|\boil\b|bunk|gas station|shell|chevron|exxon/, categories: ['Fuel'] },
+  { test: /milk|egg|grocery|groceries|vegetable|fruit|supermarket|provision|trader joe|whole foods|walmart|tesco|aldi|kroger/, categories: ['Groceries', 'Grocery'] },
+  { test: /recharge|jio|airtel|vodafone|google ?in|euronet|verizon|t-mobile|at&t/, categories: ['Mobile recharge', 'Recharge'] },
+  { test: /pharm|chemist|medicine|cvs|walgreens/, categories: ['Medicines', 'Medical'] },
+  { test: /hospi|medical|clinic|doctor/, categories: ['Doctor', 'Medical'] },
+  { test: /electric|power bill/, categories: ['Electricity'] },
+  { test: /netflix|spotify|prime video|disney|youtube premium|icloud|subscription/, categories: ['Subscriptions'] },
+  { test: /\bemi\b|nach|loan|housingfin|hdfcbank|mortgage/, categories: ['EMI'] },
+  { test: /rent/, categories: ['Rent'] },
+  { test: /cred club|credit card/, categories: ['Bills'] },
+  { test: /max retail|retail|mart\b|shopping|tshirt|t-shirt|amazon|target|clothing/, categories: ['Shopping', 'Clothing'] },
+  { test: /parking|toll/, categories: ['Parking & tolls', 'Travel'] },
+  { test: /uber|lyft|ola\b|taxi|cab\b/, categories: ['Cab & auto', 'Travel'] },
+  { test: /trip|travel|redbus|irctc|metro|train|bus\b/, categories: ['Bus, metro & train', 'Travel'] },
+  { test: /church|tithe|offering/, categories: ['Tithe', 'Offering', 'Giving'] },
+  { test: /charity|donation|food bank/, categories: ['Charity', 'Giving'] },
 ]
 
 export interface Learned {
@@ -195,8 +207,14 @@ export function suggestFor(t: StatementTxn, categories: Category[], learned: Rec
   const known = learned[key(t.name, t.note)] ?? learned[key(t.name, '')]
   if (known && categories.some((c) => c.id === known.categoryId)) return known
   const text = `${t.name} ${t.note} ${t.raw}`.toLowerCase()
-  const rule = RULES.find((r) => r.test.test(text))
-  const cat = rule && categories.find((c) => !c.archived && c.name.toLowerCase() === rule.category.toLowerCase())
-  return cat ? { categoryId: cat.id } : undefined
+  const active = categories.filter((c) => !c.archived)
+  for (const rule of RULES) {
+    if (!rule.test.test(text)) continue
+    for (const name of rule.categories) {
+      const cat = active.find((c) => c.name.toLowerCase() === name.toLowerCase())
+      if (cat) return { categoryId: cat.id }
+    }
+  }
+  return undefined
 }
 export const learnKey = key

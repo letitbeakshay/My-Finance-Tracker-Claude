@@ -7,7 +7,8 @@ import { setCurrency } from '../lib/currency'
  * landing page and in launch material: US dollars, the default categories every new account gets,
  * and generic account names. Never shipped to people who sign up.
  */
-setCurrency('USD')
+// `&cur=EUR` (or any code) shows the same sample in another currency, for screenshots.
+setCurrency(new URLSearchParams(location.search).get('cur') || 'USD')
 
 const d = (daysAgo: number) => format(subDays(new Date(), daysAgo), 'yyyy-MM-dd')
 const now = new Date().toISOString()

@@ -203,7 +203,7 @@ export function StatementImportSheet({ open, onClose }: { open: boolean; onClose
             </div>
             <p className="text-white text-[17px] font-semibold">{busy === 'reading' ? 'Reading your statement…' : 'Choose your bank statement PDF'}</p>
             <p className="text-secondary text-[14px] max-w-[380px]">
-              Download the e-statement from your bank app (for example the last 10 days from Canara), then pick it here.
+              Download a recent statement (PDF) from your bank app or website, then pick it here.
             </p>
             {error && <p className="text-danger text-[14px] max-w-[380px]">{error}</p>}
             <Button onClick={() => fileRef.current?.click()} disabled={busy !== null || !categories} className="!w-auto px-10">
