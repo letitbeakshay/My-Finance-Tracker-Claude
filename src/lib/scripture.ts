@@ -1,12 +1,8 @@
 /**
- * Short passages from the New International Version (NIV), in modern English.
- * Scripture quotations taken from The Holy Bible, New International Version® NIV®. Copyright © 1973, 1978, 1984, 2011
- * by Biblica, Inc.™ Used with permission. All rights reserved worldwide. (Fewer than 500 verses, with this notice
- * shown in the app, is within the publisher's permission for quotation.)
+ * Short passages from the Berean Standard Bible (BSB), in modern English. The BSB is in the public domain,
+ * so no notice is needed.
  */
-export const BIBLE_VERSION = 'NIV'
-export const BIBLE_NOTICE =
-  'Scripture quotations taken from The Holy Bible, New International Version® NIV®. Copyright © 1973, 1978, 1984, 2011 by Biblica, Inc.™ Used with permission. All rights reserved worldwide.'
+export const BIBLE_VERSION = 'BSB'
 
 export interface Verse {
   ref: string
@@ -16,67 +12,67 @@ export interface Verse {
 export const VERSES = {
   lords: {
     ref: 'Psalm 24:1',
-    text: "The earth is the LORD’s, and everything in it, the world, and all who live in it.",
+    text: "The earth is the LORD’s, and the fullness thereof, the world and all who dwell therein.",
   },
   glory: {
     ref: '1 Corinthians 10:31',
-    text: "So whether you eat or drink or whatever you do, do it all for the glory of God.",
+    text: "So whether you eat or drink or whatever you do, do it all to the glory of God.",
   },
   provider: {
     ref: 'Deuteronomy 8:18',
-    text: "But remember the LORD your God, for it is he who gives you the ability to produce wealth.",
+    text: "But remember that it is the LORD your God who gives you the power to gain wealth.",
   },
   ofThine: {
     ref: '1 Chronicles 29:14',
-    text: "Everything comes from you, and we have given you only what comes from your hand.",
+    text: "For everything comes from You, and we have given You only what comes from Your hand.",
   },
   firstFruits: {
     ref: 'Proverbs 3:9-10',
-    text: "Honor the LORD with your wealth, with the firstfruits of all your crops; then your barns will be filled to overflowing, and your vats will brim over with new wine.",
+    text: "Honor the LORD with your wealth and with the firstfruits of all your crops; then your barns will be filled with plenty, and your vats will overflow with new wine.",
   },
   cheerful: {
     ref: '2 Corinthians 9:7',
-    text: "Each of you should give what you have decided in your heart to give, not reluctantly or under compulsion, for God loves a cheerful giver.",
+    text: "Each one should give what he has decided in his heart to give, not out of regret or compulsion. For God loves a cheerful giver.",
   },
   blessedToGive: {
     ref: 'Acts 20:35',
-    text: "Remembering the words the Lord Jesus himself said: ‘It is more blessed to give than to receive.’",
+    text: "Remember the words of the Lord Jesus Himself: ‘It is more blessed to give than to receive.’",
   },
   faithful: {
     ref: '1 Corinthians 4:2',
-    text: "Now it is required that those who have been given a trust must prove faithful.",
+    text: "Now it is required of stewards that they be found faithful.",
   },
   fewThings: {
     ref: 'Matthew 25:21',
-    text: "Well done, good and faithful servant! You have been faithful with a few things; I will put you in charge of many things.",
+    text: "Well done, good and faithful servant! You have been faithful in a few things; I will put you in charge of many things.",
   },
   little: {
     ref: 'Luke 16:10',
-    text: "Whoever can be trusted with very little can also be trusted with much.",
+    text: "Whoever is faithful with very little will also be faithful with much.",
   },
   countCost: {
     ref: 'Luke 14:28',
-    text: "Suppose one of you wants to build a tower. Won’t you first sit down and estimate the cost to see if you have enough money to complete it?",
+    text: "Which of you, wishing to build a tower, does not first sit down and count the cost to see if he has the resources to complete it?",
   },
   diligent: {
     ref: 'Proverbs 21:5',
-    text: "The plans of the diligent lead to profit as surely as haste leads to poverty.",
+    text: "The plans of the diligent bring plenty, as surely as haste leads to poverty.",
   },
   knowState: {
     ref: 'Proverbs 27:23',
-    text: "Be sure you know the condition of your flocks, give careful attention to your herds.",
+    text: "Be sure to know the state of your flocks, and pay close attention to your herds.",
   },
   wiseSaves: {
     ref: 'Proverbs 21:20',
-    text: "The wise store up choice food and olive oil, but fools gulp theirs down.",
+    text: "Precious treasure and oil are in the dwelling of the wise, but a foolish man consumes them.",
   },
   oweNoOne: {
     ref: 'Romans 13:8',
-    text: "Let no debt remain outstanding, except the continuing debt to love one another.",
+    text: "Be indebted to no one, except to one another in love.",
   },
   borrower: {
     ref: 'Proverbs 22:7',
-    text: "The rich rule over the poor, and the borrower is slave to the lender.",
+    text: "The rich rule over the poor, and the borrower is servant to the lender.",
   },
   treasure: {
     ref: 'Matthew 6:21',
@@ -84,15 +80,15 @@ export const VERSES = {
   },
   covetousness: {
     ref: 'Luke 12:15',
-    text: "Watch out! Be on your guard against all kinds of greed; life does not consist in an abundance of possessions.",
+    text: "Watch out and guard yourselves against every form of greed, for one’s life does not consist in the abundance of his possessions.",
   },
   contentment: {
     ref: '1 Timothy 6:6-7',
-    text: "But godliness with contentment is great gain. For we brought nothing into the world, and we can take nothing out of it.",
+    text: "Godliness with contentment is great gain. For we brought nothing into the world, so we cannot carry anything out of it.",
   },
   content: {
     ref: 'Hebrews 13:5',
-    text: "Keep your lives free from the love of money and be content with what you have, because God has said, ‘Never will I leave you; never will I forsake you.’",
+    text: "Keep your lives free from the love of money and be content with what you have, for God has said: ‘Never will I leave you, never will I forsake you.’",
   },
 } satisfies Record<string, Verse>
 

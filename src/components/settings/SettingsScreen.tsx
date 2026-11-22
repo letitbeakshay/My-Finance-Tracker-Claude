@@ -17,7 +17,6 @@ import { BottomSheet } from '../ui/BottomSheet'
 import { dataRepo, settingsRepo } from '../../db/repository'
 import { ensureSeeded, resetSeeding } from '../../db/seed'
 import { downloadFile } from '../../lib/download'
-import { BIBLE_NOTICE } from '../../lib/scripture'
 
 interface SettingsScreenProps {
   onBack: () => void
@@ -137,7 +136,6 @@ export function SettingsScreen({ onBack, onSignedOut, onViewShared }: SettingsSc
       </div>
 
       <p className="text-tertiary text-[12px] text-center">Finance Tracker · v1.0</p>
-      <p className="text-tertiary text-[11px] text-center mt-3 leading-snug">{BIBLE_NOTICE}</p>
 
       <BottomSheet
         open={confirmDelete}
