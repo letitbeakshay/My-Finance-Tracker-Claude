@@ -23,9 +23,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
       manifest: {
-        name: 'Finance Tracker',
-        short_name: 'Finance',
-        description: 'Log every expense in under 5 seconds.',
+        name: 'Faithful Portion',
+        short_name: 'Faithful Portion',
+        description: 'A simple way to track what you spend. One intentional entry at a time.',
         theme_color: '#f3f6f1',
         background_color: '#f3f6f1',
         display: 'standalone',

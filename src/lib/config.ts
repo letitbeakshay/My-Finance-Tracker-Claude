@@ -1,4 +1,4 @@
-export const APP_NAME = 'Finance Tracker'
+export const APP_NAME = 'Faithful Portion'
 
 /**
  * Where people can reach you for help or privacy requests. Shown on the Privacy Policy and Terms pages

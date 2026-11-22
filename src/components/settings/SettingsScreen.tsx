@@ -17,6 +17,7 @@ import { BottomSheet } from '../ui/BottomSheet'
 import { dataRepo, settingsRepo } from '../../db/repository'
 import { ensureSeeded, resetSeeding } from '../../db/seed'
 import { downloadFile } from '../../lib/download'
+import { APP_NAME } from '../../lib/config'
 
 interface SettingsScreenProps {
   onBack: () => void
@@ -135,7 +136,7 @@ export function SettingsScreen({ onBack, onSignedOut, onViewShared }: SettingsSc
         </Button>
       </div>
 
-      <p className="text-tertiary text-[12px] text-center">Finance Tracker · v1.0</p>
+      <p className="text-tertiary text-[12px] text-center">{APP_NAME} · v1.0</p>
 
       <BottomSheet
         open={confirmDelete}
