@@ -62,7 +62,7 @@ export function InviteAccept({ token, onDone }: Props) {
           </h2>
           <p className="text-secondary text-[15px] mb-4">
             {info.kind === 'couple'
-              ? `You will both see each other’s month: totals, categories and plan. Neither of you can change the other’s data, and single expenses stay private.`
+              ? `You will both see each other’s money, read-only: expenses, plan, loans and savings. Neither of you can change the other’s data.`
               : `You will see ${info.from.name}’s money, read-only, so you can encourage them. You cannot change anything, and they do not see yours.`}
           </p>
           {!info.for_me && (

@@ -104,8 +104,8 @@ export function BudgetSpendDetail({
                   <span className="min-w-0 flex-1">
                     <span className="flex items-center gap-1.5 text-white text-[15px] font-medium">
                       <span className="truncate">{e.notes || c?.name || 'Others'}</span>
-                      {e.pleasesGod === true && <Check size={14} strokeWidth={2.6} className="text-positive shrink-0" aria-label="Pleases God" />}
-                      {e.pleasesGod === false && <X size={14} strokeWidth={2.6} className="text-danger shrink-0" aria-label="Does not please God" />}
+                      {e.pleasesGod === true && <Check size={14} strokeWidth={2.6} className="text-positive shrink-0" aria-label="Necessary" />}
+                      {e.pleasesGod === false && <X size={14} strokeWidth={2.6} className="text-danger shrink-0" aria-label="Not necessary" />}
                     </span>
                     <span className="block text-tertiary text-[12px] truncate">
                       {format(parseISO(e.date), 'd MMM')} · {c?.name ?? 'Others'}

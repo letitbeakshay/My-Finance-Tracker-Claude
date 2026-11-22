@@ -171,12 +171,13 @@ setupTour()
 const SUPABASE_URL = (import.meta.env.VITE_SUPABASE_URL as string | undefined)?.replace(/\/$/, '')
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/
-const NOTE = 'No spam. One email when your spot is ready.'
+// Each form keeps its own reassurance line (hero and footer differ).
+const noteDefault = (el: HTMLElement) => (el.dataset.default ??= el.textContent ?? '')
 const CODE_NOTE = "Can't find it? Check your spam or promotions folder."
 const RESEND_SECONDS = 45
 
 async function rpc(fn: string, args: Record<string, unknown>): Promise<string> {
-  if (!SUPABASE_URL || !SUPABASE_KEY) throw new Error('The waiting list is not connected yet. Please try again later.')
+  if (!SUPABASE_URL || !SUPABASE_KEY) throw new Error('The wait list is not connected yet. Please try again later.')
   const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` },
@@ -359,9 +360,10 @@ document.querySelectorAll<HTMLFormElement>('form.join').forEach((form) => {
   const note = form.querySelector<HTMLElement>('.form-note')!
   const button = form.querySelector<HTMLButtonElement>('button')!
 
+  noteDefault(note)
   input.addEventListener('input', () => {
     note.classList.remove('error')
-    note.textContent = NOTE
+    note.textContent = noteDefault(note)
   })
 
   form.addEventListener('submit', async (e) => {

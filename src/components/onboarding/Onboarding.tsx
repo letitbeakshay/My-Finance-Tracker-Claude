@@ -138,7 +138,7 @@ export function Onboarding({ name, onDone }: { name?: string; onDone: () => void
                   </p>
                   <div className="flex flex-col gap-3 mt-6">
                     {[
-                      { icon: Zap, title: 'Log an expense in seconds', text: 'Amount, category, done. Say if it pleased God and see how it affects your budget.' },
+                      { icon: Zap, title: 'Log an expense in seconds', text: 'Amount, category, done. Say if it was necessary and see how it affects your budget.' },
                       { icon: HandHeart, title: 'Give first', text: 'Set aside a share of every income for giving before anything else.' },
                       { icon: PiggyBank, title: 'Plan, save and get free of debt', text: 'Monthly budgets, savings plans, and loans with a clear way to clear them.' },
                     ].map(({ icon: Icon, title, text }) => (

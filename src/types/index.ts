@@ -68,7 +68,7 @@ export interface Expense {
   /** Specific bank account / credit card used, when relevant to paymentMethod. */
   accountId?: string
   notes?: string
-  /** Did this spending please God? undefined = not answered (older expenses). */
+  /** Was this expense necessary? (stored as pleases_god) undefined = not answered (older expenses). */
   pleasesGod?: boolean
   /** For reimbursable categories: has the money been paid back yet? */
   reimbursed?: boolean

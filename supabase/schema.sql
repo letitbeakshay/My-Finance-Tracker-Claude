@@ -712,8 +712,8 @@ grant execute on function verify_waitlist(text, text) to anon, authenticated;
 
 -- ---------------------------------------------------------------------------------------------------------
 -- Sharing. Two kinds, both read-only for the other person:
---   couple          two people see each other's month summary and plan (totals only, no single expenses)
---   accountability  the owner lets one partner see everything, read-only
+--   couple          two people see each other's money, read-only, both ways (expenses, plan, loans, savings)
+--   accountability  the owner lets one partner see everything, read-only (one way)
 -- Nobody can read or change this table directly; everything goes through the functions below, which check
 -- who is asking. The app's own screens keep reading only the signed-in person's rows.
 create table if not exists shares (
@@ -747,13 +747,13 @@ language sql stable security definer set search_path = public as $$
 $$;
 revoke all on function share_person(uuid) from public, anon, authenticated;
 
--- True when the signed-in person may see `owner`'s data at this level ('summary' or 'full').
+-- True when the signed-in person may see `owner`'s data ('summary' or 'full'; both kinds currently allow both).
 create or replace function share_can_view(owner uuid, level text) returns boolean
 language sql stable security definer set search_path = public as $$
   select exists (
     select 1 from shares s where s.status = 'active' and (
       (s.kind = 'accountability' and s.owner_id = owner and s.viewer_id = auth.uid())
-      or (level = 'summary' and s.kind = 'couple' and (
+      or (s.kind = 'couple' and (
         (s.owner_id = owner and s.viewer_id = auth.uid()) or (s.owner_id = auth.uid() and s.viewer_id = owner)))
     )
   )
@@ -864,7 +864,7 @@ $$;
 revoke all on function my_shares() from public, anon;
 grant execute on function my_shares() to authenticated;
 
--- Month summary (totals and plan only) for a couple partner or an accountability partner.
+-- Month summary (totals and plan) for a couple partner or an accountability partner.
 create or replace function shared_summary(p_owner uuid, p_month text)
 returns jsonb
 language plpgsql stable security definer set search_path = public as $$
@@ -912,7 +912,7 @@ end $$;
 revoke all on function shared_summary(uuid, text) from public, anon;
 grant execute on function shared_summary(uuid, text) to authenticated;
 
--- Full read-only data (accountability partners only): the last 13 months of activity plus loans and savings.
+-- Full read-only data for a couple partner or an accountability partner: the last 13 months plus loans and savings.
 create or replace function shared_full(p_owner uuid)
 returns jsonb
 language plpgsql stable security definer set search_path = public as $$

@@ -4,13 +4,13 @@ import { Button } from '../ui/button'
 import { formatCurrency } from '../../lib/currency'
 import { VERSES } from '../../lib/scripture'
 
-/** What to say after an expense is saved, based on whether it pleased God and where it went. */
+/** What to say after an expense is saved, based on whether it was necessary and where it went. */
 export interface Reflection {
   pleasesGod: boolean
   type: 'need' | 'want' | 'savings' | 'giving'
   /** For savings: the plan it went into, with its progress after this deposit. */
   plan?: { name: string; saved: number; target?: number }
-  /** For spending that did not please God: a savings plan the money could have gone to. */
+  /** For spending that was not necessary: a savings plan the money could have gone to. */
   couldHaveSaved?: { name: string; pctAfter?: number }
 }
 
@@ -37,7 +37,7 @@ function Message({ amount, r }: { amount: number; r: Reflection }) {
     }
     return (
       <>
-        <p className="text-white text-[22px] font-bold">This pleases God</p>
+        <p className="text-white text-[22px] font-bold">Well stewarded</p>
         <p className="text-secondary text-[15px] mt-2 leading-relaxed">Thank you, Lord, for providing. {formatCurrency(amount)} spent with a clear conscience.</p>
         <p className="text-tertiary text-[13px] italic mt-4 leading-relaxed">“{VERSES.glory.text}” — {VERSES.glory.ref}</p>
       </>
@@ -47,7 +47,7 @@ function Message({ amount, r }: { amount: number; r: Reflection }) {
     <>
       <p className="text-white text-[22px] font-bold">That was an unnecessary spend</p>
       <p className="text-secondary text-[15px] mt-2 leading-relaxed">
-        {formatCurrency(amount)} went on something that does not please God.
+        {formatCurrency(amount)} went on something that was not necessary.
         {r.couldHaveSaved
           ? ` That money could have gone into ${r.couldHaveSaved.name}${r.couldHaveSaved.pctAfter ? ` and moved it to ${r.couldHaveSaved.pctAfter}%` : ''}.`
           : ' That is money you could have saved or given.'}

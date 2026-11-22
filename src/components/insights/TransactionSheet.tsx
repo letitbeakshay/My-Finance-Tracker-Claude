@@ -78,7 +78,7 @@ export function TransactionSheet({ expense, category, account, onClose }: Transa
           }
         />
         <Row
-          label="Pleases God?"
+          label="Necessary?"
           value={
             expense.pleasesGod === undefined ? (
               '—'

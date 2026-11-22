@@ -13,7 +13,7 @@ interface Props {
   onBack: () => void
 }
 
-/** Someone else's money, read-only: a couple partner's month summary, or everything for an accountability partner. */
+/** Someone else's money, read-only: a couple partner's or the person you are accountability partner for. */
 export function SharedViewScreen({ person, onBack }: Props) {
   const [month, setMonth] = useState(() => new Date())
   const [summary, setSummary] = useState<SharedSummary | null>(null)
@@ -67,7 +67,7 @@ export function SharedViewScreen({ person, onBack }: Props) {
         <div className="flex-1 min-w-0">
           <h1 className="text-[22px] font-bold truncate">{person.name}’s money</h1>
           <p className="text-tertiary text-[13px] flex items-center gap-1.5">
-            <Eye size={14} /> Read-only · {summary?.level === 'full' ? 'accountability partner' : 'couple'}
+            <Eye size={14} /> Read-only
           </p>
         </div>
       </div>

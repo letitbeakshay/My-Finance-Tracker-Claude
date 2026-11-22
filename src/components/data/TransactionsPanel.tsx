@@ -16,7 +16,7 @@ export interface TransactionRow {
   title: string
   note?: string
   accountLabel: string
-  /** The answer to "does this please God?" when there is one. */
+  /** The answer to "is this expense necessary?" when there is one. */
   pleasesGod?: boolean
   tag: { label: string; color: string }
   amount: number
@@ -114,8 +114,8 @@ export function TransactionsPanel({
                 <span className="min-w-0">
                   <span className="flex items-center gap-1.5 text-white font-medium text-[15px]">
                     <span className="truncate">{r.title}</span>
-                    {r.pleasesGod === true && <Check size={14} strokeWidth={2.6} className="text-positive shrink-0" aria-label="Pleases God" />}
-                    {r.pleasesGod === false && <X size={14} strokeWidth={2.6} className="text-danger shrink-0" aria-label="Does not please God" />}
+                    {r.pleasesGod === true && <Check size={14} strokeWidth={2.6} className="text-positive shrink-0" aria-label="Necessary" />}
+                    {r.pleasesGod === false && <X size={14} strokeWidth={2.6} className="text-danger shrink-0" aria-label="Not necessary" />}
                   </span>
                   <span className="block text-tertiary text-[13px] truncate">
                     <span className="md:hidden">

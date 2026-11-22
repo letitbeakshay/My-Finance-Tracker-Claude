@@ -10,11 +10,11 @@ interface PleasesGodPickerProps {
   compact?: boolean
 }
 
-/** "Does this please God?" — answered with every expense, on the category screen. */
+/** "Is this expense necessary?" — answered with every expense, on the category screen. */
 export function PleasesGodPicker({ value, onChange, compact }: PleasesGodPickerProps) {
   return (
     <div>
-      <p className="text-secondary text-[13px] font-medium mb-2.5 uppercase tracking-wide">Does this please God?</p>
+      <p className="text-secondary text-[13px] font-medium mb-2.5 uppercase tracking-wide">Is this expense necessary?</p>
       <div className="grid grid-cols-2 gap-3">
         <button
           type="button"

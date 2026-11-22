@@ -2,8 +2,8 @@ import { supabase } from './supabaseClient'
 import { findCurrency } from './currency'
 
 /**
- * Sharing with a couple partner (see each other's month summary and plan) or an accountability partner
- * (they see everything, read-only). All of it goes through database functions that check who is asking;
+ * Sharing with a couple partner (both see each other's money, read-only) or an accountability partner
+ * (they see everything of yours, read-only; one way). All of it goes through database functions that check who is asking;
  * the app's own screens keep reading only the signed-in person's data.
  */
 export type ShareKind = 'couple' | 'accountability'

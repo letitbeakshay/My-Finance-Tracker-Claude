@@ -14,7 +14,7 @@ interface Slide {
 const SLIDES: Slide[] = [
   { icon: Plus, title: 'Add in seconds', text: 'Tap Expense, type the amount, pick a category. The amount screen opens ready to type.', tip: 'Tip: switch to Income at the top to record money you receive.' },
   { icon: Zap, title: 'Quick add and smart guesses', text: 'The things you add often show up as one-tap buttons. Type a note like “Coffee” and we fill in the rest from your history.', tip: 'Tip: made a mistake? Tap Undo right after saving.' },
-  { icon: HandHeart, title: 'Did it please God?', text: 'Every expense asks one question. Over time you see where your money honours God and where it can do better.', tip: 'Tip: record income, and we show how much to give first.' },
+  { icon: HandHeart, title: 'Was it necessary?', text: 'Every expense asks one simple question. Over time you see where your money is spent faithfully and where it can do better.', tip: 'Tip: record income, and we show how much to give first.' },
   { icon: Target, title: 'Plan your month', text: 'Set a monthly plan, with items that repeat and ones for one month only. Each category shows what is left as you add.', tip: 'Tip: open Dashboard, then Budgets.' },
   { icon: PiggyBank, title: 'Savings and loans', text: 'Give every saving a plan, and see a clear way out of debt with your repayment schedule.', tip: 'Tip: import a bank statement PDF from Transactions.' },
   { icon: Settings2, title: 'Make it yours', text: 'Change the currency, theme, categories and accounts in Settings. You can take this tour again from there any time.', tip: 'Your data is private to you.' },

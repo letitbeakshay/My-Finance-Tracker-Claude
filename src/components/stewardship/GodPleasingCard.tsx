@@ -13,7 +13,7 @@ interface GodPleasingCardProps {
   categories: Category[]
 }
 
-/** How much of the month's spending you said pleased God, and what did not. */
+/** How much of the month's spending you said was necessary, and what was not. */
 export function GodPleasingCard({ expenses, categories }: GodPleasingCardProps) {
   const byId = useMemo(() => new Map(categories.map((c) => [c.id, c])), [categories])
   const stats = useMemo(() => {
@@ -36,7 +36,7 @@ export function GodPleasingCard({ expenses, categories }: GodPleasingCardProps) 
 
   return (
     <Card>
-      <h2 className="text-white text-[17px] font-bold">Pleasing God</h2>
+      <h2 className="text-white text-[17px] font-bold">Necessary spending</h2>
       <p className="text-tertiary text-[12px] mb-4">What you said about each expense this month</p>
 
       {total === 0 ? (
@@ -47,7 +47,7 @@ export function GodPleasingCard({ expenses, categories }: GodPleasingCardProps) 
             <p className="text-white text-[28px] font-bold tabular-nums leading-none">
               {stats.answered > 0 ? `${stats.pct}%` : '—'}
             </p>
-            <p className="text-secondary text-[14px]">of answered spending pleased God</p>
+            <p className="text-secondary text-[14px]">of answered spending was necessary</p>
           </div>
           <div className="h-2.5 rounded-full bg-white/5 overflow-hidden flex mb-3">
             <div className="h-full" style={{ width: `${(stats.yes / total) * 100}%`, background: 'var(--color-positive)' }} />
@@ -55,11 +55,11 @@ export function GodPleasingCard({ expenses, categories }: GodPleasingCardProps) 
           </div>
           <div className="flex flex-col gap-1.5 text-[13px]">
             <p className="flex items-center justify-between">
-              <span className="flex items-center gap-1.5 text-positive font-medium"><Check size={15} strokeWidth={2.6} /> Pleased God</span>
+              <span className="flex items-center gap-1.5 text-positive font-medium"><Check size={15} strokeWidth={2.6} /> Necessary</span>
               <span className="text-white tabular-nums">{formatCurrency(stats.yes)}</span>
             </p>
             <p className="flex items-center justify-between">
-              <span className="flex items-center gap-1.5 text-danger font-medium"><X size={15} strokeWidth={2.6} /> Did not please God</span>
+              <span className="flex items-center gap-1.5 text-danger font-medium"><X size={15} strokeWidth={2.6} /> Not necessary</span>
               <span className="text-white tabular-nums">{formatCurrency(stats.no)}</span>
             </p>
             {stats.unanswered > 0 && (

@@ -10,7 +10,7 @@ import { KIND_LABEL, sharing, type Share, type ShareKind } from '../../lib/shari
 const ABOUT: Record<ShareKind, { title: string; text: string; icon: typeof Users }> = {
   couple: {
     title: 'Your spouse or partner',
-    text: 'You both see each other’s month: totals, categories and plan. Nobody can change the other’s data, and single expenses stay private.',
+    text: 'You both see each other’s money, read-only: expenses, plan, loans and savings. Neither of you can change the other’s data.',
     icon: Users,
   },
   accountability: {
@@ -145,7 +145,7 @@ export function SharingCard({ onView }: Props) {
                 </span>
                 <div className="flex-1 min-w-0">
                   <p className="text-[15px] font-semibold truncate">{nameOf(s)}</p>
-                  <p className="text-tertiary text-[13px]">{s.kind === 'couple' ? 'Couple · month summary' : 'Accountability · everything, read-only'}</p>
+                  <p className="text-tertiary text-[13px]">{s.kind === 'couple' ? 'Couple · read-only, both ways' : 'Accountability · everything, read-only'}</p>
                 </div>
                 {s.other && (
                   <Button variant="secondary" className="!w-auto !h-10 px-4 !text-[14px]" onClick={() => onView({ id: s.other!.id, name: nameOf(s) })}>

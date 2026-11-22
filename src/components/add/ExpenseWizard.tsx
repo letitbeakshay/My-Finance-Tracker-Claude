@@ -157,7 +157,7 @@ export function ExpenseWizard({ onDone, onCancel, preset, modeSwitch }: ExpenseW
     if (suggestion.paymentMethod !== paymentMethod) keepAccount.current = true
     setPaymentMethod(suggestion.paymentMethod)
     setAccountId(suggestion.accountId ?? null)
-    // With an amount and an answer to "pleases God", everything is filled in: go straight to the last step.
+    // With an amount and an answer to "is this necessary", everything is filled in: go straight to the last step.
     if (numericAmount > 0 && (suggestion.pleasesGod !== undefined || suggestion.type === 'giving')) go(3)
     else if (numericAmount > 0) go(1)
   }
@@ -194,7 +194,7 @@ export function ExpenseWizard({ onDone, onCancel, preset, modeSwitch }: ExpenseW
     showUndo(`Saved ${formatCurrency(numericAmount)}${notes.trim() ? ` · ${notes.trim()}` : category ? ` · ${category.name}` : ''}`, () => expenseRepo.remove(saved.id))
     rememberAccount(paymentMethod, accountId)
     if (type === 'savings') rememberAccount('savings_plan', savingsPlanId)
-    // What to say now: encouragement when it pleased God, a gentle nudge when it did not.
+    // What to say now: encouragement when it was necessary, a gentle nudge when it was not.
     if (pleasesGod !== null && type) {
       const plan = type === 'savings' ? savingsPlans?.find((p) => p.id === savingsPlanId) : undefined
       const before = plan ? plan.opening + (expenses ?? []).filter((e) => e.savingsPlanId === plan.id).reduce((s, e) => s + e.amount, 0) : 0
@@ -423,7 +423,7 @@ export function ExpenseWizard({ onDone, onCancel, preset, modeSwitch }: ExpenseW
                     style={{ background: `color-mix(in srgb, var(${pleasesGod ? '--color-positive' : '--color-danger'}) 12%, transparent)` }}
                   >
                     {pleasesGod ? <Check size={14} strokeWidth={2.6} /> : <X size={14} strokeWidth={2.6} />}
-                    {pleasesGod ? 'Pleases God' : 'Does not please God'}
+                    {pleasesGod ? 'Necessary' : 'Not necessary'}
                   </span>
                   {categoryId && reimbursable.has(categoryId) && (
                     <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] font-semibold bg-accent-soft text-accent-ink">
