@@ -8,7 +8,8 @@ import { setCurrency } from '../lib/currency'
  * and generic account names. Never shipped to people who sign up.
  */
 // `&cur=EUR` (or any code) shows the same sample in another currency, for screenshots.
-setCurrency(new URLSearchParams(location.search).get('cur') || 'USD')
+const CUR = new URLSearchParams(location.search).get('cur') || 'USD'
+setCurrency(CUR)
 
 const d = (daysAgo: number) => format(subDays(new Date(), daysAgo), 'yyyy-MM-dd')
 const now = new Date().toISOString()
@@ -63,7 +64,7 @@ for (let m = 1; m <= 5; m++) {
   PAST_INCOME.push({ id: `pi${m}`, amount: 3200, source: 'Salary', account_id: 'acc2', notes: 'Monthly pay', date: day(1), created_at: now })
 }
 
-export const GLOBAL_TABLES: Record<string, unknown[]> = {
+const BASE_TABLES: Record<string, unknown[]> = {
   categories: DEFAULT_PLAN.flatMap((parent, i) => [
     {
       id: slug(parent.name), name: parent.name, icon: parent.icon, color: null, archived: false, sort_order: i, wallet_id: null,
@@ -118,3 +119,20 @@ export const GLOBAL_TABLES: Record<string, unknown[]> = {
     { id: 'app', currency: 'USD', onboarded_at: null, giving_percent: 10, saving_percent: 10, pause_threshold: 100, giving_seeded: true },
   ],
 }
+
+// In rupees the same story uses realistic Indian amounts (about 25× the dollar figures: pay ₹80,000, rent
+// ₹28,750, coffee ₹120) and Indian-style account names.
+const MONEY_KEYS = ['amount', 'principal', 'paid', 'emi', 'monthly_limit', 'target', 'monthly', 'opening', 'pause_threshold']
+const FACTOR = CUR === 'INR' ? 25 : 1
+export const GLOBAL_TABLES: Record<string, unknown[]> = Object.fromEntries(
+  Object.entries(BASE_TABLES).map(([table, rows]) => [
+    table,
+    (rows as Record<string, unknown>[]).map((row) => {
+      const out: Record<string, unknown> = { ...row }
+      for (const k of MONEY_KEYS) if (typeof out[k] === 'number') out[k] = Math.round((out[k] as number) * FACTOR * 100) / 100
+      if (table === 'app_settings') out.currency = CUR
+      if (CUR === 'INR' && table === 'payment_accounts') out.label = out.id === 'acc1' ? 'Credit card' : 'Savings account'
+      return out
+    }),
+  ]),
+)

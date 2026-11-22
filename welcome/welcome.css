@@ -2491,3 +2491,12 @@ details p {
 .soon-card {
   border: 1px solid var(--border);
 }
+
+.copy a {
+  color: var(--accent-ink);
+  font-weight: 600;
+  text-decoration: none;
+}
+.copy a:hover {
+  text-decoration: underline;
+}
