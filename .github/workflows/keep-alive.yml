@@ -19,10 +19,13 @@ jobs:
           SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
         run: |
+          # Tables are private to each signed-in person, so the job calls keep_alive(), a small database
+          # function that runs a real query and returns only "ok".
           status=$(curl -sS -o response.json -w '%{http_code}' --retry 3 --retry-delay 10 \
-            "$SUPABASE_URL/rest/v1/categories?select=id&limit=1" \
+            -X POST "$SUPABASE_URL/rest/v1/rpc/keep_alive" \
             -H "apikey: $SUPABASE_KEY" \
-            -H "Authorization: Bearer $SUPABASE_KEY")
+            -H "Authorization: Bearer $SUPABASE_KEY" \
+            -H "Content-Type: application/json" -d '{}')
           echo "HTTP $status"
           cat response.json
           test "$status" = "200"

@@ -933,5 +933,15 @@ end $$;
 revoke all on function shared_full(uuid) from public, anon;
 grant execute on function shared_full(uuid) to authenticated;
 
+-- For the scheduled keep-alive job (.github/workflows/keep-alive.yml): a real database query, so the free
+-- plan does not pause, that the public key may run. It returns only 'ok' and reveals nothing.
+create or replace function keep_alive()
+returns text
+language sql stable security definer set search_path = public as $$
+  select case when (select count(*) from waitlist) >= 0 then 'ok' else 'ok' end
+$$;
+revoke all on function keep_alive() from public;
+grant execute on function keep_alive() to anon, authenticated;
+
 -- Make the API pick up any new tables and columns straight away.
 notify pgrst, 'reload schema';
