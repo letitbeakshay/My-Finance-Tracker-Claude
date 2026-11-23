@@ -42,7 +42,7 @@ function initialView(): View {
 const AWAY_MS = 20_000
 
 /** Signed-in app: the screens below. Everything here can assume a person is signed in. */
-function SignedInApp() {
+function SignedInApp({ name }: { name?: string }) {
   const [route, setRoute] = useState<Route>('add')
   const [entryMode] = useState<'expense' | 'income'>(() => (new URLSearchParams(location.search).get('action') === 'income' ? 'income' : 'expense'))
   const [launchKey, setLaunchKey] = useState(0)
@@ -113,7 +113,16 @@ function SignedInApp() {
       {/* Phones have no top bar; keep content clear of the status bar. */}
       <div className="md:hidden shrink-0" style={{ height: 'var(--topbar-h)' }} />
 
-      {view === 'data' && <AllDataScreen />}
+      {view === 'data' && (
+        <AllDataScreen
+          name={name}
+          onAddExpense={() => {
+            setAddPreset(null)
+            setView('enter')
+            setRoute('add')
+          }}
+        />
+      )}
 
       {view === 'enter' && (
       <>
@@ -310,7 +319,7 @@ function Authed({ userId, name }: { userId: string; name?: string }) {
   }
   return (
     <>
-      <SignedInApp key={userId} />
+      <SignedInApp key={userId} name={name} />
       <Welcome name={name} />
       <UndoBar />
       {failed && (

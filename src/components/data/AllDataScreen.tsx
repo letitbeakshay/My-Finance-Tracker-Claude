@@ -31,7 +31,7 @@ import { ReimbursementCard } from '../stewardship/ReimbursementCard'
 import { categoryPath, parentMap } from '../../lib/categoryTree'
 import { earnedOnly, isReimbursementIncome, personalOnly, reimbursableIds } from '../../lib/reimbursement'
 import { StewardshipView } from '../stewardship/StewardshipView'
-import { SummaryCards } from './SummaryCards'
+import { DashboardOverview } from './DashboardOverview'
 import {
   TransactionsPanel,
   type TransactionFilter,
@@ -54,7 +54,7 @@ function inMonth(date: string, month: Date) {
   return isSameMonth(parseISO(date), month)
 }
 
-export function AllDataScreen() {
+export function AllDataScreen({ name, onAddExpense }: { name?: string; onAddExpense?: () => void } = {}) {
   const expenses = useExpenses()
   const categories = useAllCategories()
   const accounts = useAllPaymentAccounts()
@@ -180,18 +180,8 @@ export function AllDataScreen() {
   const totalIncome = earnedOnly(monthIncomes).reduce((s, i) => s + i.amount, 0)
   // Reimbursable spending is paid back, so the totals show your own spending.
   const totalExpenses = personalOnly(monthExpenses, reimbursable).reduce((s, e) => s + e.amount, 0)
-  const cardSpend = accountSummaries
-    .filter((s) => s.account.type === 'credit_card')
-    .reduce((s, x) => s + x.spent, 0)
   const unassignedSpend = monthExpenses.filter((e) => !e.accountId).reduce((s, e) => s + e.amount, 0)
   const openLoans = loans.filter((l) => !l.closed)
-  const youOwe = openLoans.filter((l) => l.kind === 'borrowed').reduce((s, l) => s + l.principal - l.paid, 0)
-  const owedToYou = openLoans.filter((l) => l.kind === 'lent').reduce((s, l) => s + l.principal - l.paid, 0)
-  // For the small bars on the overview cards: spend against the cards' combined limit, and how much of all loans is paid.
-  const cardLimit = accountSummaries.filter((s) => s.account.type === 'credit_card').reduce((t, s) => t + (s.account.creditLimit ?? 0), 0)
-  const borrowed = openLoans.filter((l) => l.kind === 'borrowed')
-  const borrowedTotal = borrowed.reduce((s, l) => s + l.principal, 0)
-  const loanPaidPct = borrowedTotal > 0 ? ((borrowedTotal - youOwe) / borrowedTotal) * 100 : 0
 
   function handleSelect(key: string) {
     const [kind, id] = [key.slice(0, 1), key.slice(2)]
@@ -202,35 +192,49 @@ export function AllDataScreen() {
   return (
     <div className="px-4 sm:px-6 lg:px-8 2xl:px-12 pt-3 pb-32 md:pb-16">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
+        {section === 'overview' && !selectedLoan && (
+          <div className="flex items-center gap-3 min-w-0">
+            <span className="w-11 h-11 rounded-full fp-gradient text-white font-bold text-[17px] flex items-center justify-center shrink-0 shadow-[0_8px_20px_-10px_rgba(47,91,56,.8)]">
+              {(name?.trim()[0] ?? 'Y').toUpperCase()}
+            </span>
+            <div className="min-w-0">
+              <p className="text-tertiary text-[13px]">{greeting()}</p>
+              <h1 className="text-white text-[20px] sm:text-[22px] font-bold leading-tight truncate">{name?.trim().split(/\s+/)[0] || 'Welcome back'}</h1>
+            </div>
+            <ThemeToggle className="md:hidden ml-auto" />
+          </div>
+        )}
         <div className="flex items-center justify-between gap-3">
           <MonthNav allowFuture={section === 'budgets'} month={month} onChange={setMonth} />
-          <ThemeToggle className="md:hidden" />
+          {(section !== 'overview' || selectedLoan) && <ThemeToggle className="md:hidden" />}
         </div>
 
-        <div className="flex gap-2.5">
-          <button
-            type="button"
-            onClick={() => setAddingIncome(true)}
-            className="flex-1 sm:flex-none h-11 px-5 rounded-2xl bg-primary text-on-primary text-[15px] font-semibold"
-          >
-            + Income
-          </button>
-          <button
-            type="button"
-            onClick={() => setReporting(true)}
-            aria-label="Share this month"
-            className="h-11 w-11 shrink-0 rounded-2xl bg-surface border border-border text-white flex items-center justify-center"
-          >
-            <Share2 size={18} />
-          </button>
-          <button
-            type="button"
-            onClick={() => setAddingLoan(true)}
-            className="flex-1 sm:flex-none h-11 px-5 rounded-2xl bg-surface border border-border text-white text-[15px] font-semibold"
-          >
-            + Loan
-          </button>
-        </div>
+        {(section !== 'overview' || selectedLoan) && (
+          <div className="flex gap-2.5">
+            <button
+              type="button"
+              onClick={() => setAddingIncome(true)}
+              className="flex-1 sm:flex-none h-11 px-5 rounded-2xl bg-primary text-on-primary text-[15px] font-semibold"
+            >
+              + Income
+            </button>
+            <button
+              type="button"
+              onClick={() => setReporting(true)}
+              aria-label="Share this month"
+              className="h-11 w-11 shrink-0 rounded-2xl bg-surface border border-border text-white flex items-center justify-center"
+            >
+              <Share2 size={18} />
+            </button>
+            <button
+              type="button"
+              onClick={() => setAddingLoan(true)}
+              className="flex-1 sm:flex-none h-11 px-5 rounded-2xl bg-surface border border-border text-white text-[15px] font-semibold"
+            >
+              + Loan
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="lg:flex lg:items-stretch lg:gap-6">
@@ -251,59 +255,50 @@ export function AllDataScreen() {
           <motion.div key={selectedLoan ? `loan-${selectedLoan.id}` : section} variants={pageSwap} initial="initial" animate="animate" exit="exit">
           {selectedLoan && <LoanDetailPage loan={selectedLoan} onBack={() => setSelectedLoan(null)} />}
           {!selectedLoan && section === 'overview' && (
-            <>
-              {plan && settings && budgets && (
-                <div className="grid gap-4 lg:gap-5 md:grid-cols-2 items-stretch [&>*]:h-full mb-5">
-                  <FirstFruitsCard plan={plan} givingPercent={settings.givingPercent} compact />
-                  <BudgetProgressCard
-                    budgets={budgets}
-                    expenses={expenses}
-                    categories={categories ?? []}
-                    month={month}
-                    parents={parents}
-                    reimbursable={reimbursable}
-                    onOpenBudgets={() => setSection('budgets')}
-                    limit={0}
-                  />
-                </div>
-              )}
-              <SummaryCards
+            <div className="fp-dash flex flex-col gap-4 lg:gap-5">
+              <DashboardOverview
+                month={month}
+                totalIncome={totalIncome}
+                totalExpenses={totalExpenses}
                 incomeTrend={incomeTrend}
                 expenseTrend={expenseTrend}
-                income={totalIncome}
-                expenses={totalExpenses}
-                cardSpend={cardSpend}
-                cardLimit={cardLimit}
-                youOwe={youOwe}
-                loanPaidPct={loanPaidPct}
-                owedToYou={owedToYou}
+                expenses={personalOnly(expenses, reimbursable)}
+                rows={rows}
+                loans={loans}
+                accountSummaries={accountSummaries}
+                onSelectRow={handleSelect}
+                onViewTransactions={() => setSection('transactions')}
+                onViewLoans={() => setSection('loans')}
+                onSelectLoan={setSelectedLoan}
+                onAddExpense={() => onAddExpense?.()}
+                onAddIncome={() => setAddingIncome(true)}
+                onAddLoan={() => setAddingLoan(true)}
+                onImport={() => setImporting(true)}
+                onReport={() => setReporting(true)}
+                giving={
+                  plan && settings && budgets ? (
+                    <>
+                      <FirstFruitsCard plan={plan} givingPercent={settings.givingPercent} compact />
+                      <BudgetProgressCard
+                        budgets={budgets}
+                        expenses={expenses}
+                        categories={categories ?? []}
+                        month={month}
+                        parents={parents}
+                        reimbursable={reimbursable}
+                        onOpenBudgets={() => setSection('budgets')}
+                        limit={0}
+                      />
+                    </>
+                  ) : null
+                }
               />
-              <div className="mb-5">
-                <CategoryTiles tiles={categoryTiles} limit={8} onViewAll={() => setSection('budgets')} />
+              <CategoryTiles tiles={categoryTiles} limit={8} onViewAll={() => setSection('budgets')} />
+              <div className="grid gap-4 lg:gap-5 md:grid-cols-2 items-start">
+                <LoansPanel loans={loans} onAdd={() => setAddingLoan(true)} onSelect={setSelectedLoan} limit={4} onViewAll={() => setSection('loans')} />
+                <AccountsPanel summaries={accountSummaries} unassignedSpend={unassignedSpend} monthLabel={formatMonthLabel(month)} />
               </div>
-              {/* Transactions on the left; loans and accounts stacked on the right, so both columns end together. */}
-              <div className="grid gap-4 lg:gap-5 xl:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)] items-start">
-                <TransactionsPanel
-                  rows={rows}
-                  filter={filter}
-                  onFilter={setFilter}
-                  search={search}
-                  onSearch={setSearch}
-                  onSelect={handleSelect}
-                  onImport={() => setImporting(true)}
-                  limit={8}
-                  onViewAll={() => setSection('transactions')}
-                />
-                <div className="grid gap-4 lg:gap-5 md:grid-cols-2 xl:grid-cols-1">
-                  <LoansPanel loans={loans} onAdd={() => setAddingLoan(true)} onSelect={setSelectedLoan} limit={4} onViewAll={() => setSection('loans')} />
-                  <AccountsPanel
-                    summaries={accountSummaries}
-                    unassignedSpend={unassignedSpend}
-                    monthLabel={formatMonthLabel(month)}
-                  />
-                </div>
-              </div>
-            </>
+            </div>
           )}
 
           {!selectedLoan && section === 'savings' && <SavingsView month={month} />}
@@ -373,4 +368,9 @@ export function AllDataScreen() {
       {importing && <StatementImportSheet open onClose={() => setImporting(false)} />}
     </div>
   )
+}
+
+function greeting() {
+  const h = new Date().getHours()
+  return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening'
 }
