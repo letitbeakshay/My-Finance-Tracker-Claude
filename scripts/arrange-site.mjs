@@ -32,11 +32,18 @@ const landing = readFileSync(join(app, 'welcome', 'index.html'), 'utf8')
   .replace(/<link rel="manifest"[^>]*>/g, '')
   .replace(/<script[^>]*registerSW\.js[^>]*><\/script>/g, '')
   .replace(/<script[^>]*id="vite-plugin-pwa:register-sw"[^>]*><\/script>/g, '')
+  // Its tab icons come from the top of the site, not from /app/.
+  .replace(/"\/app\/(favicon\.ico|favicon-32\.png|apple-touch-icon\.png)"/g, '"/$1"')
 writeFileSync(join(dist, 'index.html'), landing)
 
 // The link-preview image sits at the top level too (https://faithfulportion.site/og-image.png).
 // (Copied, not moved: the app's offline worker expects every file it was built with.)
 if (existsSync(join(app, 'og-image.png'))) cpSync(join(app, 'og-image.png'), join(dist, 'og-image.png'))
+
+// Browsers ask for the tab icon at the top of the site too (/favicon.ico and friends).
+for (const f of ['favicon.ico', 'favicon-32.png', 'favicon.svg', 'apple-touch-icon.png']) {
+  if (existsSync(join(app, f))) cpSync(join(app, f), join(dist, f))
+}
 
 // 3. GitHub Pages needs the custom-domain file at the top.
 if (existsSync(join(app, 'CNAME'))) renameSync(join(app, 'CNAME'), join(dist, 'CNAME'))
