@@ -72,7 +72,7 @@ export function GodPleasingCard({ expenses, categories }: GodPleasingCardProps) 
 
           {stats.notPleasing.length > 0 && (
             <div className="mt-4 pt-4 border-t border-border">
-              <p className="text-secondary text-[12px] font-semibold uppercase tracking-wide mb-2.5">To reflect on</p>
+              <p className="text-secondary text-[12px] font-semibold mb-2.5">To reflect on</p>
               <div className="flex flex-col gap-2.5">
                 {stats.notPleasing.map((e) => (
                   <div key={e.id} className="flex items-center justify-between gap-3 text-[14px]">

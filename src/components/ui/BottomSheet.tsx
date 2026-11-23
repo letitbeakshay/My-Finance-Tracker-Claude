@@ -13,7 +13,7 @@ interface BottomSheetProps {
 export function BottomSheet({ open, onClose, children, label = 'Details' }: BottomSheetProps) {
   return (
     <Drawer open={open} onOpenChange={(o) => !o && onClose()} showSwipeHandle>
-      <DrawerContent className="max-h-[88dvh]">
+      <DrawerContent className="max-h-[88dvh] fp-sheet">
         <DrawerTitle className="sr-only">{label}</DrawerTitle>
         <div className="overflow-y-auto overscroll-contain px-6 pb-8 pt-2">{children}</div>
       </DrawerContent>

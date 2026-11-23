@@ -191,11 +191,10 @@ export function AllDataScreen({ name, onAddExpense }: { name?: string; onAddExpe
 
   return (
     <div className="relative isolate px-4 sm:px-6 lg:px-8 2xl:px-12 pt-3 pb-32 md:pb-16">
-      {section === 'overview' && !selectedLoan && <div aria-hidden className="fp-fade md:hidden" />}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
         {section === 'overview' && !selectedLoan && (
           <div className="flex items-center gap-3 min-w-0">
-            <span className="w-11 h-11 rounded-full fp-gradient text-white font-bold text-[17px] flex items-center justify-center shrink-0 shadow-[0_8px_20px_-10px_rgba(47,91,56,.8)]">
+            <span className="w-11 h-11 rounded-full fp-gradient text-onfill font-semibold text-[17px] flex items-center justify-center shrink-0 shadow-[0_8px_20px_-10px_rgba(47,91,56,.8)]">
               {(name?.trim()[0] ?? 'Y').toUpperCase()}
             </span>
             <div className="min-w-0">

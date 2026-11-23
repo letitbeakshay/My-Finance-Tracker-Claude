@@ -75,11 +75,14 @@ export function AccountCard({ onSignedOut }: { onSignedOut: () => void }) {
 
   return (
     <div className="mb-8">
-      <h3 className="text-white text-[17px] font-bold mb-3">Account</h3>
+      <h3 className="text-secondary text-[13px] font-medium mb-2.5 px-1">Account</h3>
       <Card className="flex flex-col gap-4">
-        <div>
-          {name && <p className="text-white text-[16px] font-semibold">{name}</p>}
-          <p className="text-secondary text-[14px] break-all">{user?.email}</p>
+        <div className="flex flex-col items-center text-center pt-2">
+          <span className="w-20 h-20 rounded-full fp-gradient text-onfill text-[30px] font-medium flex items-center justify-center shadow-[0_14px_30px_-14px_rgba(47,91,56,.8)] ring-4 ring-[rgba(255,255,255,0.75)] dark:ring-[rgba(255,255,255,0.1)]">
+            {(name || user?.email || '?').trim()[0]?.toUpperCase()}
+          </span>
+          {name && <p className="mt-3 text-white text-[20px] font-medium tracking-[-0.02em]">{name}</p>}
+          <p className="text-tertiary text-[13px] break-all">{user?.email}</p>
         </div>
         <div className="flex gap-3">
           <Button variant="secondary" onClick={() => setPwOpen(true)}>

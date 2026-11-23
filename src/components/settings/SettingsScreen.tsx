@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { PageHeader } from '../ui/PageHeader'
 import { Input } from '@/components/ui/input'
 import { format } from 'date-fns'
 import { CategoryManager } from './CategoryManager'
@@ -62,19 +63,7 @@ export function SettingsScreen({ onBack, onSignedOut, onViewShared }: SettingsSc
 
   return (
     <div className="px-6 pt-3 pb-10 overflow-y-auto h-full">
-      <div className="flex items-center gap-3 mb-8">
-        <button
-          type="button"
-          onClick={onBack}
-          className="w-10 h-10 rounded-full bg-surface border border-border flex items-center justify-center"
-          aria-label="Back"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-            <path d="M15 6l-6 6 6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </button>
-        <h1 className="text-[22px] font-bold">Settings</h1>
-      </div>
+      <PageHeader title="Settings" onBack={onBack} />
 
       <AccountCard onSignedOut={onSignedOut} />
 
@@ -85,7 +74,7 @@ export function SettingsScreen({ onBack, onSignedOut, onViewShared }: SettingsSc
       <PaymentAccountManager />
 
       <div className="mb-8">
-        <h3 className="text-white text-[17px] font-bold mb-3">Data</h3>
+        <h3 className="text-secondary text-[13px] font-medium mb-2.5 px-1">Data</h3>
         <Card className="flex flex-col gap-3">
           <div className="flex items-center justify-between gap-4">
             <span className="text-secondary text-[14px]">Currency</span>

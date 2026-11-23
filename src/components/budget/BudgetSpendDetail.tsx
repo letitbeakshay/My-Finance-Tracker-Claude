@@ -70,7 +70,7 @@ export function BudgetSpendDetail({
       <div className="grid gap-5 lg:gap-6 xl:grid-cols-[minmax(0,1fr)_400px] items-start">
       <div className="min-w-0">
       <Card>
-        <p className="text-tertiary text-[12px] font-semibold uppercase tracking-wide">{formatMonthLabel(month)}</p>
+        <p className="text-tertiary text-[12px] font-semibold">{formatMonthLabel(month)}</p>
         <h2 className="text-white text-[22px] font-bold mt-0.5">{target.title}</h2>
         <p className="text-white text-[28px] font-bold tabular-nums mt-3 leading-none">
           {formatCurrency(spent)}
@@ -87,7 +87,7 @@ export function BudgetSpendDetail({
       </Card>
 
       <Card padded={false} className="mt-5 overflow-hidden">
-        <p className="text-secondary text-[12px] font-semibold uppercase tracking-wide px-5 pt-4 pb-2">
+        <p className="text-secondary text-[12px] font-semibold px-5 pt-4 pb-2">
           {rows.length} {rows.length === 1 ? 'expense' : 'expenses'}
         </p>
         {rows.length === 0 ? (
@@ -122,7 +122,7 @@ export function BudgetSpendDetail({
 
       {(target.item || target.category) && (
         <Card className="xl:sticky xl:top-6">
-          <p className="text-tertiary text-[12px] font-semibold uppercase tracking-wide">
+          <p className="text-tertiary text-[12px] font-semibold">
             {target.item ? 'This budget' : 'Monthly limit'}
           </p>
           <h3 className="text-white text-[18px] font-bold mt-0.5 mb-4">{target.item ? 'Edit and save' : `Limit for ${target.category!.name}`}</h3>

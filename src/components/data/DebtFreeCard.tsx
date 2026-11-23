@@ -35,7 +35,7 @@ export function DebtFreeCard({ open }: { open: Row[] }) {
 
   return (
     <div className="mt-5 rounded-2xl border border-border bg-surface p-5">
-      <p className="text-secondary text-[12px] font-semibold uppercase tracking-wide flex items-center gap-1.5">
+      <p className="text-secondary text-[12px] font-semibold flex items-center gap-1.5">
         <HandHeart size={15} /> Becoming debt-free
       </p>
 
@@ -69,7 +69,7 @@ export function DebtFreeCard({ open }: { open: Row[] }) {
         </div>
       </div>
 
-      <p className="text-secondary text-[12px] font-semibold uppercase tracking-wide mt-5 mb-2">Ways to close them sooner</p>
+      <p className="text-secondary text-[12px] font-semibold mt-5 mb-2">Ways to close them sooner</p>
       <ol className="flex flex-col gap-2.5">
         {tips.map((t, i) => (
           <li key={i} className="flex gap-3 text-white text-[14px] leading-relaxed">

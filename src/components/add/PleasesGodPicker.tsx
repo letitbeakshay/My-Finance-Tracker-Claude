@@ -14,7 +14,7 @@ interface PleasesGodPickerProps {
 export function PleasesGodPicker({ value, onChange, compact }: PleasesGodPickerProps) {
   return (
     <div>
-      <p className="text-secondary text-[13px] font-medium mb-2.5 uppercase tracking-wide">Is this expense necessary?</p>
+      <p className="text-secondary text-[13px] font-medium mb-2.5">Is this expense necessary?</p>
       <div className="grid grid-cols-2 gap-3">
         <button
           type="button"

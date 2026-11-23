@@ -37,7 +37,7 @@ export function IncomeSheet({ income, onClose }: { income: Income | null; onClos
         <>
           <p className="text-secondary text-[14px] mb-1">{format(parseISO(income.date), 'd MMMM yyyy')}</p>
           <h2 className="text-white text-[20px] font-bold mb-1">{income.source}</h2>
-          <p className="text-positive text-[32px] font-bold tabular-nums mb-2">
+          <p className="text-positive text-[32px] font-medium tracking-[-0.03em] tabular-nums mb-2">
             +{formatCurrency(income.amount)}
           </p>
           {income.notes && <p className="text-secondary text-[15px] mb-4">{income.notes}</p>}
@@ -120,7 +120,7 @@ export function LoanSheet({ loan, onClose }: { loan: Loan | null; onClose: () =>
           <>
             <p className="text-secondary text-[14px] mb-1">{loan.kind === 'borrowed' ? 'You owe' : 'Owed to you'}</p>
             <h2 className="text-white text-[20px] font-bold mb-1">{loan.name}</h2>
-            <p className="text-white text-[32px] font-bold tabular-nums mb-1">
+            <p className="text-white text-[32px] font-medium tracking-[-0.03em] tabular-nums mb-1">
               {formatCurrency(stats.outstanding)}
               <span className="text-tertiary text-[15px] font-medium"> pending</span>
             </p>

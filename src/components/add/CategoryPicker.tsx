@@ -73,7 +73,7 @@ export function CategoryPicker({
 
   const header = (
     <div className="flex items-center justify-between mb-2.5">
-      <p className="text-secondary text-[13px] font-medium uppercase tracking-wide">Category</p>
+      <p className="text-secondary text-[13px] font-medium">Category</p>
       <button
         type="button"
         onClick={() => (reordering ? handleDone() : setReordering(true))}

@@ -156,7 +156,7 @@ export function AddLoanSheet({ open, onClose, loan }: AddLoanSheetProps) {
 
       {P > 0 && (
         <div className="rounded-2xl bg-card border border-border p-4 mb-5">
-          <p className="text-tertiary text-[12px] font-semibold uppercase tracking-wide">Worked out for you</p>
+          <p className="text-tertiary text-[12px] font-semibold">Worked out for you</p>
           <p className="text-white text-[24px] font-bold tabular-nums mt-1">
             {formatCurrency(stats.hasPlan ? stats.outstanding : Math.max(0, P - draft.paid))}
             <span className="text-tertiary text-[14px] font-medium"> still to pay</span>

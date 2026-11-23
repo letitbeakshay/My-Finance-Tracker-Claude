@@ -136,9 +136,9 @@ export function LoanDetailPage({ loan, onBack }: { loan: Loan; onBack: () => voi
         {/* Where it stands */}
         <div className="flex flex-col gap-5 min-w-0">
           <Card>
-            <p className="text-tertiary text-[12px] font-semibold uppercase tracking-wide">{loan.kind === 'borrowed' ? 'You owe' : 'Owed to you'}</p>
+            <p className="text-tertiary text-[12px] font-semibold">{loan.kind === 'borrowed' ? 'You owe' : 'Owed to you'}</p>
             <h2 className="text-white text-[22px] font-bold mt-0.5">{loan.name}</h2>
-            <p className="text-white text-[34px] font-bold tabular-nums leading-none mt-3">
+            <p className="text-white text-[34px] font-medium tracking-[-0.03em] tabular-nums leading-none mt-3">
               {formatCurrency(stats.outstanding)}
               <span className="text-tertiary text-[15px] font-medium"> pending</span>
             </p>
@@ -251,7 +251,7 @@ export function LoanDetailPage({ loan, onBack }: { loan: Loan; onBack: () => voi
                 ))}
               </div>
 
-              <div className={clsx('hidden md:grid gap-3 px-5 py-2 border-y border-border/60 text-tertiary text-[12px] font-semibold uppercase tracking-wide', COLS)}>
+              <div className={clsx('hidden md:grid gap-3 px-5 py-2 border-y border-border/60 text-tertiary text-[12px] font-semibold', COLS)}>
                 <span>Paid</span><span>No.</span><span>Due</span><span className="text-right">EMI</span><span className="text-right">Principal</span><span className="text-right">Interest</span><span className="text-right">Balance after</span>
               </div>
 

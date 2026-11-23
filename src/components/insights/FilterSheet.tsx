@@ -31,7 +31,7 @@ export function FilterSheet({ open, onClose, categories, filters, onChange }: Fi
     <BottomSheet open={open} onClose={onClose}>
       <h2 className="text-white text-[20px] font-bold mb-5">Filters</h2>
 
-      <p className="text-secondary text-[13px] font-medium mb-2.5 uppercase tracking-wide">Type</p>
+      <p className="text-secondary text-[13px] font-medium mb-2.5">Type</p>
       <div className="flex gap-2 flex-wrap mb-6">
         {TYPES.map((t) => (
           <Chip key={t} selected={filters.type === t} onClick={() => toggle('type', t)}>
@@ -40,7 +40,7 @@ export function FilterSheet({ open, onClose, categories, filters, onChange }: Fi
         ))}
       </div>
 
-      <p className="text-secondary text-[13px] font-medium mb-2.5 uppercase tracking-wide">
+      <p className="text-secondary text-[13px] font-medium mb-2.5">
         Payment Method
       </p>
       <div className="flex gap-2 flex-wrap mb-6">
@@ -51,7 +51,7 @@ export function FilterSheet({ open, onClose, categories, filters, onChange }: Fi
         ))}
       </div>
 
-      <p className="text-secondary text-[13px] font-medium mb-2.5 uppercase tracking-wide">
+      <p className="text-secondary text-[13px] font-medium mb-2.5">
         Category
       </p>
       <div className="flex gap-2 flex-wrap mb-8">

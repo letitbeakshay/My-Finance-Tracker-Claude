@@ -45,7 +45,7 @@ export function FeedbackCard() {
 
   return (
     <div className="mb-8">
-      <h3 className="text-white text-[17px] font-bold mb-3">Help us improve</h3>
+      <h3 className="text-secondary text-[13px] font-medium mb-2.5 px-1">Help us improve</h3>
       <Card className="flex items-center gap-4">
         <span className="w-11 h-11 rounded-full bg-accent-soft text-accent-ink flex items-center justify-center shrink-0">
           <MessageSquareHeart size={20} />

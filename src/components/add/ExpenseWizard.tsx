@@ -51,7 +51,7 @@ const TYPE_CARDS: { value: ExpenseType; icon: LucideIcon; blurb: string }[] = [
   { value: 'giving', icon: HandHeart, blurb: 'Tithe, offerings and helping others' },
 ]
 
-const LABEL = 'text-secondary text-[13px] font-medium mb-2.5 uppercase tracking-wide'
+const LABEL = 'text-secondary text-[13px] font-medium mb-2.5'
 
 interface ExpenseWizardProps {
   onDone: () => void
@@ -233,7 +233,7 @@ export function ExpenseWizard({ onDone, onCancel, preset, modeSwitch }: ExpenseW
           <button
             type="button"
             onClick={onCancel}
-            className="w-10 h-10 rounded-full bg-surface border border-border flex items-center justify-center"
+            className="fp-chip w-11 h-11 text-white active:scale-95 transition-transform duration-[var(--duration-quick)]"
             aria-label="Close"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
@@ -383,7 +383,7 @@ export function ExpenseWizard({ onDone, onCancel, preset, modeSwitch }: ExpenseW
                         <span className="text-white font-bold text-[18px] mt-3 flex items-center gap-2">
                           {EXPENSE_TYPE_LABELS[value]}
                           {suggested === value && (
-                            <span className="text-[10px] font-semibold uppercase tracking-wide text-accent-ink bg-accent-soft rounded-full px-2 py-0.5">
+                            <span className="text-[10px] font-semibold text-accent-ink bg-accent-soft rounded-full px-2 py-0.5">
                               Suggested
                             </span>
                           )}

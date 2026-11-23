@@ -50,7 +50,7 @@ export function TrendHero({
             {change !== null && <span className="font-normal opacity-80">{active === points.length - 1 ? 'this month' : 'that month'}</span>}
           </Badge>
           <p className="mt-2 leading-none tracking-tight">
-            <Money value={points[active].value} decimals className="text-[44px] sm:text-[52px] font-semibold tabular-nums" />
+            <Money value={points[active].value} decimals className="text-[44px] sm:text-[52px] font-medium tracking-[-0.03em] tabular-nums" />
           </p>
         </div>
 

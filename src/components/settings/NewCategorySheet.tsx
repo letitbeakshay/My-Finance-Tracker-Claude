@@ -65,7 +65,7 @@ export function NewCategorySheet({ open, onClose, onCreated, initial, parents, d
 
       {parents && parents.length > 0 && (
         <div className="mb-5">
-          <p className="text-secondary text-[13px] font-medium mb-2.5 uppercase tracking-wide">Place it under</p>
+          <p className="text-secondary text-[13px] font-medium mb-2.5">Place it under</p>
           <div className="flex flex-wrap gap-2">
             <Chip selected={parentId === null} onClick={() => setParentId(null)} className="h-9 px-3 text-[14px]">
               Top level

@@ -33,7 +33,7 @@ export function TransactionSheet({ expense, category, account, onClose }: Transa
 
   if (editing) {
     return (
-      <div className="fixed inset-0 max-w-[560px] mx-auto z-[70] bg-bg">
+      <div className="fixed inset-0 max-w-[560px] mx-auto z-[70] fp-page">
         <AddExpenseScreen
           editExpense={expense}
           onDone={() => {

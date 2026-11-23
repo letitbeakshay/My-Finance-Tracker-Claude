@@ -9,7 +9,7 @@ interface SearchBarProps {
 export function SearchBar({ value, onChange, onOpenFilters, activeFilterCount }: SearchBarProps) {
   return (
     <div className="flex items-center gap-2.5 mb-5">
-      <div className="flex-1 h-12 bg-surface border border-border rounded-2xl flex items-center px-4 gap-2">
+      <div className="flex-1 h-12 fp-glass rounded-full flex items-center pl-4 pr-1 gap-1">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="shrink-0 text-tertiary">
           <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
           <path d="m20 20-3.5-3.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
@@ -18,13 +18,13 @@ export function SearchBar({ value, onChange, onOpenFilters, activeFilterCount }:
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder="Search category, amount, notes..."
-          className="flex-1 bg-transparent text-white text-[16px] placeholder:text-tertiary"
+          className="flex-1 h-10 border-0 !bg-transparent px-1 text-white text-[16px] placeholder:text-tertiary focus-visible:ring-0"
         />
       </div>
       <button
         type="button"
         onClick={onOpenFilters}
-        className="relative w-12 h-12 rounded-2xl bg-surface border border-border flex items-center justify-center shrink-0"
+        className="relative w-12 h-12 fp-chip text-white shrink-0"
         aria-label="Filters"
       >
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none">

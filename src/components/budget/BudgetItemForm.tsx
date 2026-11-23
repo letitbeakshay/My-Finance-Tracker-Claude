@@ -96,7 +96,7 @@ export function BudgetItemForm({
   return (
     <>
       <div className="mb-4">
-        <p className="text-tertiary text-[12px] font-semibold uppercase tracking-wide mb-2">How often?</p>
+        <p className="text-tertiary text-[12px] font-semibold mb-2">How often?</p>
         <div className="grid grid-cols-2 gap-2">
           {([[true, 'Every month'], [false, `Only ${monthLabel}`]] as const).map(([v, label]) => (
             <button
@@ -132,7 +132,7 @@ export function BudgetItemForm({
 
       {choices.length > 0 && (
         <div className="mb-5">
-          <p className="text-tertiary text-[12px] font-semibold uppercase tracking-wide mb-2">
+          <p className="text-tertiary text-[12px] font-semibold mb-2">
             Show spending from categories (pick one or more, optional)
           </p>
           <div className="flex flex-wrap gap-2 max-h-[26dvh] overflow-y-auto">

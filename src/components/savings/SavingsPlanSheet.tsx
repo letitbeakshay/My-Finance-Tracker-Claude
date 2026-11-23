@@ -123,7 +123,7 @@ export function SavingsPlanSheet({ open, onClose, plan, onSaved }: Props) {
       <div className="flex flex-col gap-3 mb-5">
         <Input autoFocus={!plan} value={name} onChange={(e) => setName(e.target.value)} placeholder="Name, e.g. Emergency fund" className={FIELD} />
 
-        <p className="text-tertiary text-[12px] font-semibold uppercase tracking-wide mt-1">How are you saving?</p>
+        <p className="text-tertiary text-[12px] font-semibold mt-1">How are you saving?</p>
         <div className="flex flex-wrap gap-2">
           {SAVINGS_KINDS.map((k) => (
             <button key={k.value} type="button" onClick={() => setKind(k.value)} aria-pressed={kind === k.value}
@@ -133,7 +133,7 @@ export function SavingsPlanSheet({ open, onClose, plan, onSaved }: Props) {
           ))}
         </div>
 
-        <p className="text-tertiary text-[12px] font-semibold uppercase tracking-wide mt-1">Where is it kept?</p>
+        <p className="text-tertiary text-[12px] font-semibold mt-1">Where is it kept?</p>
         {banks.length > 0 && (
           <div className="flex flex-wrap gap-2">
             {banks.map((b) => (

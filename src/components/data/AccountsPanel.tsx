@@ -77,7 +77,7 @@ export function AccountsPanel({ summaries, unassignedSpend, monthLabel }: Accoun
     if (!list.length) return null
     return (
       <>
-        <p className={`text-tertiary text-[11px] font-semibold uppercase tracking-wider px-2${first ? '' : ' mt-3'} mb-0.5`}>{title}</p>
+        <p className={`text-tertiary text-[11px] font-semibold px-2${first ? '' : ' mt-3'} mb-0.5`}>{title}</p>
         {list.map((s) => (
           <button
             key={s.account.id}
@@ -129,7 +129,7 @@ export function AccountsPanel({ summaries, unassignedSpend, monthLabel }: Accoun
             </button>
           </div>
         )}
-        <p className="text-tertiary text-[11px] font-semibold uppercase tracking-wider px-2 mt-3 mb-0.5">Not linked</p>
+        <p className="text-tertiary text-[11px] font-semibold px-2 mt-3 mb-0.5">Not linked</p>
         <div className="px-2 py-2" title="Pick a bank when you add an expense to move it out of here">
           <Row icon={UNASSIGNED_ICON} title="Cash & UPI" sub="No bank picked" spent={unassignedSpend} />
         </div>

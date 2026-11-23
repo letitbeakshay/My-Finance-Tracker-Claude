@@ -174,7 +174,7 @@ function BalanceCard({ totalIncome, totalExpenses, onAddExpense, onAddIncome, on
               <span
                 className={clsx(
                   'w-12 h-12 sm:w-[54px] sm:h-[54px] rounded-full flex items-center justify-center transition-transform duration-[var(--duration-quick)] ease-smooth-out group-hover:-translate-y-0.5 group-active:scale-95',
-                  primary ? 'fp-gradient text-white shadow-[0_10px_24px_-10px_rgba(47,91,56,.7)]' : 'fp-chip text-white',
+                  primary ? 'fp-gradient text-onfill shadow-[0_10px_24px_-10px_rgba(47,91,56,.7)]' : 'fp-chip text-white',
                 )}
               >
                 <Icon size={20} strokeWidth={1.6} />
@@ -432,7 +432,7 @@ function CreditCardVisual({ accountSummaries }: Pick<Props, 'accountSummaries'>)
           initial={{ opacity: 0, x: 12, filter: 'blur(3px)' }}
           animate={{ opacity: 1, x: 0, filter: 'blur(0px)', transition: { duration: DURATION.fast, ease: EASE_SMOOTH_OUT } }}
           exit={{ opacity: 0, x: -12, filter: 'blur(3px)', transition: { duration: DURATION.quick, ease: EASE_SMOOTH_OUT } }}
-          className="fp-card relative aspect-[1.6/1] rounded-[22px] p-5 text-white overflow-hidden flex flex-col justify-between"
+          className="fp-card relative aspect-[1.6/1] rounded-[22px] p-5 text-onfill overflow-hidden flex flex-col justify-between"
         >
           <div className="flex items-start justify-between">
             <div>

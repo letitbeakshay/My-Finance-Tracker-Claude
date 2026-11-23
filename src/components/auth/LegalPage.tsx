@@ -133,7 +133,7 @@ function Terms() {
 /** The Privacy Policy and Terms of Use, readable without signing in (`?page=privacy` and `?page=terms`). */
 export function LegalPage({ kind }: { kind: LegalKind }) {
   return (
-    <div className="fixed inset-0 bg-bg z-[100] overflow-y-auto">
+    <div className="fixed inset-0 fp-page z-[100] overflow-y-auto">
       <div className="max-w-[680px] mx-auto px-6 py-8">
         <a href={import.meta.env.BASE_URL} className="inline-flex items-center gap-1 text-secondary text-[15px] font-medium h-11 -ml-2 pl-1 pr-3 mb-4">
           <ChevronLeft size={20} /> Back to {APP_NAME}

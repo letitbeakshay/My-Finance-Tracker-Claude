@@ -48,7 +48,7 @@ export function ReceivedSheet({ expense, bankAccounts, onClose }: { expense: Exp
     <BottomSheet open={!!expense} onClose={onClose}>
       {expense && (
         <>
-          <p className="text-tertiary text-[12px] font-semibold uppercase tracking-wide">Money received</p>
+          <p className="text-tertiary text-[12px] font-semibold">Money received</p>
           <h2 className="text-white text-[20px] font-bold mt-0.5">{expense.notes || 'Reimbursement'}</h2>
           <p className="text-secondary text-[14px] mt-1 mb-4">You paid {formatCurrency(expense.amount)}.</p>
           <div className="flex flex-col gap-3 mb-4">

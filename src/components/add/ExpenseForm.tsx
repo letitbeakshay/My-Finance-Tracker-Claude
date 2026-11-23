@@ -87,7 +87,7 @@ export function ExpenseForm({ onDone, onCancel, editExpense }: ExpenseFormProps)
         <button
           type="button"
           onClick={onCancel}
-          className="w-10 h-10 rounded-full bg-surface border border-border flex items-center justify-center"
+          className="fp-chip w-11 h-11 text-white active:scale-95 transition-transform duration-[var(--duration-quick)]"
           aria-label="Close"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
@@ -116,7 +116,7 @@ export function ExpenseForm({ onDone, onCancel, editExpense }: ExpenseFormProps)
         </div>
 
         <div className="mb-7">
-          <p className="text-secondary text-[13px] font-medium mb-2.5 uppercase tracking-wide">
+          <p className="text-secondary text-[13px] font-medium mb-2.5">
             Type
           </p>
           <SegmentedControl options={TYPE_OPTIONS} value={type} onChange={setType} />
@@ -124,13 +124,13 @@ export function ExpenseForm({ onDone, onCancel, editExpense }: ExpenseFormProps)
 
         {type === 'savings' && (
           <div className="mb-7">
-            <p className="text-secondary text-[13px] font-medium mb-2.5 uppercase tracking-wide">Savings plan</p>
+            <p className="text-secondary text-[13px] font-medium mb-2.5">Savings plan</p>
             <SavingsPlanPicker value={savingsPlanId} onChange={setSavingsPlanId} />
           </div>
         )}
 
         <div className="mb-7">
-          <p className="text-secondary text-[13px] font-medium mb-2.5 uppercase tracking-wide">
+          <p className="text-secondary text-[13px] font-medium mb-2.5">
             Payment Method
           </p>
           <PaymentMethodPicker value={paymentMethod} onChange={setPaymentMethod} />
@@ -138,7 +138,7 @@ export function ExpenseForm({ onDone, onCancel, editExpense }: ExpenseFormProps)
 
         {accountType && accounts && (
           <div className="mb-7">
-            <p className="text-secondary text-[13px] font-medium mb-2.5 uppercase tracking-wide">
+            <p className="text-secondary text-[13px] font-medium mb-2.5">
               {accountType === 'credit_card' ? 'Which Credit Card?' : accountType === 'debit_card' ? 'Which Debit Card or Account?' : paymentMethod === 'upi' ? 'Which Bank is this UPI from?' : 'Which Bank Account?'}
             </p>
             <PaymentAccountPicker
@@ -151,7 +151,7 @@ export function ExpenseForm({ onDone, onCancel, editExpense }: ExpenseFormProps)
         )}
 
         <div className="mb-7">
-          <p className="text-secondary text-[13px] font-medium mb-2.5 uppercase tracking-wide">
+          <p className="text-secondary text-[13px] font-medium mb-2.5">
             Notes
           </p>
           <Input
@@ -163,7 +163,7 @@ export function ExpenseForm({ onDone, onCancel, editExpense }: ExpenseFormProps)
         </div>
 
         <div className="mb-4">
-          <p className="text-secondary text-[13px] font-medium mb-2.5 uppercase tracking-wide">
+          <p className="text-secondary text-[13px] font-medium mb-2.5">
             Date
           </p>
           <Input

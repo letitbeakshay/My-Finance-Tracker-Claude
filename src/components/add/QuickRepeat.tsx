@@ -48,7 +48,7 @@ export function QuickRepeat({ onSaved, className }: { onSaved?: () => void; clas
 
   return (
     <div className={className}>
-      <p className="text-secondary text-[13px] font-medium mb-2.5 uppercase tracking-wide flex items-center gap-1.5">
+      <p className="text-secondary text-[13px] font-medium mb-2.5 flex items-center gap-1.5">
         <Repeat size={13} /> Quick add: tap to repeat
       </p>
       <div className="flex flex-wrap gap-2">

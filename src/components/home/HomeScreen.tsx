@@ -132,7 +132,7 @@ export function HomeScreen({
           <button
             type="button"
             onClick={onOpenSettings}
-            className="w-10 h-10 rounded-full bg-surface border border-border flex items-center justify-center"
+            className="fp-chip w-11 h-11 text-white active:scale-95 transition-transform duration-[var(--duration-quick)]"
             aria-label="Settings"
           >
             <SettingsIcon />

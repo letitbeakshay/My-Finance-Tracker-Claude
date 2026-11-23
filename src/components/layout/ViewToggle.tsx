@@ -12,7 +12,7 @@ interface ViewToggleProps {
 export function ViewToggle({ value, onChange }: ViewToggleProps) {
   return (
     <div
-      className="hidden md:block sticky top-0 z-[60] bg-bg/90 backdrop-blur-xl px-4 pb-2.5"
+      className="hidden md:block sticky top-0 z-[60] bg-transparent px-4 pb-2.5"
       style={{ paddingTop: 'calc(env(safe-area-inset-top) + 10px)' }}
     >
       <div className="grid grid-cols-[1fr_380px_1fr] items-center">

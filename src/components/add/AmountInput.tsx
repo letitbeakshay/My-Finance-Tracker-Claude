@@ -35,11 +35,11 @@ export function AmountInput({ value, onChange, inputRef }: AmountInputProps) {
       className="flex flex-col items-center justify-center pt-6 pb-8 cursor-text"
       onClick={() => ref.current?.focus()}
     >
-      <p className="text-tertiary text-[13px] font-medium uppercase tracking-wide mb-3">
+      <p className="text-tertiary text-[13px] font-medium mb-3">
         {focused || value ? 'Amount' : 'Tap anywhere to type the amount'}
       </p>
       <div className="flex items-baseline justify-center gap-1.5 max-w-full">
-        <span className="text-tertiary font-semibold leading-none" style={{ fontSize: size * 0.55 }}>
+        <span className="text-tertiary font-normal leading-none" style={{ fontSize: size * 0.55 }}>
           {getCurrency().symbol.trim()}
         </span>
         <input
@@ -53,7 +53,7 @@ export function AmountInput({ value, onChange, inputRef }: AmountInputProps) {
           onBlur={() => setFocused(false)}
           aria-label="Amount"
           style={{ width: `${length}ch`, minWidth: '1ch', maxWidth: '100%', fontSize: size }}
-          className="bg-transparent text-white font-display font-bold leading-none tracking-tight text-center tabular-nums placeholder:text-tertiary/60"
+          className="bg-transparent text-white font-display font-medium leading-none tracking-[-0.035em] text-center tabular-nums placeholder:text-tertiary/60"
         />
       </div>
     </div>

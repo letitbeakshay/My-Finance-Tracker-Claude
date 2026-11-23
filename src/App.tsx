@@ -164,7 +164,7 @@ function SignedInApp({ name }: { name?: string }) {
             initial="initial"
             animate="animate"
             exit="exit"
-            className="flex-1 overflow-y-auto fixed inset-x-0 bottom-0 top-[var(--topbar-h)] max-w-[560px] mx-auto bg-bg z-50"
+            className="flex-1 overflow-y-auto fixed inset-x-0 bottom-0 top-[var(--topbar-h)] max-w-[560px] mx-auto fp-page z-50"
           >
             <AddExpenseScreen
               key={launchKey}
@@ -189,7 +189,7 @@ function SignedInApp({ name }: { name?: string }) {
             initial="initial"
             animate="animate"
             exit="exit"
-            className="flex-1 overflow-y-auto fixed inset-x-0 bottom-0 top-[var(--topbar-h)] max-w-[560px] mx-auto bg-bg z-50"
+            className="flex-1 overflow-y-auto fixed inset-x-0 bottom-0 top-[var(--topbar-h)] max-w-[560px] mx-auto fp-page z-50"
           >
             <SettingsScreen
               onBack={() => setRoute('home')}
@@ -208,7 +208,7 @@ function SignedInApp({ name }: { name?: string }) {
             initial="initial"
             animate="animate"
             exit="exit"
-            className="flex-1 overflow-y-auto fixed inset-x-0 bottom-0 top-[var(--topbar-h)] max-w-[560px] mx-auto bg-bg z-50"
+            className="flex-1 overflow-y-auto fixed inset-x-0 bottom-0 top-[var(--topbar-h)] max-w-[560px] mx-auto fp-page z-50"
           >
             <StewardshipScreen onBack={() => setRoute('home')} onGive={handleGive} />
           </motion.div>
@@ -220,7 +220,7 @@ function SignedInApp({ name }: { name?: string }) {
             initial="initial"
             animate="animate"
             exit="exit"
-            className="flex-1 overflow-y-auto fixed inset-x-0 bottom-0 top-[var(--topbar-h)] max-w-[560px] mx-auto bg-bg z-50"
+            className="flex-1 overflow-y-auto fixed inset-x-0 bottom-0 top-[var(--topbar-h)] max-w-[560px] mx-auto fp-page z-50"
           >
             <SharedViewScreen person={shared} onBack={() => setRoute('settings')} />
           </motion.div>
@@ -232,7 +232,7 @@ function SignedInApp({ name }: { name?: string }) {
             initial="initial"
             animate="animate"
             exit="exit"
-            className="flex-1 overflow-y-auto fixed inset-x-0 bottom-0 top-[var(--topbar-h)] max-w-[560px] mx-auto bg-bg z-50"
+            className="flex-1 overflow-y-auto fixed inset-x-0 bottom-0 top-[var(--topbar-h)] max-w-[560px] mx-auto fp-page z-50"
           >
             <BudgetsScreen onBack={() => setRoute('home')} />
           </motion.div>
@@ -311,7 +311,7 @@ function Authed({ userId, name }: { userId: string; name?: string }) {
 
   if (!ready) {
     return (
-      <div className="fixed inset-0 bg-bg flex flex-col items-center justify-center gap-3 text-secondary text-[15px]" aria-busy="true">
+      <div className="fixed inset-0 fp-page flex flex-col items-center justify-center gap-3 text-secondary text-[15px]" aria-busy="true">
         <Loader2 size={26} className="animate-spin" />
         Setting up your account…
       </div>
@@ -355,7 +355,7 @@ function App() {
   }, [userId])
 
   if (legal) return <LegalPage kind={legal} />
-  if (loading) return <div className="fixed inset-0 bg-bg" aria-busy="true" />
+  if (loading) return <div className="fixed inset-0 fp-page" aria-busy="true" />
   if (!user) return <AuthScreen invited={invited} />
   if (recovering) return <RecoveryScreen onDone={clearRecovery} />
 

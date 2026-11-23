@@ -112,7 +112,7 @@ export function SharingCard({ onView }: Props) {
 
   return (
     <div className="mb-8">
-      <h3 className="text-white text-[17px] font-bold mb-3">Sharing</h3>
+      <h3 className="text-secondary text-[13px] font-medium mb-2.5 px-1">Sharing</h3>
       <div className="flex flex-col gap-3">
         {invites.map((s) => (
           <Card key={s.id} className="flex flex-col gap-3 border-accent/60">
@@ -137,7 +137,7 @@ export function SharingCard({ onView }: Props) {
 
         {sharedWithMe.length > 0 && (
           <Card className="flex flex-col gap-1">
-            <p className="text-secondary text-[13px] font-semibold uppercase tracking-wide mb-1">Shared with you</p>
+            <p className="text-secondary text-[13px] font-semibold mb-1">Shared with you</p>
             {sharedWithMe.map((s) => (
               <div key={s.id} className="flex items-center gap-3 py-2">
                 <span className="w-10 h-10 rounded-full bg-surface flex items-center justify-center font-bold text-accent-ink shrink-0">

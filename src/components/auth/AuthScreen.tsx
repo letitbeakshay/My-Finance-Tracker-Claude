@@ -25,7 +25,7 @@ const FIELD =
 
 function Shell({ children }: { children: ReactNode }) {
   return (
-    <div className="fixed inset-0 bg-bg z-[100] overflow-y-auto">
+    <div className="fixed inset-0 fp-page z-[100] overflow-y-auto">
       <div className="min-h-full flex flex-col items-center justify-center px-6 py-10">
         <div className="w-full max-w-[420px]">
           <div className="flex flex-col items-center text-center mb-7">

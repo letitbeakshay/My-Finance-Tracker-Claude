@@ -45,7 +45,7 @@ function LimitSheet({
     <BottomSheet open={!!category} onClose={onClose}>
       {category && (
         <>
-          <p className="text-tertiary text-[12px] font-semibold uppercase tracking-wide">Monthly limit</p>
+          <p className="text-tertiary text-[12px] font-semibold">Monthly limit</p>
           <h2 className="text-white text-[22px] font-bold mt-0.5">{category.name}</h2>
           <p className="text-secondary text-[14px] mt-1 mb-4 tabular-nums">{formatCurrency(spent)} spent this month</p>
           <CategoryLimitForm category={category} current={current} fromPlan={fromPlan} onSaved={onClose} />
@@ -226,7 +226,7 @@ export function BudgetsView({ month }: { month: Date }) {
             group.list.length === 0 ? null : (
               <div key={group.key}>
                 <div className="flex items-center justify-between gap-3 px-5 py-2 bg-surface/60 border-y border-border/60">
-                  <p className="text-secondary text-[12px] font-semibold uppercase tracking-wide flex items-center gap-1.5">
+                  <p className="text-secondary text-[12px] font-semibold flex items-center gap-1.5">
                     {group.key === 'repeat' && <Repeat size={13} />} {group.title}
                     <span className="normal-case font-normal text-tertiary tracking-normal">· {group.note}</span>
                   </p>
@@ -305,7 +305,7 @@ export function BudgetsView({ month }: { month: Date }) {
 
           {noLimit.length > 0 && (
             <>
-              <p className="text-tertiary text-[12px] font-semibold uppercase tracking-wide px-5 pt-4 pb-1">No limit yet</p>
+              <p className="text-tertiary text-[12px] font-semibold px-5 pt-4 pb-1">No limit yet</p>
               <div className="divide-y divide-border/60 pb-2">
                 {noLimit.map((c) => (
                   <div key={c.id} className="flex items-center gap-3 px-5 py-3">

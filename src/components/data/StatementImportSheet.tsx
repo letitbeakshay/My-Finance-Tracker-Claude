@@ -235,7 +235,7 @@ export function StatementImportSheet({ open, onClose }: { open: boolean; onClose
               </div>
             </div>
 
-            <div className="hidden md:grid grid-cols-[28px_64px_minmax(0,1fr)_100px_230px_132px_120px] gap-3 px-5 py-2 border-y border-border/60 text-tertiary text-[12px] font-semibold uppercase tracking-wide">
+            <div className="hidden md:grid grid-cols-[28px_64px_minmax(0,1fr)_100px_230px_132px_120px] gap-3 px-5 py-2 border-y border-border/60 text-tertiary text-[12px] font-semibold">
               <span /><span>Date</span><span>Details</span><span className="text-right">Amount</span><span>Category</span><span>Necessary?</span><span>Type</span>
             </div>
 

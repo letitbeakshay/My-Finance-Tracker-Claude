@@ -57,7 +57,7 @@ export function SharedViewScreen({ person, onBack }: Props) {
         <button
           type="button"
           onClick={onBack}
-          className="w-10 h-10 rounded-full bg-surface border border-border flex items-center justify-center"
+          className="fp-chip w-11 h-11 text-white active:scale-95 transition-transform duration-[var(--duration-quick)]"
           aria-label="Back"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
@@ -86,7 +86,7 @@ export function SharedViewScreen({ person, onBack }: Props) {
         <div className="flex flex-col gap-4">
           <div className="hero rounded-card p-5">
             <p className="text-[14px]" style={{ color: 'rgba(255,255,255,.85)' }}>Spent in {format(month, 'MMMM')}</p>
-            <p className="font-display font-bold text-[40px] tracking-tight leading-tight" style={{ color: '#fff' }}>{money(spent)}</p>
+            <p className="font-display font-medium text-[40px] tracking-tight leading-tight" style={{ color: '#fff' }}>{money(spent)}</p>
             <div className="grid grid-cols-3 gap-3 mt-3">
               {[
                 ['Income', income],

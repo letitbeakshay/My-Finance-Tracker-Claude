@@ -65,7 +65,7 @@ export function SuccessAnimation({ amount, reflection, onContinue }: SuccessAnim
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 max-w-[560px] mx-auto z-[60] bg-bg flex flex-col items-center justify-center gap-6 px-8"
+      className="fixed inset-0 max-w-[560px] mx-auto z-[60] fp-page flex flex-col items-center justify-center gap-6 px-8"
     >
       <motion.div
         initial={{ scale: 0.4, opacity: 0 }}

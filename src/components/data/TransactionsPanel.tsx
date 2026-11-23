@@ -96,7 +96,7 @@ export function TransactionsPanel({
       </div>
 
       {/* Column headers — desktop only */}
-      <div className={clsx('hidden md:grid gap-4 px-5 py-2.5 border-y border-border/60 text-tertiary text-[12px] font-semibold uppercase tracking-wide', cols)}>
+      <div className={clsx('hidden md:grid gap-4 px-5 py-2.5 border-y border-border/60 text-tertiary text-[12px] font-semibold', cols)}>
         <span>Date</span>
         <span>Details</span>
         {!compact && <span>Account</span>}

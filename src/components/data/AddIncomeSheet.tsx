@@ -121,7 +121,7 @@ export function IncomeForm({ open, onClose, bankAccounts, givingPercent, onGive 
       <h2 className="text-white text-[20px] font-bold mb-4">Add income</h2>
       {pending.length > 0 && (
         <div className="mb-4">
-          <p className="text-tertiary text-[12px] font-semibold uppercase tracking-wide mb-2">Is this money paid back to you?</p>
+          <p className="text-tertiary text-[12px] font-semibold mb-2">Is this money paid back to you?</p>
           <div className="grid grid-cols-2 gap-2">
             {([[false, 'No, it is income'], [true, 'Yes, a reimbursement']] as const).map(([v, label]) => (
               <button
@@ -139,7 +139,7 @@ export function IncomeForm({ open, onClose, bankAccounts, givingPercent, onGive 
       )}
       {isReimb && (
         <div className="mb-4">
-          <p className="text-tertiary text-[12px] font-semibold uppercase tracking-wide mb-2">Which expenses did it cover?</p>
+          <p className="text-tertiary text-[12px] font-semibold mb-2">Which expenses did it cover?</p>
           <div className="flex flex-col gap-2 max-h-[28dvh] overflow-y-auto">
             {pending.map((e) => {
               const on = ticked.has(e.id)
@@ -235,7 +235,7 @@ function FirstFruitsPrompt({
       <p className="text-secondary text-[15px] mb-5">Thank you, Lord, for providing.</p>
       {givingPercent > 0 && (
         <div className="bg-giving-soft border border-giving/30 rounded-2xl p-4 mb-5">
-          <p className="text-giving text-[13px] font-semibold uppercase tracking-wide mb-1">First fruits</p>
+          <p className="text-giving text-[13px] font-semibold mb-1">First fruits</p>
           <p className="text-white text-[24px] font-bold tabular-nums mb-2">{formatCurrency(firstFruits)}</p>
           <p className="text-secondary text-[14px] italic">
             “{VERSES.firstFruits.text}” — {VERSES.firstFruits.ref}

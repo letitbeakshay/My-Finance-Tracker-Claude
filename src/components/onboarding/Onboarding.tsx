@@ -111,7 +111,7 @@ export function Onboarding({ name, onDone }: { name?: string; onDone: () => void
   const steps = 4
 
   return (
-    <div className="fixed inset-0 bg-bg z-[90] overflow-y-auto">
+    <div className="fixed inset-0 fp-page z-[90] overflow-y-auto">
       <div className="min-h-full flex flex-col items-center justify-center px-6 py-10">
         <div className="w-full max-w-[460px]">
           <div className="flex gap-1.5 mb-8" aria-label={`Step ${step + 1} of ${steps}`}>

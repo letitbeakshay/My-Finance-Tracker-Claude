@@ -16,7 +16,7 @@ export function PaymentAccountManager() {
   return (
     <div className="mb-8">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-white text-[17px] font-bold">Bank Accounts &amp; Cards</h3>
+        <h3 className="text-secondary text-[13px] font-medium px-1">Bank Accounts &amp; Cards</h3>
         <button
           type="button"
           onClick={() => setCreating(true)}

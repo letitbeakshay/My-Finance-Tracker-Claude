@@ -50,14 +50,14 @@ export function SavingsView({ month }: { month: Date }) {
           <ChevronLeft size={20} /> Back to savings
         </button>
         <Card>
-          <p className="text-tertiary text-[12px] font-semibold uppercase tracking-wide"><EmojiIcon emoji={kindMeta(plan.kind).icon} size={13} className="inline -mt-0.5" /> {kindMeta(plan.kind).label}</p>
+          <p className="text-tertiary text-[12px] font-semibold"><EmojiIcon emoji={kindMeta(plan.kind).icon} size={13} className="inline -mt-0.5" /> {kindMeta(plan.kind).label}</p>
           <div className="flex items-start justify-between gap-3">
             <h2 className="text-white text-[22px] font-bold mt-0.5">{plan.name}</h2>
             <button type="button" onClick={() => setEditing(plan)} className="h-10 px-3.5 rounded-xl border border-border bg-surface text-white text-[14px] font-semibold flex items-center gap-1.5 shrink-0">
               <Pencil size={14} /> Edit
             </button>
           </div>
-          <p className="text-white text-[34px] font-bold tabular-nums leading-none mt-3">
+          <p className="text-white text-[34px] font-medium tracking-[-0.03em] tabular-nums leading-none mt-3">
             {formatCurrency(p.saved)}
             {plan.target ? <span className="text-tertiary text-[16px] font-medium"> of {formatCurrency(plan.target)}</span> : null}
           </p>
@@ -82,7 +82,7 @@ export function SavingsView({ month }: { month: Date }) {
         </Card>
 
         <Card padded={false} className="mt-5 overflow-hidden">
-          <p className="text-secondary text-[12px] font-semibold uppercase tracking-wide px-5 pt-4 pb-2">
+          <p className="text-secondary text-[12px] font-semibold px-5 pt-4 pb-2">
             {p.contributions.length} {p.contributions.length === 1 ? 'deposit' : 'deposits'}
           </p>
           {p.contributions.length === 0 ? (
