@@ -13,7 +13,7 @@ export function CategoryTiles({ tiles, onViewAll, title = 'Categories', limit = 
   return (
     <section>
       <div className="flex items-center justify-between mb-3 px-1">
-        <h2 className="text-white text-[24px] font-bold">{title}</h2>
+        <h2 className="text-white text-[18px] font-semibold">{title}</h2>
         {onViewAll && (
           <button type="button" onClick={onViewAll} className="text-tertiary text-[14px] font-medium h-9 px-1">
             View All

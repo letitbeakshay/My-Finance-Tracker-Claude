@@ -104,7 +104,7 @@ export function AccountsPanel({ summaries, unassignedSpend, monthLabel }: Accoun
     <Card>
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h2 className="text-white text-[18px] font-bold">Cards & accounts</h2>
+          <h2 className="text-white text-[16px] font-semibold">Cards & accounts</h2>
           <p className="text-tertiary text-[12px] mb-3">{monthLabel}</p>
         </div>
         <button type="button" onClick={() => setAdding(true)} className="text-accent-ink text-[14px] font-semibold h-9 px-3.5 rounded-full bg-accent-soft shrink-0 transition-opacity duration-[var(--duration-quick)] hover:opacity-80">

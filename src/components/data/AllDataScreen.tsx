@@ -190,7 +190,8 @@ export function AllDataScreen({ name, onAddExpense }: { name?: string; onAddExpe
   }
 
   return (
-    <div className="px-4 sm:px-6 lg:px-8 2xl:px-12 pt-3 pb-32 md:pb-16">
+    <div className="relative isolate px-4 sm:px-6 lg:px-8 2xl:px-12 pt-3 pb-32 md:pb-16">
+      {section === 'overview' && !selectedLoan && <div aria-hidden className="fp-fade md:hidden" />}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
         {section === 'overview' && !selectedLoan && (
           <div className="flex items-center gap-3 min-w-0">
@@ -269,6 +270,7 @@ export function AllDataScreen({ name, onAddExpense }: { name?: string; onAddExpe
                 onSelectRow={handleSelect}
                 onViewTransactions={() => setSection('transactions')}
                 onViewLoans={() => setSection('loans')}
+                onOpenBudgets={() => setSection('budgets')}
                 onSelectLoan={setSelectedLoan}
                 onAddExpense={() => onAddExpense?.()}
                 onAddIncome={() => setAddingIncome(true)}

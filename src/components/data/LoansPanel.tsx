@@ -34,7 +34,7 @@ export function LoansPanel({ loans, onAdd, onSelect, showDebtFree, limit, onView
     <Card>
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="text-white text-[18px] font-bold">Loans</h2>
+          <h2 className="text-white text-[16px] font-semibold">Loans</h2>
           {open.length > 1 && <p className="text-tertiary text-[12px]">Smallest balance first</p>}
         </div>
         <button

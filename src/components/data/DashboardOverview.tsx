@@ -15,7 +15,8 @@ import {
   Share2,
   TrendingDown,
   TrendingUp,
-  Wifi,
+  Info,
+  WalletCards,
 } from 'lucide-react'
 import { Card } from '../ui/card'
 import { Money } from '../ui/Money'
@@ -46,6 +47,7 @@ interface Props {
   onSelectRow: (key: string) => void
   onViewTransactions: () => void
   onViewLoans: () => void
+  onOpenBudgets: () => void
   onSelectLoan: (loan: Loan) => void
   onAddExpense: () => void
   onAddIncome: () => void
@@ -82,7 +84,7 @@ function ChangePill({ pct, goodWhenUp }: { pct: number | null; goodWhenUp: boole
 function SectionTitle({ children, action }: { children: React.ReactNode; action?: React.ReactNode }) {
   return (
     <div className="flex items-center justify-between gap-3 mb-3">
-      <h3 className="text-white text-[16px] font-bold">{children}</h3>
+      <h3 className="text-white text-[16px] font-semibold">{children}</h3>
       {action}
     </div>
   )
@@ -102,7 +104,7 @@ function ViewAll({ onClick, label = 'View all' }: { onClick: () => void; label?:
 
 /* ---------------- Headline card with quick actions ---------------- */
 
-function BalanceCard({ totalIncome, totalExpenses, onAddExpense, onAddIncome, onAddLoan, onImport, onReport }: Pick<Props, 'totalIncome' | 'totalExpenses' | 'onAddExpense' | 'onAddIncome' | 'onAddLoan' | 'onImport' | 'onReport'>) {
+function BalanceCard({ totalIncome, totalExpenses, onAddExpense, onAddIncome, onAddLoan, onImport, onReport, onViewTransactions, onOpenBudgets }: Pick<Props, 'totalIncome' | 'totalExpenses' | 'onAddExpense' | 'onAddIncome' | 'onAddLoan' | 'onImport' | 'onReport' | 'onViewTransactions' | 'onOpenBudgets'>) {
   const [hidden, setHidden] = useState(false)
   const left = totalIncome - totalExpenses
   const actions = [
@@ -113,55 +115,71 @@ function BalanceCard({ totalIncome, totalExpenses, onAddExpense, onAddIncome, on
     { label: 'Report', icon: Share2, onClick: onReport },
   ]
   return (
-    <Card className="justify-between gap-6 !p-6">
+    <Card className="justify-between gap-7 !p-6">
       <div>
         <div className="flex items-center justify-between">
-          <p className="text-secondary text-[14px] font-medium flex items-center gap-2">
-            <span className="w-7 h-7 rounded-full bg-accent-soft text-accent-ink flex items-center justify-center">
-              <ArrowUpRight size={15} />
+          <p className="text-secondary text-[14px] flex items-center gap-2.5">
+            <span className="fp-chip w-9 h-9">
+              <WalletCards size={16} strokeWidth={1.6} />
             </span>
             Spent this month
           </p>
           <button
             type="button"
-            onClick={() => setHidden((h) => !h)}
-            aria-label={hidden ? 'Show amounts' : 'Hide amounts'}
-            className="w-9 h-9 rounded-full flex items-center justify-center text-secondary hover:bg-surface transition-colors duration-[var(--duration-quick)]"
+            onClick={onViewTransactions}
+            aria-label="See this month's transactions"
+            className="w-9 h-9 rounded-full bg-primary text-on-primary flex items-center justify-center transition-transform duration-[var(--duration-quick)] ease-smooth-out hover:scale-105 active:scale-95"
           >
-            {hidden ? <EyeOff size={17} /> : <Eye size={17} />}
+            <ArrowUpRight size={16} />
           </button>
         </div>
-        <div
-          className={clsx('mt-3 transition-[filter] duration-[var(--duration-fast)] ease-smooth-out', hidden && 'blur-md select-none')}
-          aria-hidden={hidden}
-        >
-          <Money value={totalExpenses} className="font-display font-bold text-[40px] sm:text-[46px] leading-none tracking-tight" />
+        <div className="mt-5 flex items-center gap-3">
+          <div
+            className={clsx('transition-[filter] duration-[var(--duration-fast)] ease-smooth-out', hidden && 'blur-md select-none')}
+            aria-hidden={hidden}
+          >
+            <Money value={totalExpenses} className="font-display font-medium text-[42px] sm:text-[48px] leading-none tracking-[-0.035em]" />
+          </div>
+          <button
+            type="button"
+            onClick={() => setHidden((h) => !h)}
+            aria-label={hidden ? 'Show amounts' : 'Hide amounts'}
+            className="w-8 h-8 rounded-full flex items-center justify-center text-tertiary hover:text-white hover:bg-surface transition-colors duration-[var(--duration-quick)]"
+          >
+            {hidden ? <EyeOff size={17} strokeWidth={1.6} /> : <Eye size={17} strokeWidth={1.6} />}
+          </button>
         </div>
-        <p className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-surface px-3 py-1 text-[13px] text-secondary">
+        <button
+          type="button"
+          onClick={onOpenBudgets}
+          className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-border bg-card/60 pl-2.5 pr-2 py-1 text-[12.5px] text-secondary hover:bg-card transition-colors duration-[var(--duration-quick)]"
+        >
+          <Info size={13} strokeWidth={1.8} className="text-tertiary" />
           {totalIncome > 0 ? (
             <>
-              <b className={clsx('tabular-nums', left < 0 ? 'text-danger' : 'text-white')}>{hidden ? '•••' : formatCurrency(Math.abs(left))}</b>
-              {left < 0 ? 'over' : 'left'} of {hidden ? '•••' : formatCurrency(totalIncome)} income
+              {left < 0 ? 'Over income' : 'Left from income'} ·
+              <b className={clsx('tabular-nums font-semibold', left < 0 ? 'text-danger' : 'text-white')}>{hidden ? '•••' : formatCurrency(Math.abs(left))}</b>
             </>
           ) : (
             'No income recorded this month'
           )}
-        </p>
+          <ChevronRight size={14} className="text-tertiary" />
+        </button>
       </div>
       <div>
-        <p className="text-tertiary text-[12px] font-semibold uppercase tracking-wider mb-3">Quick actions</p>
+        <p className="text-secondary text-[13px] mb-3">Quick actions</p>
         <div className="grid grid-cols-5 gap-2">
           {actions.map(({ label, icon: Icon, onClick, primary }) => (
-            <button key={label} type="button" onClick={onClick} className="group flex flex-col items-center gap-1.5">
+            <button key={label} type="button" onClick={onClick} className="group flex flex-col items-center gap-2">
               <span
                 className={clsx(
-                  'w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center transition-transform duration-[var(--duration-quick)] ease-smooth-out group-hover:-translate-y-0.5 group-active:scale-95',
-                  primary ? 'fp-gradient text-white shadow-[0_10px_24px_-10px_rgba(47,91,56,.7)]' : 'bg-surface border border-border text-white',
+                  'w-12 h-12 sm:w-[54px] sm:h-[54px] rounded-full flex items-center justify-center transition-transform duration-[var(--duration-quick)] ease-smooth-out group-hover:-translate-y-0.5 group-active:scale-95',
+                  primary ? 'fp-gradient text-white shadow-[0_10px_24px_-10px_rgba(47,91,56,.7)]' : 'fp-chip text-white',
                 )}
               >
-                <Icon size={20} />
+                <Icon size={20} strokeWidth={1.6} />
               </span>
-              <span className="text-[12px] text-secondary font-medium">{label}</span>
+              <span className="text-[12px] text-secondary">{label}</span>
             </button>
           ))}
         </div>
@@ -177,12 +195,12 @@ function StatCard({ label, value, pct, goodWhenUp, icon: Icon, tone }: { label: 
     <Card className="!p-5 justify-between gap-4">
       <div className="flex items-center justify-between">
         <p className="text-secondary text-[13px] font-medium">{label}</p>
-        <span className={clsx('w-8 h-8 rounded-full flex items-center justify-center', tone === 'income' ? 'bg-positive/12 text-positive' : 'bg-want-soft text-want')}>
-          <Icon size={16} />
+        <span className={clsx('fp-chip w-9 h-9', tone === 'income' ? 'text-positive' : 'text-want')}>
+          <Icon size={16} strokeWidth={1.8} />
         </span>
       </div>
       <div className="flex items-end justify-between gap-2 flex-wrap">
-        <p className="text-white font-display font-bold text-[24px] leading-none tracking-tight tabular-nums">{formatCurrency(value)}</p>
+        <p className="text-white font-display font-medium text-[26px] leading-none tracking-[-0.03em] tabular-nums">{formatCurrency(value)}</p>
         <ChangePill pct={pct} goodWhenUp={goodWhenUp} />
       </div>
       <p className="text-tertiary text-[12px] -mt-2">vs last month</p>
@@ -192,7 +210,7 @@ function StatCard({ label, value, pct, goodWhenUp, icon: Icon, tone }: { label: 
 
 /* ---------------- Activity chart ---------------- */
 
-function ActivityCard({ expenses, month, expenseTrend }: { expenses: Expense[]; month: Date; expenseTrend: TrendPoint[] }) {
+function ActivityCard({ expenses, month, expenseTrend, incomeTrend }: { expenses: Expense[]; month: Date; expenseTrend: TrendPoint[]; incomeTrend: TrendPoint[] }) {
   const [range, setRange] = useState<'week' | 'months'>('week')
   // The week ends today in the current month, or on the last day of a past month.
   const end = isSameMonth(month, new Date()) ? startOfDay(new Date()) : startOfDay(addMonths(setDate(month, 1), 1).getTime() - 1)
@@ -204,13 +222,14 @@ function ActivityCard({ expenses, month, expenseTrend }: { expenses: Expense[]; 
     return { values, total: values.reduce((s, v) => s + v.value, 0), prev }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [expenses, end.getTime()])
-  const bars = range === 'week' ? week.values : expenseTrend.map((p) => ({ label: p.label, full: p.label, value: p.value }))
+  const bars: { label: string; full: string; value: number; income?: number }[] =
+    range === 'week' ? week.values : expenseTrend.map((p, k) => ({ label: p.label, full: p.full, value: p.value, income: incomeTrend[k]?.value ?? 0 }))
   const total = range === 'week' ? week.total : expenseTrend.at(-1)?.value ?? 0
   const pct = range === 'week' ? (week.prev > 0 ? ((week.total - week.prev) / week.prev) * 100 : null) : pctChange(expenseTrend)
   const max = Math.max(1, ...bars.map((b) => b.value))
   const peak = bars.reduce((iMax, b, i, arr) => (b.value > arr[iMax].value ? i : iMax), 0)
   const [active, setActive] = useState<number | null>(null)
-  const focus = active ?? peak
+  const focus = active ?? (range === 'months' ? bars.length - 1 : peak)
 
   return (
     <Card className="!p-6 gap-5">
@@ -218,10 +237,10 @@ function ActivityCard({ expenses, month, expenseTrend }: { expenses: Expense[]; 
         <div>
           <p className="text-secondary text-[13px] font-medium">Spending activity</p>
           <div className="flex items-center gap-2 mt-1.5">
-            <p className="text-white font-display font-bold text-[30px] leading-none tracking-tight tabular-nums">{formatCurrencyCompact(total)}</p>
+            <p className="text-white font-display font-medium text-[32px] leading-none tracking-[-0.035em] tabular-nums">{formatCurrencyCompact(total)}</p>
             <ChangePill pct={pct} goodWhenUp={false} />
           </div>
-          <p className="text-tertiary text-[12px] mt-1">{range === 'week' ? 'Last 7 days, vs the 7 before' : 'This month, vs last month'}</p>
+          <p className="text-tertiary text-[12px] mt-1">{range === 'week' ? 'Last 7 days, vs the 7 before' : 'Spent this month, vs last month'}</p>
         </div>
         <div className="flex shrink-0 whitespace-nowrap rounded-full bg-surface p-1 text-[13px] font-semibold" role="tablist" aria-label="Activity range">
           {(['week', 'months'] as const).map((r) => (
@@ -244,7 +263,7 @@ function ActivityCard({ expenses, month, expenseTrend }: { expenses: Expense[]; 
           ))}
         </div>
       </div>
-      <div className="flex items-end gap-2 sm:gap-3 h-[150px]" onMouseLeave={() => setActive(null)}>
+      <div className="flex items-end gap-2 sm:gap-3 h-[170px] pt-8" onMouseLeave={() => setActive(null)}>
         {bars.map((b, i) => (
           <button
             key={`${range}-${b.label}-${i}`}
@@ -261,15 +280,29 @@ function ActivityCard({ expenses, month, expenseTrend }: { expenses: Expense[]; 
                   initial={{ opacity: 0, y: 4 }}
                   animate={{ opacity: 1, y: 0, transition: { duration: DURATION.quick, ease: EASE_SMOOTH_OUT } }}
                   exit={{ opacity: 0, transition: { duration: 0.05 } }}
-                  className="absolute -top-1 -translate-y-full whitespace-nowrap rounded-full bg-primary text-on-primary text-[11px] font-semibold px-2 py-0.5 tabular-nums"
+                  className={clsx(
+                    'absolute -top-1 -translate-y-full whitespace-nowrap tabular-nums z-10 pointer-events-none',
+                    b.income != null
+                      ? 'rounded-2xl bg-card border border-border shadow-[0_10px_30px_-12px_rgba(20,40,25,.35)] px-3 py-2 text-left text-[11.5px] leading-[1.5]'
+                      : 'rounded-full bg-primary text-on-primary text-[11px] font-semibold px-2 py-0.5',
+                    b.income != null && i === 0 && 'left-0',
+                    b.income != null && i === bars.length - 1 && 'right-0',
+                  )}
                 >
-                  {formatCurrencyCompact(b.value)}
+                  {b.income != null ? (
+                    <>
+                      <span className="flex justify-between gap-4 text-secondary">Income <b className="text-positive font-semibold">+{formatCurrencyCompact(b.income)}</b></span>
+                      <span className="flex justify-between gap-4 text-secondary">Spent <b className="text-white font-semibold">−{formatCurrencyCompact(b.value)}</b></span>
+                    </>
+                  ) : (
+                    formatCurrencyCompact(b.value)
+                  )}
                 </motion.span>
               )}
             </AnimatePresence>
             <span className="w-full max-w-[44px] flex-1 flex items-end rounded-full bg-surface overflow-hidden">
               <motion.span
-                className={clsx('w-full rounded-full', focus === i ? 'fp-gradient' : 'bg-accent/30')}
+                className={clsx('w-full rounded-full', focus === i ? 'fp-gradient fp-stripes' : 'bg-accent/25')}
                 initial={false}
                 animate={{ height: `${Math.max(6, (b.value / max) * 100)}%` }}
                 transition={{ duration: DURATION.slow, ease: EASE_SMOOTH_OUT }}
@@ -406,11 +439,11 @@ function CreditCardVisual({ accountSummaries }: Pick<Props, 'accountSummaries'>)
               {a.bankName && <p className="text-[13px] opacity-80">{a.bankName}</p>}
               <p className="text-[17px] font-semibold leading-tight">{a.label}</p>
             </div>
-            <Wifi size={20} className="rotate-90 opacity-80" />
+            <span className="fp-cardchip" aria-hidden />
           </div>
           <div>
             <p className="text-[12px] opacity-75">Spent this month</p>
-            <p className="font-display font-bold text-[26px] leading-tight tabular-nums">{formatCurrency(s.spent)}</p>
+            <p className="font-display font-medium text-[28px] leading-tight tracking-[-0.03em] tabular-nums">{formatCurrency(s.spent)}</p>
           </div>
           <div className="flex items-end justify-between gap-3">
             <p className="tracking-[0.2em] text-[14px] opacity-90 tabular-nums">•••• {a.last4 || '····'}</p>
@@ -493,7 +526,7 @@ export function DashboardOverview(props: Props) {
         <UpcomingCard {...props} />
       </div>
       <div className="md:col-span-2 xl:col-span-8 [&>*]:h-full">
-        <ActivityCard expenses={props.expenses} month={props.month} expenseTrend={props.expenseTrend} />
+        <ActivityCard expenses={props.expenses} month={props.month} expenseTrend={props.expenseTrend} incomeTrend={props.incomeTrend} />
       </div>
       <div className="md:col-span-2 xl:col-span-4 [&>*]:h-full">
         <CreditCardVisual accountSummaries={props.accountSummaries} />
