@@ -9,3 +9,8 @@ dist-ssr
 *.log
 npm-debug.log*
 .vite
+
+# Agent skills installed locally (licensed for use, not redistribution)
+.agents/
+.claude/skills/
+skills-lock.json

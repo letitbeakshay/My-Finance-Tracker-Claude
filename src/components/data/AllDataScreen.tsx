@@ -1,4 +1,6 @@
 import { useMemo, useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
+import { pageSwap } from '../../lib/motion'
 import { isSameMonth, parseISO } from 'date-fns'
 import {
   useAllCategories,
@@ -185,6 +187,11 @@ export function AllDataScreen() {
   const openLoans = loans.filter((l) => !l.closed)
   const youOwe = openLoans.filter((l) => l.kind === 'borrowed').reduce((s, l) => s + l.principal - l.paid, 0)
   const owedToYou = openLoans.filter((l) => l.kind === 'lent').reduce((s, l) => s + l.principal - l.paid, 0)
+  // For the small bars on the overview cards: spend against the cards' combined limit, and how much of all loans is paid.
+  const cardLimit = accountSummaries.filter((s) => s.account.type === 'credit_card').reduce((t, s) => t + (s.account.creditLimit ?? 0), 0)
+  const borrowed = openLoans.filter((l) => l.kind === 'borrowed')
+  const borrowedTotal = borrowed.reduce((s, l) => s + l.principal, 0)
+  const loanPaidPct = borrowedTotal > 0 ? ((borrowedTotal - youOwe) / borrowedTotal) * 100 : 0
 
   function handleSelect(key: string) {
     const [kind, id] = [key.slice(0, 1), key.slice(2)]
@@ -239,11 +246,14 @@ export function AllDataScreen() {
         />
 
         <div className="min-w-0 flex-1">
+          {/* Switching sections cross-fades in place: the new one arrives as the old one leaves (no stagger, used often). */}
+          <AnimatePresence mode="popLayout" initial={false}>
+          <motion.div key={selectedLoan ? `loan-${selectedLoan.id}` : section} variants={pageSwap} initial="initial" animate="animate" exit="exit">
           {selectedLoan && <LoanDetailPage loan={selectedLoan} onBack={() => setSelectedLoan(null)} />}
           {!selectedLoan && section === 'overview' && (
             <>
               {plan && settings && budgets && (
-                <div className="grid gap-5 lg:gap-6 md:grid-cols-2 items-start mb-6">
+                <div className="grid gap-4 lg:gap-5 md:grid-cols-2 items-stretch [&>*]:h-full mb-5">
                   <FirstFruitsCard plan={plan} givingPercent={settings.givingPercent} compact />
                   <BudgetProgressCard
                     budgets={budgets}
@@ -263,13 +273,16 @@ export function AllDataScreen() {
                 income={totalIncome}
                 expenses={totalExpenses}
                 cardSpend={cardSpend}
+                cardLimit={cardLimit}
                 youOwe={youOwe}
+                loanPaidPct={loanPaidPct}
                 owedToYou={owedToYou}
               />
-              <div className="mb-6">
+              <div className="mb-5">
                 <CategoryTiles tiles={categoryTiles} limit={8} onViewAll={() => setSection('budgets')} />
               </div>
-              <div className="grid gap-5 lg:gap-6 items-start">
+              {/* Transactions on the left; loans and accounts stacked on the right, so both columns end together. */}
+              <div className="grid gap-4 lg:gap-5 xl:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)] items-start">
                 <TransactionsPanel
                   rows={rows}
                   filter={filter}
@@ -278,9 +291,11 @@ export function AllDataScreen() {
                   onSearch={setSearch}
                   onSelect={handleSelect}
                   onImport={() => setImporting(true)}
+                  limit={8}
+                  onViewAll={() => setSection('transactions')}
                 />
-                <div className="grid gap-5 lg:gap-6 md:grid-cols-2 items-start">
-                  <LoansPanel loans={loans} onAdd={() => setAddingLoan(true)} onSelect={setSelectedLoan} />
+                <div className="grid gap-4 lg:gap-5 md:grid-cols-2 xl:grid-cols-1">
+                  <LoansPanel loans={loans} onAdd={() => setAddingLoan(true)} onSelect={setSelectedLoan} limit={4} onViewAll={() => setSection('loans')} />
                   <AccountsPanel
                     summaries={accountSummaries}
                     unassignedSpend={unassignedSpend}
@@ -327,6 +342,8 @@ export function AllDataScreen() {
               monthLabel={formatMonthLabel(month)}
             />
           )}
+          </motion.div>
+          </AnimatePresence>
         </div>
       </div>
 

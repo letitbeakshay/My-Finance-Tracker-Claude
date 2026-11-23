@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Loader2 } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
+import { panelReveal, tabSwap } from './lib/motion'
 import { BottomNav, type Tab } from './components/layout/BottomNav'
 import { HomeScreen } from './components/home/HomeScreen'
 import { InsightsScreen } from './components/insights/InsightsScreen'
@@ -120,10 +121,10 @@ function SignedInApp() {
         {route === 'home' && (
           <motion.div
             key="home"
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+            variants={tabSwap}
+            initial="initial"
+            animate="animate"
+            exit="exit"
             className="flex-1 overflow-y-auto pb-32"
           >
             <HomeScreen
@@ -138,10 +139,10 @@ function SignedInApp() {
         {route === 'insights' && (
           <motion.div
             key="insights"
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+            variants={tabSwap}
+            initial="initial"
+            animate="animate"
+            exit="exit"
             className="flex-1 overflow-y-auto pb-32"
           >
             <InsightsScreen onOpenSettings={() => setRoute('settings')} />
@@ -150,10 +151,10 @@ function SignedInApp() {
         {route === 'add' && (
           <motion.div
             key="add"
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 24 }}
-            transition={{ type: 'spring', stiffness: 380, damping: 34 }}
+            variants={panelReveal}
+            initial="initial"
+            animate="animate"
+            exit="exit"
             className="flex-1 overflow-y-auto fixed inset-x-0 bottom-0 top-[var(--topbar-h)] max-w-[560px] mx-auto bg-bg z-50"
           >
             <AddExpenseScreen
@@ -175,10 +176,10 @@ function SignedInApp() {
         {route === 'settings' && (
           <motion.div
             key="settings"
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 24 }}
-            transition={{ type: 'spring', stiffness: 380, damping: 34 }}
+            variants={panelReveal}
+            initial="initial"
+            animate="animate"
+            exit="exit"
             className="flex-1 overflow-y-auto fixed inset-x-0 bottom-0 top-[var(--topbar-h)] max-w-[560px] mx-auto bg-bg z-50"
           >
             <SettingsScreen
@@ -194,10 +195,10 @@ function SignedInApp() {
         {route === 'stewardship' && (
           <motion.div
             key="stewardship"
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 24 }}
-            transition={{ type: 'spring', stiffness: 380, damping: 34 }}
+            variants={panelReveal}
+            initial="initial"
+            animate="animate"
+            exit="exit"
             className="flex-1 overflow-y-auto fixed inset-x-0 bottom-0 top-[var(--topbar-h)] max-w-[560px] mx-auto bg-bg z-50"
           >
             <StewardshipScreen onBack={() => setRoute('home')} onGive={handleGive} />
@@ -206,10 +207,10 @@ function SignedInApp() {
         {route === 'shared' && shared && (
           <motion.div
             key="shared"
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 24 }}
-            transition={{ type: 'spring', stiffness: 380, damping: 34 }}
+            variants={panelReveal}
+            initial="initial"
+            animate="animate"
+            exit="exit"
             className="flex-1 overflow-y-auto fixed inset-x-0 bottom-0 top-[var(--topbar-h)] max-w-[560px] mx-auto bg-bg z-50"
           >
             <SharedViewScreen person={shared} onBack={() => setRoute('settings')} />
@@ -218,10 +219,10 @@ function SignedInApp() {
         {route === 'budgets' && (
           <motion.div
             key="budgets"
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 24 }}
-            transition={{ type: 'spring', stiffness: 380, damping: 34 }}
+            variants={panelReveal}
+            initial="initial"
+            animate="animate"
+            exit="exit"
             className="flex-1 overflow-y-auto fixed inset-x-0 bottom-0 top-[var(--topbar-h)] max-w-[560px] mx-auto bg-bg z-50"
           >
             <BudgetsScreen onBack={() => setRoute('home')} />

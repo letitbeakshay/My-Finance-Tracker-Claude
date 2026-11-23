@@ -78,6 +78,35 @@
   --color-ring: var(--color-accent);
 
   --shadow-card: 0 1px 2px rgba(25, 40, 28, 0.04), 0 12px 28px -16px rgba(25, 40, 28, 0.16);
+
+  /* Motion (transitions.dev scale). Easings become Tailwind classes such as ease-smooth-out. */
+  --ease-smooth-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.36, 0.64, 1);
+}
+
+/* Motion tokens (transitions.dev). Opens are slower than closes; travel stays small.
+   Use with duration-[var(--duration-fast)] or in CSS. */
+:root {
+  --duration-stagger: 40ms;
+  --duration-micro: 80ms;
+  --duration-quick: 150ms;   /* closes, text swaps, tooltips */
+  --duration-fast: 250ms;    /* opens, tabs, page swaps */
+  --duration-medium: 350ms;  /* panel close */
+  --duration-slow: 400ms;    /* panel open, progress fill */
+  --duration-very-slow: 500ms;
+  --distance-micro: 4px;
+  --distance-base: 8px;
+  --distance-medium: 12px;
+}
+
+/* People who ask for less motion get none: things simply appear. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* A deep-green panel for the headline number of a screen. */

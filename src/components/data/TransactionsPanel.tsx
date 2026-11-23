@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import { Input } from '@/components/ui/input'
 import { format, parseISO } from 'date-fns'
 import clsx from 'clsx'
-import { Check, FileUp, X } from 'lucide-react'
+import { Check, ChevronRight, FileUp, X } from 'lucide-react'
 import { Card } from '../ui/card'
 import { Chip } from '../ui/Chip'
 import { formatCurrency } from '../../lib/currency'
@@ -42,6 +42,9 @@ interface TransactionsPanelProps {
   title?: string
   /** Shows an "Import statement" button that opens the bulk-import popup. */
   onImport?: () => void
+  /** Show only the first few rows, with a "View all" link (the Dashboard overview). */
+  limit?: number
+  onViewAll?: () => void
 }
 
 export function TransactionsPanel({
@@ -54,23 +57,32 @@ export function TransactionsPanel({
   hideFilters,
   title = 'Transactions',
   onImport,
+  limit,
+  onViewAll,
 }: TransactionsPanelProps) {
+  const shown = limit ? rows.slice(0, limit) : rows
+  // In the narrower Dashboard column, the account moves into the second line so the details have room.
+  const compact = !!limit
+  const cols = compact ? 'md:grid-cols-[72px_minmax(0,1fr)_84px_110px]' : 'md:grid-cols-[84px_minmax(0,1fr)_170px_90px_120px]'
+  const more = limit ? Math.max(0, rows.length - limit) : 0
   return (
     <Card padded={false} className="overflow-hidden">
-      <div className="p-5 pb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="text-white text-[19px] font-bold">{title}</h2>
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+      <div className={clsx('p-5 pb-4 flex flex-col gap-3', !compact && 'sm:flex-row sm:items-center sm:justify-between sm:gap-4')}>
+        <h2 className="text-white text-[18px] font-bold">{title}</h2>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:flex-wrap">
+          <div className="flex gap-2 sm:contents">
           <Input
             value={search}
             onChange={(e) => onSearch(e.target.value)}
             placeholder="Search"
-            className="h-11 sm:w-48 bg-surface border border-border rounded-chip px-4 text-[16px] text-white placeholder:text-tertiary"
+            className={clsx('h-11 bg-surface border border-border rounded-chip px-4 text-[16px] text-white placeholder:text-tertiary', compact ? 'flex-1 min-w-0 sm:min-w-[140px]' : 'flex-1 min-w-0 sm:flex-none sm:w-48')}
           />
           {onImport && (
-            <button type="button" onClick={onImport} className="h-11 px-4 rounded-chip border border-border bg-surface text-white text-[15px] font-medium flex items-center justify-center gap-2">
-              <FileUp size={16} /> Import statement
+            <button type="button" onClick={onImport} className="h-11 px-4 rounded-chip border border-border bg-surface text-white text-[15px] font-medium flex items-center justify-center gap-2 whitespace-nowrap transition-colors duration-[var(--duration-quick)] hover:bg-surface/60">
+              <FileUp size={16} /> {compact ? 'Import' : 'Import statement'}
             </button>
           )}
+          </div>
           {!hideFilters && (
           <div className="flex gap-2">
             {FILTERS.map((f) => (
@@ -84,10 +96,10 @@ export function TransactionsPanel({
       </div>
 
       {/* Column headers — desktop only */}
-      <div className="hidden md:grid grid-cols-[84px_minmax(0,1fr)_170px_90px_120px] gap-4 px-5 py-2.5 border-y border-border/60 text-tertiary text-[12px] font-semibold uppercase tracking-wide">
+      <div className={clsx('hidden md:grid gap-4 px-5 py-2.5 border-y border-border/60 text-tertiary text-[12px] font-semibold uppercase tracking-wide', cols)}>
         <span>Date</span>
         <span>Details</span>
-        <span>Account</span>
+        {!compact && <span>Account</span>}
         <span>Type</span>
         <span className="text-right">Amount</span>
       </div>
@@ -95,13 +107,13 @@ export function TransactionsPanel({
       {rows.length === 0 ? (
         <p className="text-secondary text-[15px] text-center py-14">Nothing here for this month.</p>
       ) : (
-        <div className="divide-y divide-border/60 max-h-[70dvh] overflow-y-auto">
-          {rows.map((r) => (
+        <div className={clsx('divide-y divide-border/60', !limit && 'max-h-[70dvh] overflow-y-auto')}>
+          {shown.map((r) => (
             <button
               key={r.key}
               type="button"
               onClick={() => onSelect(r.key)}
-              className="w-full text-left px-5 py-3.5 flex items-center gap-3.5 md:grid md:grid-cols-[84px_minmax(0,1fr)_170px_90px_120px] md:gap-4 hover:bg-surface/60 transition-colors"
+              className={clsx('w-full text-left px-5 py-3 flex items-center gap-3.5 md:grid md:gap-4 hover:bg-surface/60 transition-colors duration-[var(--duration-quick)]', cols)}
             >
               <span className="hidden md:block text-secondary text-[14px]">
                 {format(parseISO(r.date), 'd MMM')}
@@ -123,12 +135,12 @@ export function TransactionsPanel({
                         .filter(Boolean)
                         .join(' · ')}
                     </span>
-                    <span className="hidden md:inline">{r.note}</span>
+                    <span className="hidden md:inline">{compact ? [r.accountLabel === '—' ? '' : r.accountLabel, r.note].filter(Boolean).join(' · ') : r.note}</span>
                   </span>
                 </span>
               </span>
 
-              <span className="hidden md:block text-secondary text-[14px] truncate">{r.accountLabel}</span>
+              {!compact && <span className="hidden md:block text-secondary text-[14px] truncate">{r.accountLabel}</span>}
 
               <span className="hidden md:flex items-center">
                 <span
@@ -151,6 +163,15 @@ export function TransactionsPanel({
             </button>
           ))}
         </div>
+      )}
+      {more > 0 && onViewAll && (
+        <button
+          type="button"
+          onClick={onViewAll}
+          className="w-full border-t border-border/60 px-5 py-3.5 text-[14px] font-semibold text-accent-ink hover:bg-surface/60 transition-colors duration-[var(--duration-quick)] flex items-center justify-center gap-1.5"
+        >
+          View all {rows.length} <ChevronRight size={16} />
+        </button>
       )}
     </Card>
   )

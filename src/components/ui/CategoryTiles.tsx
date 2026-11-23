@@ -20,7 +20,7 @@ export function CategoryTiles({ tiles, onViewAll, title = 'Categories', limit = 
           </button>
         )}
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {tiles.slice(0, limit).map(({ category, amount }) => (
           <div key={category.id} className="rounded-3xl bg-card border border-border/60 p-4 min-h-[112px] flex flex-col justify-between shadow-card">
             <div className="flex items-start justify-between gap-2">
